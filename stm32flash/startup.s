@@ -28,9 +28,36 @@ g_pfnVectors:
 .global Reset_Handler
 .type Reset_Handler, %function
 Reset_Handler:
-  /* Call main */
+  
+  /* Copy .data from flash to RAM */
+
+  ldr r0, = _sdata /* start of RAM */
+  ldr r1, = _edata /* end of .data in RAM */
+  ldr r2, = _etext /* Source to copy */
+
+copy_data:
+  cmp r0, r1
+  ittt lt
+  ldrlt r3, [r2], #4
+  strlt r3, [r0], #4
+  blt copy_data
+
+  /* Zero initialize .bss */
+  ldr r0, =_sbss
+  ldr r1, =_ebss
+
+zero_bss:
+  cmp r0,r1
+  ittt lt
+  movlt r2, #0
+  strlt r2, [r0], #4
+  blt zero_bss
+
+/* Call main */
   bl main
-  b .
+
+infinite_loop:
+  b infinite_loop
 
 /* Default handlers */
 NMI_Handler:       b .

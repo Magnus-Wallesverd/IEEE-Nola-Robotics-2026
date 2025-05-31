@@ -24,6 +24,6 @@ typedef struct{
     volatile uint32_t CFGR3;    //0x30
 } RCC_TypeDef;
 
-#define RCC ((RCC_Typedef *) 0x40021000)
+#define RCC ((RCC_TypeDef *) 0x40021000)
 
 #endif
