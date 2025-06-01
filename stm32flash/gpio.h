@@ -1,8 +1,8 @@
 // defining the register ports
 // addresses are offset in bytes in the manual
 
-#ifndef PORTDEF_H
-#define PORTDEF_H
+#ifndef GPIO_H
+#define GPIO_H
 
 #include <stdint.h>
 
@@ -34,5 +34,41 @@ volatile uint32_t BRR;      //x28
 #define GPIOF ((GPIO_TypeDef *) 0x48001400)
 #define GPIOG ((GPIO_TypeDef *) 0x48001800)
 #define GPIOH ((GPIO_TypeDef *) 0x48001C00)
+
+// prototype functions
+
+// parameters are pointer to struct, pin to set, and mode of pin
+//void SetMode(GPIO_TypeDef *port, int pin, char mode);
+
+// selects Input mode. takes GPIO struct and pins to set 
+void SetPinInput(GPIO_TypeDef *port, char pins);
+
+// selects Output mode. takes GPIO struct and pins to set 
+void SetPinOutput(GPIO_TypeDef *port, char pins);
+
+// selects Alternate mode. takes GPIO struct and pins to set 
+void SetPinAlternate(GPIO_TypeDef *port, char pins);
+
+// selects Analog mode. takes GPIO struct and pins to set 
+void SetPinAnalog(GPIO_TypeDef *port, char pins);
+
+// set pins in pull up mode
+void SetPinPU(GPIO_TypeDef *port, char pins);
+
+// set pins in pull down mode
+void SetPinPD(GPIO_TypeDef *port, char pins);
+
+// disables pullup pull down mode
+void DisablePUPD(GPIO_TypeDef *port, char pins);
+
+// reset gpio pins logic high (BRR)
+void ResetPins(char pins);
+
+// Reads input pins (IDR)
+//void ReadInput();
+
+// sets output values to desired pins
+void SetOutputPins(GPIO_TypeDef *port, char pins) 
+
 
 #endif
