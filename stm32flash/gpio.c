@@ -9,22 +9,28 @@
 #include "gpio.h"
 
 
-// selects Input mode. takes GPIO struct and pins to set 
+// selects Input mode. takes GPIO struct and pins to set
+// only sets pins input to function
+// USER should only input a uint16 of size uint32
 void SetPinInput(GPIO_TypeDef *port, uint32_t pins){
     
-    //i need to find a way to shift the pin 2*(0->8) pins
-    //to bit shift individual bits i need to mask them
+    // used to create a bit mask for MODER
+    uint32_t initmask = 0xFFFF
+    uint32_t mask = 0b11;
+    uint32_t result = 0;
     
-    unsigned char mode = 0b00;
-    /*
-    for(char i = 16 ; i > 0; i--){
+    // clears upper 16 bits in case of user error
+    pins &= initmask;
+    
+    // checks each bit for a 1 then generates the bit mask
+    for(char i = 0 ; i < 16; i++){
         if((pins >> i) & 0x01){
-            pins ^= (mode<<) 
+            result |= (mask << (2*i));
         }
     }
     
+    port->MODER &= ~result;
 }
-*/
 
 // selects Output mode. takes GPIO struct and pins to set 
 void SetPinOutput(GPIO_TypeDef *port, uint32_t pins){}
