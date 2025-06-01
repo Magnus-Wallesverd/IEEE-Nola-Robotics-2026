@@ -1,5 +1,9 @@
 // defining the register ports
 // addresses are offset in bytes in the manual
+/*
+ * TODO abstract all register if necessary
+*/
+
 
 #ifndef GPIO_H
 #define GPIO_H
@@ -8,7 +12,6 @@
 
 // implementing a struct based system where 32bit variables are declared
 // then a pointer will just fill up the whole block with struct variables
-// much small scale than copy paste
 
 typedef struct{
 volatile uint32_t MODER;    //x00 
@@ -37,38 +40,37 @@ volatile uint32_t BRR;      //x28
 
 // prototype functions
 
-// parameters are pointer to struct, pin to set, and mode of pin
-//void SetMode(GPIO_TypeDef *port, int pin, char mode);
-
 // selects Input mode. takes GPIO struct and pins to set 
-void SetPinInput(GPIO_TypeDef *port, char pins);
+void SetPinInput(GPIO_TypeDef *port, uint32_t pins);
 
 // selects Output mode. takes GPIO struct and pins to set 
-void SetPinOutput(GPIO_TypeDef *port, char pins);
+void SetPinOutput(GPIO_TypeDef *port, uint32_t pins);
 
 // selects Alternate mode. takes GPIO struct and pins to set 
-void SetPinAlternate(GPIO_TypeDef *port, char pins);
+void SetPinAlternate(GPIO_TypeDef *port, uint32_t pins);
 
 // selects Analog mode. takes GPIO struct and pins to set 
-void SetPinAnalog(GPIO_TypeDef *port, char pins);
+void SetPinAnalog(GPIO_TypeDef *port, uint32_t pins);
 
 // set pins in pull up mode
-void SetPinPU(GPIO_TypeDef *port, char pins);
+void SetPinPU(GPIO_TypeDef *port, uint32_t pins);
 
 // set pins in pull down mode
-void SetPinPD(GPIO_TypeDef *port, char pins);
+void SetPinPD(GPIO_TypeDef *port, uint32_t pins);
 
 // disables pullup pull down mode
-void DisablePUPD(GPIO_TypeDef *port, char pins);
-
-// reset gpio pins logic high (BRR)
-void ResetPins(char pins);
+void DisablePUPD(GPIO_TypeDef *port, uint32_t pins);
 
 // Reads input pins (IDR)
-//void ReadInput();
+uint32_t ReadInput(GPIO_TypeDef *port);
 
-// sets output values to desired pins
-void SetOutputPins(GPIO_TypeDef *port, char pins) 
+// sets output values to desired pin(s) (BSRRL)
+void SetOutputPins(GPIO_TypeDef *port, uint32_t pins);
 
+// reset gpio pins with logic high to the desired pin(s) (BSRRH)
+void ResetPins(uint32_t pins);
+
+//sets an alternate function to the desired pin
+void AlternateFunctionSet(GPIO_TypeDef *port, uint32_t function, uint32_t pins);
 
 #endif
