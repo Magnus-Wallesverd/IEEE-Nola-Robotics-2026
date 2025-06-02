@@ -107,6 +107,9 @@ typedef struct{
 // only one timer per call
 void InitAdvTIM(Adv_TIM_TypeDef *port);
 
+// turns on pwm mode 
+void ActivatePWM(Adv_TIM_TypeDef *port);
+
 // enable timer 2, 3, or 4
 // one timer per call
 void InitGenTIM(Gen_TIM_TypeDef * port);
@@ -114,5 +117,6 @@ void InitGenTIM(Gen_TIM_TypeDef * port);
 // enables timer 6 & 7
 // one timer per call
 void InitBasicTIM(Basic_TIM_TypeDef *port);
+
 
 #endif

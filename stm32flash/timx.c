@@ -3,10 +3,12 @@
 /*
  * TODO Timer 2,3,4 have some special CR2 bits...
  * TODO Timer sync function
+ * TODO Setup Alternate functions in gpio
  * Create Hall sensor sensor mode
  *      Generate PWM in Advanced TIMx (x=1,8,20)      
  *      setup capture for General TIMx (x=2,3,4) (interfacing timers)
  *          TI1S bit in TIMx_CR2
+ *
  */
 
 #include "timx.h"
@@ -30,3 +32,5 @@ void InitGenTIM(Gen_TIM_TypeDef *port){
 void InitBasicTIM(Basic_TIM_TypeDef *port){
     port->CR1 |= initmask;
 }
+
+// 

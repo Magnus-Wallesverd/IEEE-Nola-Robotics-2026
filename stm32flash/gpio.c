@@ -3,7 +3,7 @@
 /*
  * TODO look up alternate functions
  * TODO look up how to read IDR
- *
+ * TODO Implement alt functions to access timer channels
  */
 
 #include "gpio.h"
