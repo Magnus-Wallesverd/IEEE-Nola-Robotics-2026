@@ -1,4 +1,4 @@
-#! /bin/zsh
+#! /bin/bash
 # flash script for stm32303RE board
 
 # calls the gcc compiler -mcpu is the processor, mfpu is floating point math unit
@@ -7,7 +7,7 @@
 # -Wl discards unused code
 # -o is output 
 arm-none-eabi-gcc -mcpu=cortex-m4 -mthumb -mfpu=fpv4-sp-d16 -mfloat-abi=hard \
-  -T stm32f303.ld startup.s blink1.c \
+  -T stm32f303.ld startup.s blink1.c gpio.c timx.c   \
   -nostdlib -Wl,--gc-sections -o firmware.elf \
   -I.
 

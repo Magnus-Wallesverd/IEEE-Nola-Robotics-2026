@@ -19,7 +19,7 @@ uint32_t ClearUpperBits(uint32_t pins){
 
 // function to clear lower bits
 uint32_t ClearLowerBits(uint32_t pins){
-    return (pins & initmaskhigh);
+    return (pins <<16);
 }
 
 /* 
@@ -102,6 +102,9 @@ void PinWrite(GPIO_TypeDef *port, uint32_t pins){
 void ResetPins(GPIO_TypeDef *port, uint32_t pins){
     pins = ClearLowerBits(pins);
     port->BSRR = pins;
+}
+
+void WritePin(GPIO_TypeDef *port, uint32_t pins){
 }
 
 //sets an alternate function to the desired pin
