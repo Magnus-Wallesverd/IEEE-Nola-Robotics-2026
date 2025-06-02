@@ -3,12 +3,12 @@
 // TODO fix the general purpose timer structs
 // timer 15 16 17 are mapped different
 // current struct supports timer 15
-#ifndef CLOCKDEF_H
-#define CLOCKDEF_H
+#ifndef TIMX_H
+#define TIMX_H
 
 #include <stdint.h>
 
-// Advanced Timers
+// Advanced Timers: 1, 8, 20
 typedef struct{
 volatile uint32_t CR1;      //0x00
 volatile uint32_t CR2;      //0x04 
@@ -102,5 +102,14 @@ typedef struct{
 
 #define TIM6  ((Basic_TIM_TypeDef *) 0x40001000)
 #define TIM7  ((Basic_TIM_TypeDef *) 0x40001400)
+
+// enable timer 1, 8 or 20 with some loaded preset
+// only one timer per call
+void InitAdvTIM(Adv_TIM_TypeDef *port);
+
+// enable timer 2, 3, or 4
+// one timer per call
+void InitGenTIM(Gen_TIM_TypeDef * port);
+
 
 #endif

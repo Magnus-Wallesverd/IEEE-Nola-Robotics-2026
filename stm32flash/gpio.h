@@ -40,6 +40,12 @@ volatile uint32_t BRR;      //x28
 
 // prototype functions
 
+// clears upper 16 bits
+uint32_t ClearUpperBits(uint32_t pins);
+
+// clears lower 16 bits
+uint32_t ClearLowerBits(uint32_t pins);
+
 // selects Input mode. takes GPIO struct and pins to set 
 void SetPinInput(GPIO_TypeDef *port, uint32_t pins);
 
@@ -62,13 +68,13 @@ void SetPinPD(GPIO_TypeDef *port, uint32_t pins);
 void DisablePUPD(GPIO_TypeDef *port, uint32_t pins);
 
 // Reads input pins (IDR)
-uint32_t ReadInput(GPIO_TypeDef *port);
+uint32_t PinRead(GPIO_TypeDef *port);
 
 // sets output values to desired pin(s) (BSRRL)
-void SetOutputPins(GPIO_TypeDef *port, uint32_t pins);
+void PinWrite(GPIO_TypeDef *port, uint32_t pins);
 
 // reset gpio pins with logic high to the desired pin(s) (BSRRH)
-void ResetPins(uint32_t pins);
+void ResetPins(GPIO_TypeDef *port, uint32_t pins);
 
 //sets an alternate function to the desired pin
 void AlternateFunctionSet(GPIO_TypeDef *port, uint32_t function, uint32_t pins);
