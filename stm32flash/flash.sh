@@ -1,4 +1,4 @@
-#! /bin/bash
+#! /bin/zsh
 # flash script for stm32303RE board
 
 # calls the gcc compiler -mcpu is the processor, mfpu is floating point math unit

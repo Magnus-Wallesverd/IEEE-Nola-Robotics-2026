@@ -8,6 +8,7 @@ void main(void){
 
     // sets pin 5 to output mode
     //GPIOA->MODER |= 0x400;
+    SetPinOutput(GPIOA, 0x20);
     // Enable TIM2 (0x00000001) and GPIOA (0x00000004)
     RCC->APB1ENR |= 0x00000001;
     RCC->AHBENR |= 0x00000004;
@@ -32,7 +33,7 @@ void main(void){
 
         // output at pin 5 HIGH
         //GPIOA->ODR = TIM2->CNT<<3;
-
+        PinWrite(GPIOA,0x20);
 
 
     }
