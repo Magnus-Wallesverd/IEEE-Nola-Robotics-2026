@@ -1,5 +1,9 @@
 # Makefile to build code
 # make variables for relevent commands then script them
+# from Command Line Run
+# 1. make
+# 2. make flash
+# 3. make clean
 
 # Tool-chain
 CC = arm-none-eabi-gcc				# C compiler
