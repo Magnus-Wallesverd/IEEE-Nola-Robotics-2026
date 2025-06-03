@@ -40,12 +40,6 @@ volatile uint32_t BRR;      //x28
 
 // prototype functions
 
-// clears upper 16 bits
-uint32_t ClearUpperBits(uint32_t pins);
-
-// clears lower 16 bits
-uint32_t ClearLowerBits(uint32_t pins);
-
 // selects Input mode. takes GPIO struct and pins to set 
 void SetPinInput(GPIO_TypeDef *port, uint32_t pins);
 
