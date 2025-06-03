@@ -62,6 +62,7 @@ void SetPinOutput(GPIO_TypeDef *port, uint32_t pins){
     // used to create bit mask for MODER
     uint32_t mask = 0b01;
     uint32_t clearmask = 0b11;
+
     uint32_t result = 0;
 
     // checks each bit for 1 then generates the bit mask
@@ -74,6 +75,8 @@ void SetPinOutput(GPIO_TypeDef *port, uint32_t pins){
     
     // test
     port->MODER = ((port->MODER & ~result)|mask);
+
+
 }
 
 // selects Alternate mode. takes GPIO struct and pins to set 

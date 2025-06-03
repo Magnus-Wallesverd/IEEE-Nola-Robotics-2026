@@ -13,3 +13,9 @@
 - Hardware Abstraction Layer
 - Hall sensor Interfacing rm0316 pg.563
 
+### UPDATES
+
+ 06/02/25
+- main is protected
+- develop has been added/protected
+- HAL-GPIO added
