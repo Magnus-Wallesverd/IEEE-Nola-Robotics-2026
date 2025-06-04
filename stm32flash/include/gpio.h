@@ -2,6 +2,8 @@
 // addresses are offset in bytes in the manual
 /*
  * TODO abstract all register if necessary
+ *      Remaining Registers
+ *      OTYPER, OSPEEDR, LCKRR
 */
 
 
@@ -39,12 +41,6 @@ volatile uint32_t BRR;      //x28
 #define GPIOH ((GPIO_TypeDef *) 0x48001C00)
 
 // prototype functions
-
-// clears upper 16 bits
-uint32_t ClearUpperBits(uint32_t pins);
-
-// clears lower 16 bits
-uint32_t ClearLowerBits(uint32_t pins);
 
 // selects Input mode. takes GPIO struct and pins to set 
 void SetPinInput(GPIO_TypeDef *port, uint32_t pins);

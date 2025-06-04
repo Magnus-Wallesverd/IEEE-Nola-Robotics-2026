@@ -10,7 +10,7 @@
 #define STM32F303_H
 
 #include "gpio.h"
-#include "timerdef.h"
+#include "timx.h"
 #include "rcc.h"
 #include "exti.h"
 #include "syscfg.h"
