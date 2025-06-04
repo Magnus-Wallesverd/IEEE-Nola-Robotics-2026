@@ -127,9 +127,6 @@ void ResetPins(GPIO_TypeDef *port, uint32_t pins){
     port->BSRR = pins;
 }
 
-// TBD
-void WritePin(GPIO_TypeDef *port, uint32_t pins){
-}
 
 //sets an alternate function to the desired pin
 //one function can be set to many pins
