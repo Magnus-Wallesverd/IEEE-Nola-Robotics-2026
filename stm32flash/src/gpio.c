@@ -19,7 +19,7 @@ GPIO_TypeDef gpiog = {0};
 GPIO_TypeDef gpioh = {0};
 
 // mask to clear upper 16 bits since there are max 16 pins
-const uint32_t masklow = 0bFFFF;
+const uint32_t masklow = 0xFFFF;
 
 // these are for 2 bit mode settings
 const uint8_t mode0  = 0b00;     // input                 
@@ -185,7 +185,7 @@ void AlternateFunctionSet(GPIO_TypeDef *port, uint32_t pins, uint32_t function){
 
     // sends upper bits first then lower bits
     port->AFRH = Generate4BitPinMask(port->AFRH, (pins >> 8), function);
-    port->AFRL = Generate4BitPinMask(port->AFRL, (pins & 0b00FF), function);
+    port->AFRL = Generate4BitPinMask(port->AFRL, (pins & 0x00FF), function);
     printf("[Function %d] AFRH = 0b%b \n", function, port->AFRH);
     printf("[Function %d] AFRL = 0b%b \n", function, port->AFRL);
 }
