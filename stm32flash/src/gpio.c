@@ -1,6 +1,7 @@
 /* abstraction for gpio */
 
 /*
+
  * TODO replace mode with instance definition
  * TODO look up how to read IDR
  *
@@ -51,6 +52,7 @@ static uint32_t GenerateBitMask(uint32_t reg, uint32_t pins, uint8_t bitwidth, u
 }
 
 //selects Input mode. takes GPIO struct and pins to set
+
 void SetPinInput(GPIO_TypeDef *port, uint32_t pins){
     
     // clears upper 16 bits
@@ -61,11 +63,12 @@ void SetPinInput(GPIO_TypeDef *port, uint32_t pins){
 }
 
 // selects General Output mode. takes GPIO struct and pins to set
+
 void SetPinOutput(GPIO_TypeDef *port, uint32_t pins){
     
     // clears upper 16 bits
     pins = ClearUpperBits(pins);
-    
+
     //sets MODER
     port->MODER = GenerateBitMask(port->MODER, pins, 2, mode1);
 }
@@ -126,7 +129,6 @@ void ResetPins(GPIO_TypeDef *port, uint32_t pins){
     pins = ClearLowerBits(pins);
     port->BSRR = pins;
 }
-
 
 //sets an alternate function to the desired pin
 //one function can be set to many pins
