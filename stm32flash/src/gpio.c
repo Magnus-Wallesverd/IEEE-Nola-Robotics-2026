@@ -9,25 +9,13 @@
 #include "gpio.h"
 
 // mask to clear upper 16 bits since there are max 16 pins
-const uint8_t masklow = 0xFFFF;
+const uint16_t masklow = 0xFFFF;
 
 // these are for 2 bit mode settings
-const uint8_t mode0  = 0b0000;     // input                 // AF 0
-const uint8_t mode1  = 0b0001;     // output                // AF 1
-const uint8_t mode2  = 0b0010;     // Alternate function    // AF 2
-const uint8_t mode3  = 0b0011;     // Analog                // AF 3
-const uint8_t mode4  = 0b0100;                              // AF 4
-const uint8_t mode5  = 0b0101;                              // AF 5
-const uint8_t mode6  = 0b0110;                              // AF 6
-const uint8_t mode7  = 0b0111;                              // AF 7
-const uint8_t mode8  = 0b1000;                              // AF 8
-const uint8_t mode9  = 0b1001;                              // AF 9
-const uint8_t mode10 = 0b1010;                              // AF 10
-const uint8_t mode11 = 0b1011;                              // AF 11
-const uint8_t mode12 = 0b1100;                              // AF 12
-const uint8_t mode13 = 0b1101;                              // AF 13
-const uint8_t mode14 = 0b1110;                              // AF 14
-const uint8_t mode15 = 0b1111;                              // AF 15
+const uint8_t mode0  = 0b0000;     // input                 
+const uint8_t mode1  = 0b0001;     // output                
+const uint8_t mode2  = 0b0010;     // Alternate function    
+const uint8_t mode3  = 0b0011;     // Analog                
 
 // function to clear upper bits
 static uint32_t ClearUpperBits(uint32_t input){
@@ -105,11 +93,11 @@ void SetPinAlternate(GPIO_TypeDef *port, uint32_t pins){
 }
 
 // selects Analog mode. takes GPIO struct and pins to set 
-void SetPinAnalog(GPIO_TypeDef *port, uint32_t pins,){
+void SetPinAnalog(GPIO_TypeDef *port, uint32_t pins){
 
     
     port->MODER = Generate2BitPinMask(port->MODER, pins, mode3);
-}
+
 }
 
 // set pins in pull up mode
@@ -160,9 +148,9 @@ void WritePin(GPIO_TypeDef *port, uint32_t pins){
 //calls generate4bitpinmask function above
 void AlternateFunctionSet(GPIO_TypeDef *port, uint32_t pins, uint32_t function){
     
-    pins = ClearUpperBits;
+    pins = ClearUpperBits(pins);
 
     // sends upper bits first then lower bits
-    port->ARFH = Generate4BitPinMask(port->ARFH, (pins >> 8), function);
-    port->ARFL = Generate4BitPinMask(port->ARFL, (pins & 0x00FF), function);
+    port->AFRH = Generate4BitPinMask(port->AFRH, (pins >> 8), function);
+    port->AFRL = Generate4BitPinMask(port->AFRL, (pins & 0x00FF), function);
 }
