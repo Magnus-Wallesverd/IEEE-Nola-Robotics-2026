@@ -9,37 +9,38 @@
 #include <stdint.h>
 #include <stdio.h>
 
-volatile uint32_t MODER;     
-volatile uint32_t OTYPER;   
-volatile uint32_t OSPEEDR;  
-volatile uint32_t PUPDR;    
-volatile uint32_t IDR;      
-volatile uint32_t ODR;      
-volatile uint32_t BSRR;     
-volatile uint32_t LCKR;     
-volatile uint32_t AFRL;     
-volatile uint32_t AFRH;     
-volatile uint32_t BRR;      
+typedef struct{
+    volatile uint32_t MODER;     
+    volatile uint32_t OTYPER;   
+    volatile uint32_t OSPEEDR;  
+    volatile uint32_t PUPDR;    
+    volatile uint32_t IDR;      
+    volatile uint32_t ODR;      
+    volatile uint32_t BSRR;     
+    volatile uint32_t LCKR;     
+    volatile uint32_t AFRL;     
+    volatile uint32_t AFRH;     
+    volatile uint32_t BRR;      
 } GPIO_TypeDef;
 
-extern GPIO_TypeDef gpioa_instance;
-extern GPIO_TypeDef gpiob_instance;
-extern GPIO_TypeDef gpioc_instance;
-extern GPIO_TypeDef gpiod_instance;
-extern GPIO_TypeDef gpioe_instance;
-extern GPIO_TypeDef gpiof_instance;
-extern GPIO_TypeDef gpiog_instance;
-extern GPIO_TypeDef gpioh_instance;
+extern GPIO_TypeDef gpioa;
+extern GPIO_TypeDef gpiob;
+extern GPIO_TypeDef gpioc;
+extern GPIO_TypeDef gpiod;
+extern GPIO_TypeDef gpioe;
+extern GPIO_TypeDef gpiof;
+extern GPIO_TypeDef gpiog;
+extern GPIO_TypeDef gpioh;
 
 // instance name of struct 
-#define GPIOA (&gpioa_instance)
-#define GPIOB (&gpiob_instance)
-#define GPIOC (&gpioc_instance)
-#define GPIOD (&gpiod_instance)
-#define GPIOE (&gpioe_instance)
-#define GPIOF (&gpiof_instance)
-#define GPIOG (&gpiog_instance)
-#define GPIOH (&gpioh_instance)
+#define GPIOA (&gpioa)
+#define GPIOB (&gpiob)
+#define GPIOC (&gpioc)
+#define GPIOD (&gpiod)
+#define GPIOE (&gpioe)
+#define GPIOF (&gpiof)
+#define GPIOG (&gpiog)
+#define GPIOH (&gpioh)
 
 // prototype functions
 
@@ -73,8 +74,8 @@ void PinWrite(GPIO_TypeDef *port, uint32_t pins);
 // reset gpio pins with logic high to the desired pin(s) (BSRRH)
 void ResetPins(GPIO_TypeDef *port, uint32_t pins);
 
-//sets an alternate function to the desired pin
-void AlternateFunctionSet(GPIO_TypeDef *port, uint32_t function, uint32_t pins);
-
 void WritePin(GPIO_TypeDef *port, uint32_t pins); 
+
+// sets alternate function
+void AlternateFunctionSet(GPIO_TypeDef *port, uint32_t pins, uint32_t function);
 #endif
