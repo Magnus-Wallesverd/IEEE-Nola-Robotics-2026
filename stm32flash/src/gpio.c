@@ -48,35 +48,25 @@ static uint32_t ClearLowerBits(uint32_t input){
     return (input << 16);
 }
 
-// takes reg (regster) to set, the pins, and the mode 
-static uint32_t Generate2BitPinMask(uint32_t reg, uint32_t pins, uint8_t mode){
+
+// takes reg (regster) to set, the pins, bitwidth for clearing mask, and the mode 
+static uint32_t GenerateBitMask(uint32_t reg, uint32_t pins, uint8_t bitwidth, uint8_t mode){
     
     uint32_t mask = 0;
-    uint32_t clearmask = 0b11;
+    uint32_t clearmask;
     uint32_t result = 0;
 
-    // checks each bit for 1 then generates the bit mask
-    for(int i = 0; i < 16; i++){
-        if((pins >> i) & 1){
-            result |= (clearmask << (2*i));
-            mask |= (mode << (2*i));
-        }
+    if(bitwidth == 2){
+        clearmask = 0b11;
     }
-
-    return ((reg & ~result)|mask);
-}
- 
-static uint32_t Generate4BitPinMask(uint32_t reg, uint32_t pins, uint8_t mode){
-    
-    uint32_t mask = 0;
-    uint32_t clearmask = 0b1111;
-    uint32_t result = 0;
+    else
+        clearmask = 0b1111;
 
     // checks each bit for 1 then generates the bit mask
-    for(int i = 0; i < 8; i++){
+    for(int i = 0; i < 32/bitwidth; i++){
         if((pins >> i) & 1){
-            result |= (clearmask << (4*i));
-            mask |= (mode << (4*i));
+            result |= (clearmask << (bitwidth*i));
+            mask |= (mode << (bitwidth*i));
         }
     }
 
@@ -90,8 +80,8 @@ void SetPinInput(GPIO_TypeDef *port, uint32_t pins){
     pins = ClearUpperBits(pins);
     
     // sets MODER
-    port->MODER = Generate2BitPinMask(port->MODER, pins, mode0);
-    printf("[Input] MODER = 0b%b\n", port->MODER);
+    port->MODER = GenerateBitMask(port->MODER, pins, 2, mode0);
+    printf("[Input] MODER = 0x%X Using GBM\n", port->MODER);
 }
 
 // selects General Output mode. takes GPIO struct and pins to set
@@ -101,8 +91,9 @@ void SetPinOutput(GPIO_TypeDef *port, uint32_t pins){
     pins = ClearUpperBits(pins);
     
     //sets MODER
-    port->MODER = Generate2BitPinMask(port->MODER, pins, mode1);
-    printf("[Output] MODER = 0b%b\n", port->MODER);
+    port->MODER = GenerateBitMask(port->MODER, pins, 2, mode1);
+    printf("[Output] MODER = 0x%X Using GBM\n", port->MODER);
+
 }
 
 // selects Alternate mode. takes GPIO struct and pins to set 
@@ -112,15 +103,15 @@ void SetPinAlternate(GPIO_TypeDef *port, uint32_t pins){
     pins = ClearUpperBits(pins);
     
     //sets MODER
-    port->MODER = Generate2BitPinMask(port->MODER, pins, mode2);
-    printf("[AltFunction] MODER = 0b%b\n", port->MODER);
+    port->MODER = GenerateBitMask(port->MODER, pins, 2, mode2);
+    printf("[AltFunction] MODER = 0x%X Using GBM\n", port->MODER);
 }
 
 // selects Analog mode. takes GPIO struct and pins to set 
 void SetPinAnalog(GPIO_TypeDef *port, uint32_t pins){
 
-    port->MODER = Generate2BitPinMask(port->MODER, pins, mode3);
-    printf("[Analog] MODER = 0b%b\n", port->MODER);
+    port->MODER = GenerateBitMask(port->MODER, pins, 2, mode3);
+    printf("[Analog] MODER = 0x%X Using GBM\n", port->MODER);
 }
 
 
@@ -129,8 +120,8 @@ void SetPinPU(GPIO_TypeDef *port, uint32_t pins){
     
     pins = ClearUpperBits(pins);
 
-    port->PUPDR = Generate2BitPinMask(port->PUPDR, pins, mode1);
-    printf("[Pull-Up] PUPDR = 0b%b\n", port->MODER);
+    port->PUPDR = GenerateBitMask(port->PUPDR, pins, 2, mode1);
+    printf("[Pull-Up] PUPDR = 0x%X Using GBM\n", port->PUPDR);
 }
 
 // set pins in pull down mode
@@ -138,8 +129,8 @@ void SetPinPD(GPIO_TypeDef *port, uint32_t pins){
 
     pins = ClearUpperBits(pins);
 
-    port->PUPDR = Generate2BitPinMask(port->PUPDR, pins, mode2);
-    printf("[Pull-Down] PUPDR = 0b%b\n", port->MODER);
+    port->PUPDR = GenerateBitMask(port->PUPDR, pins, 2, mode2);
+    printf("[Pull-Down] PUPDR = 0x%X Using GBM\n", port->PUPDR);
 }
 
 // disables pullup pull down mode
@@ -147,13 +138,13 @@ void DisablePUPD(GPIO_TypeDef *port, uint32_t pins){
     
     pins = ClearUpperBits(pins);
     
-    port->PUPDR = Generate2BitPinMask(port->PUPDR, pins, mode0);
-    printf("[No Pull] PUPDR = 0b%b\n", port->MODER);
+    port->PUPDR = GenerateBitMask(port->PUPDR, pins, 2, mode0);
+    printf("[No Pull] PUPDR = 0x%X Using GBM\n", port->PUPDR);
 }
 
 // Reads input pins (IDR)
 uint32_t PinRead(GPIO_TypeDef *port){
-    // printf("[GPIO] IDR = 0b%b\n", port->IDR);
+    // printf("[GPIO] IDR = 0x%X Using GBM\n", port->IDR);
     return 0;
 }
 
@@ -162,7 +153,7 @@ void PinWrite(GPIO_TypeDef *port, uint32_t pins){
     pins = ClearUpperBits(pins);
     port->BSRR = pins;
     UpdateODR(port);
-    printf("[PinWrite] ODR = 0b%b\n", port->ODR);
+    printf("[PinWrite] ODR = 0x%X Using GBM\n", port->ODR);
 }
 
 // reset gpio pins with logic high to the desired pin(s) (BSRRH)
@@ -184,8 +175,9 @@ void AlternateFunctionSet(GPIO_TypeDef *port, uint32_t pins, uint32_t function){
     pins = ClearUpperBits(pins);
 
     // sends upper bits first then lower bits
-    port->AFRH = Generate4BitPinMask(port->AFRH, (pins >> 8), function);
-    port->AFRL = Generate4BitPinMask(port->AFRL, (pins & 0x00FF), function);
-    printf("[Function %d] AFRH = 0b%b \n", function, port->AFRH);
-    printf("[Function %d] AFRL = 0b%b \n", function, port->AFRL);
+    port->AFRH = GenerateBitMask(port->AFRH, (pins >> 8), 4, function);
+    port->AFRL = GenerateBitMask(port->AFRL, (pins & 0xFF), 4, function);
+
+    printf("[Function] AFRH = 0x%X Using GBM\n", port->AFRH);
+    printf("[Function] AFRL = 0x%X Using GBM\n", port->AFRL);
 }
