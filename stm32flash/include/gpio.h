@@ -2,6 +2,8 @@
 // addresses are offset in bytes in the manual
 /*
  * TODO abstract all register if necessary
+ *      Remaining Registers
+ *      OTYPER, OSPEEDR, LCKRR
 */
 
 
@@ -73,5 +75,4 @@ void ResetPins(GPIO_TypeDef *port, uint32_t pins);
 //sets an alternate function to the desired pin
 void AlternateFunctionSet(GPIO_TypeDef *port, uint32_t function, uint32_t pins);
 
-void WritePin(GPIO_TypeDef *port, uint32_t pins); 
 #endif
