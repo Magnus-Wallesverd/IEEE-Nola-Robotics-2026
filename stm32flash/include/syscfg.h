@@ -30,4 +30,7 @@ typedef struct {
 
 #define SYSCFG ((Syscfg_Typedef *) 0x40010000)
 
+// one pin one set
+void SetExternalInterrupt(Syscfg_TypeDef *port, uint8_t pin);
+
 #endif
