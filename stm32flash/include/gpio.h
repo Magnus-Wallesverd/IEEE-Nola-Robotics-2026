@@ -1,50 +1,47 @@
-// defining the register ports
-// addresses are offset in bytes in the manual
 /*
- * TODO abstract all register if necessary
+ * sim file
+ *
 */
-
 
 #ifndef GPIO_H
 #define GPIO_H
 
 #include <stdint.h>
+#include <stdio.h>
 
-// implementing a struct based system where 32bit variables are declared
-// then a pointer will just fill up the whole block with struct variables
-
-typedef struct{
-volatile uint32_t MODER;    //x00 
-volatile uint32_t OTYPER;   //x04
-volatile uint32_t OSPEEDR;  //x08
-volatile uint32_t PUPDR;    //x0C
-volatile uint32_t IDR;      //x10
-volatile uint32_t ODR;      //x14
-volatile uint32_t BSRR;     //x18
-volatile uint32_t LCKR;     //x1C
-volatile uint32_t AFRL;     //x20
-volatile uint32_t AFRH;     //x24
-volatile uint32_t BRR;      //x28
+volatile uint32_t MODER;     
+volatile uint32_t OTYPER;   
+volatile uint32_t OSPEEDR;  
+volatile uint32_t PUPDR;    
+volatile uint32_t IDR;      
+volatile uint32_t ODR;      
+volatile uint32_t BSRR;     
+volatile uint32_t LCKR;     
+volatile uint32_t AFRL;     
+volatile uint32_t AFRH;     
+volatile uint32_t BRR;      
 } GPIO_TypeDef;
 
+extern GPIO_TypeDef gpioa_instance;
+extern GPIO_TypeDef gpiob_instance;
+extern GPIO_TypeDef gpioc_instance;
+extern GPIO_TypeDef gpiod_instance;
+extern GPIO_TypeDef gpioe_instance;
+extern GPIO_TypeDef gpiof_instance;
+extern GPIO_TypeDef gpiog_instance;
+extern GPIO_TypeDef gpioh_instance;
 
-// instance name of struct ((reference struct pointer *) desired address)
-#define GPIOA ((GPIO_TypeDef *) 0x48000000)
-#define GPIOB ((GPIO_TypeDef *) 0x48000400)
-#define GPIOC ((GPIO_TypeDef *) 0x48000800)
-#define GPIOD ((GPIO_TypeDef *) 0x48000C00)
-#define GPIOE ((GPIO_TypeDef *) 0x48001000)
-#define GPIOF ((GPIO_TypeDef *) 0x48001400)
-#define GPIOG ((GPIO_TypeDef *) 0x48001800)
-#define GPIOH ((GPIO_TypeDef *) 0x48001C00)
+// instance name of struct 
+#define GPIOA (&gpioa_instance)
+#define GPIOB (&gpiob_instance)
+#define GPIOC (&gpioc_instance)
+#define GPIOD (&gpiod_instance)
+#define GPIOE (&gpioe_instance)
+#define GPIOF (&gpiof_instance)
+#define GPIOG (&gpiog_instance)
+#define GPIOH (&gpioh_instance)
 
 // prototype functions
-
-// clears upper 16 bits
-uint32_t ClearUpperBits(uint32_t pins);
-
-// clears lower 16 bits
-uint32_t ClearLowerBits(uint32_t pins);
 
 // selects Input mode. takes GPIO struct and pins to set 
 void SetPinInput(GPIO_TypeDef *port, uint32_t pins);

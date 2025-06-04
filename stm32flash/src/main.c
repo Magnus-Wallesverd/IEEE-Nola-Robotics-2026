@@ -7,6 +7,8 @@
  * */
 
 #include "stm32f303.h"
+#include <stdio.h>
+#include <stdint.h>
 
 
 void main(void){
