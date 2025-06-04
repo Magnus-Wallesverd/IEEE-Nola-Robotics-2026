@@ -4,7 +4,7 @@
  * TODO abstract all register if necessary
  *      Remaining Registers
  *      OTYPER, OSPEEDR, LCKRR
-*/
+ */
 
 
 #ifndef GPIO_H
