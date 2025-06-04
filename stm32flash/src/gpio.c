@@ -22,10 +22,10 @@ GPIO_TypeDef gpioh = {0};
 const uint32_t masklow = 0bFFFF;
 
 // these are for 2 bit mode settings
-const uint8_t mode0  = 0b0000;     // input                 // AF 0
-const uint8_t mode1  = 0b0001;     // output                // AF 1
-const uint8_t mode2  = 0b0010;     // Alternate function    // AF 2
-const uint8_t mode3  = 0b0011;     // Analog                // AF 3
+const uint8_t mode0  = 0b00;     // input                 
+const uint8_t mode1  = 0b01;     // output                
+const uint8_t mode2  = 0b10;     // Alternate function    
+const uint8_t mode3  = 0b11;     // Analog                
 
 static void UpdateODR(GPIO_TypeDef *port){
     port->ODR ^= port->BSRR;
