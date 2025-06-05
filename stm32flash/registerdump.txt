@@ -1,0 +1,25 @@
+
+(gdb) info registers
+r0             0x48000000          1207959552
+r1             0xffff              65535
+r2             0x40021000          1073876992
+r3             0x20014             131092
+r4             0x0                 0
+r5             0x0                 0
+r6             0x0                 0
+r7             0x2000fff0          536936432
+r8             0x0                 0
+r9             0x0                 0
+r10            0x0                 0
+r11            0x0                 0
+r12            0x0                 0
+sp             0x2000fff0          0x2000fff0
+lr             0x800036b           134218603
+pc             0x800013e           0x800013e <SetPinOutput>
+xPSR           0x21000000          553648128
+fpscr          0x0                 0
+msp            0x2000fff0          0x2000fff0
+psp            0x0                 0x0
+primask        0x0                 0
+basepri        0x0                 0
+faultmask      0x0                 0

@@ -9,7 +9,7 @@
 CC = arm-none-eabi-gcc
 AS = arm-none-eabi-as
 OBJCOPY = arm-none-eabi-objcopy	
-CFLAGS = -mcpu=cortex-m4 -mthumb -mfpu=fpv4-sp-d16 -mfloat-abi=hard -Wall -Wextra -O0 -nostdlib -ffreestanding -Iinclude
+CFLAGS = -mcpu=cortex-m4 -mthumb -mfpu=fpv4-sp-d16 -mfloat-abi=hard -Wall -Wextra -O0 -nostdlib -ffreestanding -Iinclude -g
 FLASH = st-flash
 
 # Linker

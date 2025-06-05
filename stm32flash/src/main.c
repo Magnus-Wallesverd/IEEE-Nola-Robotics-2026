@@ -34,7 +34,7 @@ void main(void){
 
     /* Disable all interrupts */
     RCC->CIR = 0x00000000;
-    for(volatile int i = 0; i < 10000; i++);
+    // for(volatile int i = 0; i < 10000; i++);
     
     RCC->AHBENR |= 0x20000;
      /* RCC->APB1ENR |= 1;
@@ -42,8 +42,8 @@ void main(void){
     SetPinOutput(GPIOA,0xffff);
     /*AlternateFunctionSet(GPIOA,0x03,1);
     InitGenTIM(TIM2);
-    PinWrite(GPIOA,0xffff);
     */
+    PinWrite(GPIOA,0xffff);
     while(1){
         for(volatile int i = 0; i < 10000; i++);
     }
