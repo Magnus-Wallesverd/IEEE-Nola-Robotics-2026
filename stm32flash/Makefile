@@ -6,11 +6,11 @@
 # 3. make clean
 
 # Tool-chain
-CC = arm-none-eabi-gcc				# C compiler
-AS = arm-none-eabi-as				# assembler
-OBJCOPY = arm-none-eabi-objcopy		# copies obj files (Machine code)
-CFLAGS = -mcpu=cortex-m4 -mthumb -mfpu=fpv4-sp-d16 -mfloat-abi=hard -Wall -Wextra -02 -nostdlib -ffreestanding -Iinclude # compiler flags
-FLASH = st-flash					# flasher
+CC = arm-none-eabi-gcc
+AS = arm-none-eabi-as
+OBJCOPY = arm-none-eabi-objcopy	
+CFLAGS = -mcpu=cortex-m4 -mthumb -mfpu=fpv4-sp-d16 -mfloat-abi=hard -Wall -Wextra -O2 -nostdlib -ffreestanding -Iinclude
+FLASH = st-flash
 
 
 # Linker
@@ -41,8 +41,8 @@ build/startup.o: $(ASM)
 	$(CC) $(CFLAGS) -c $< -o $@
 
 # Link everything into ELF
-$(ELF): $(OBJS)
-	$(CC) $(CFLAGS) $(LDFLAGS) $(OBJS) -o $@
+$(ELF): $(OBJ)
+	$(CC) $(CFLAGS) $(LDFLAGS) $(OBJ) -o $@
 
 # Convert ELF -> BIN
 $(BIN): $(ELF)
