@@ -7,8 +7,21 @@
  * */
 
 #include "stm32f303.h"
-
+void put_char(char c){
+    asm(
+            "mov r0, #0x03\n"
+            "mov r1, %[msg]\n"
+            "bkpt #0xAB\n"
+            : : [msg] "r" (&c) : "r0", "r1"
+            );
+}
+void printf(const char *s){
+    while(*s){
+        put_char(*s++);
+    }
+}
 void main(void){
+    printf("Hello OPenOCD!");
     /* Reset the RCC clock configuration to the default reset state ------------*/
     /* Set HSION bit */
     //RCC->CR |= (uint32_t)0x00000001;
@@ -38,11 +51,11 @@ void main(void){
     RCC->AHBENR |= 0x20000;
      /* RCC->APB1ENR |= 1;
      */
-    SetPinOutput(GPIOA,0x20);
+    SetPinOutput(GPIOA,0x21);
     /*AlternateFunctionSet(GPIOA,0x03,1);
     InitGenTIM(TIM2);
     */
-    PinWrite(GPIOA,0x20);
+    PinWrite(GPIOA,0x21);
     while(1){
         for(volatile int i = 0; i < 10000; i++);
     }
