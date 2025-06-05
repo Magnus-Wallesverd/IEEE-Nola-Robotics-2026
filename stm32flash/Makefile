@@ -9,13 +9,12 @@
 CC = arm-none-eabi-gcc
 AS = arm-none-eabi-as
 OBJCOPY = arm-none-eabi-objcopy	
-CFLAGS = -mcpu=cortex-m4 -mthumb -mfpu=fpv4-sp-d16 -mfloat-abi=hard -Wall -Wextra -O2 -nostdlib -ffreestanding -Iinclude
+CFLAGS = -mcpu=cortex-m4 -mthumb -mfpu=fpv4-sp-d16 -mfloat-abi=hard -Wall -Wextra -O0 -nostdlib -ffreestanding -Iinclude
 FLASH = st-flash
-
 
 # Linker
 LD_SCRIPT = linker/stm32f303.ld
-LD_FLAGS = -T$(LD_SCRIPT) -Wl,--gc-sections
+LD_FLAGS = -T$(LD_SCRIPT) -Wl,--gc-sections -g
 
 # Source Files
 SRC = $(wildcard src/*.c)
@@ -30,6 +29,9 @@ BIN = build/$(TARGET).bin
 # Default Target
 all: $(BIN)
 
+ld:
+	echo $(LD_SCRIPT)
+
 # Compile .c -> .o
 build/%.o: src/%.c
 	@mkdir -p build
@@ -42,6 +44,7 @@ build/startup.o: $(ASM)
 
 # Link everything into ELF
 $(ELF): $(OBJ)
+# echo $(LD_SCRIPT)
 	$(CC) $(CFLAGS) $(LD_FLAGS) $(OBJ) -o $@
 
 # Convert ELF -> BIN

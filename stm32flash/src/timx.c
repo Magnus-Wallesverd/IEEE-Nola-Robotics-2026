@@ -31,7 +31,8 @@ void InitGenTIM(Gen_TIM_TypeDef *port){
 void InitBasicTIM(Basic_TIM_TypeDef *port){
     port->CR1 |= initmask;
 }
-
+/*
 void OutputPWM(Adv_TIM_TypeDef *port){
     
 }
+*/
