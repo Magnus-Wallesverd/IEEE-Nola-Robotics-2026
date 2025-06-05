@@ -42,7 +42,7 @@ build/startup.o: $(ASM)
 
 # Link everything into ELF
 $(ELF): $(OBJ)
-	$(CC) $(CFLAGS) $(LDFLAGS) $(OBJ) -o $@
+	$(CC) $(CFLAGS) $(LD_FLAGS) $(OBJ) -o $@
 
 # Convert ELF -> BIN
 $(BIN): $(ELF)
