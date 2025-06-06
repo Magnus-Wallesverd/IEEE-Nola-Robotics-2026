@@ -20,11 +20,15 @@ void printf(const char *s){
         put_char(*(s++));
     }
 }
-void printn(int num){
-    for(int i = 0; i <4 ; i++){
-        char str = ((num>>(3-i))& 1)+'0';
-        put_char(str);
-    }
+void printn(int num,int len){
+
+    for(int j =0; j <len/4; j++){
+        for(int i = 0; i <len ; i++){
+            char str = ((num>>(len-i-1))& 1)+'0';
+            put_char(str);
+        }
+        put_char(' ');
+    } 
 }
 void main(void){
     printf("Hello OPenOCD!");
