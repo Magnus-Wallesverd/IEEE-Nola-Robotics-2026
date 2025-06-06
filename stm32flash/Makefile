@@ -55,8 +55,22 @@ $(BIN): $(ELF)
 flash: $(BIN)
 	$(FLASH) write $(BIN) 0x8000000
 
+# debug
+debug:
+	@tmux new-session -d -s debug -n main
+	@tmux send-keys -t debug:main 'nvim' C-m
+	@tmux send-keys -t debug:main ':e src/main.c' C-m
+	@tmux split-window -h -t debug:main
+	@tmux send-keys -t debug:main.1 'openocd -f interface/stlink.cfg -f target/stm32f3x.cfg' C-m
+	@tmux split-window -v -t debug:main.1
+	@tmux send-keys -t debug:main.2 'arm-none-eabi-gdb $(ELF)' C-m
+	@tmux send-keys -t debug:main.2 'c' C-m
+	@tmux send-keys -t debug:main.2 'target extended-remote localhost:3333' C-m
+#@tmux send-keys -t debug:main.2 'file $(ELF)' C-m
+	@tmux attach -t debug
+
 # Clean
 clean:
 	rm -rf build
 
-.PHONY: all flash clean
+.PHONY: all flash debug clean
