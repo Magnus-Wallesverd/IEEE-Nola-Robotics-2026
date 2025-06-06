@@ -43,6 +43,9 @@
 - 'bt'
   - backtrace shows function calls to the current point
 
+- 'monitor arm semihosting enable'
+  - feature
+
 - 'monitor reset halt'
   - resets and halts
 
