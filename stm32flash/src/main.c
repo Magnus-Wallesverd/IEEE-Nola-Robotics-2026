@@ -22,13 +22,14 @@ void printf(const char *s){
 }
 void printn(int num,int len){
 
-    for(int j =0; j <len/4; j++){
-        for(int i = 0; i <len ; i++){
-            char str = ((num>>(len-i-1))& 1)+'0';
-            put_char(str);
+    for(int i = 0; i <len ; i++){
+        char str = ((num>>(len-i-1))& 1)+'0';
+        put_char(str);
+        if(i%4 == 3){
+            put_char(' ');
         }
-        put_char(' ');
-    } 
+    }
+     
 }
 void main(void){
     printf("Hello OPenOCD!");
@@ -68,7 +69,7 @@ void main(void){
     */
     PinWrite(GPIOA,0x21);
     while(1){
-        printn(0b0101);
-        printf(" PortA\n");
+        printn(TIM1->CNT,16);
+        printf("TIM1\n");
     }
  }
