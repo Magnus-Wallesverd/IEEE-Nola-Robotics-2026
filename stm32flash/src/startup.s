@@ -7,24 +7,26 @@
 .type g_pfnVectors, %object
 .size g_pfnVectors, .-g_pfnVectors
 
+.extern _estack
+
 g_pfnVectors:
   .word _estack
-  .word Reset_Handler
-  .word NMI_Handler
-  .word HardFault_Handler
-  .word MemManage_Handler
-  .word BusFault_Handler
-  .word UsageFault_Handler
+  .word Reset_Handler + 1
+  .word NMI_Handler + 1
+  .word HardFault_Handler + 1
+  .word MemManage_Handler  + 1
+  .word BusFault_Handler + 1
+  .word UsageFault_Handler + 1
   .word 0, 0, 0, 0
-  .word SVC_Handler
-  .word DebugMon_Handler
+  .word SVC_Handler + 1
+  .word DebugMon_Handler + 1
   .word 0
-  .word PendSV_Handler
-  .word SysTick_Handler
+  .word PendSV_Handler + 1
+  .word SysTick_Handler + 1
 
   /* Add peripheral ISRs as needed here */
 
-.section .text.Reset_Handler
+.section .text.Reset_Handler, "ax", %progbits
 .global Reset_Handler
 .type Reset_Handler, %function
 Reset_Handler:
@@ -52,7 +54,8 @@ zero_bss:
   movlt r2, #0
   strlt r2, [r0], #4
   blt zero_bss
-
+/* Call systemInit*/  
+  bl systemInit
 /* Call main */
   bl main
 
@@ -69,4 +72,3 @@ SVC_Handler:       b .
 DebugMon_Handler:  b .
 PendSV_Handler:    b .
 SysTick_Handler:   b .
-

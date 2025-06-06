@@ -6,16 +6,15 @@
 # 3. make clean
 
 # Tool-chain
-CC = arm-none-eabi-gcc				# C compiler
-AS = arm-none-eabi-as				# assembler
-OBJCOPY = arm-none-eabi-objcopy		# copies obj files (Machine code)
-CFLAGS = -mcpu=cortex-m4 -mthumb -mfpu=fpv4-sp-d16 -mfloat-abi=hard -Wall -Wextra -02 -nostdlib -ffreestanding -Iinclude # compiler flags
-FLASH = st-flash					# flasher
-
+CC = arm-none-eabi-gcc
+AS = arm-none-eabi-as
+OBJCOPY = arm-none-eabi-objcopy	
+CFLAGS = -mcpu=cortex-m4 -mthumb -mfpu=fpv4-sp-d16 -mfloat-abi=hard -Wall -Wextra -O0 -nostdlib -ffreestanding -Iinclude -g
+FLASH = st-flash
 
 # Linker
 LD_SCRIPT = linker/stm32f303.ld
-LD_FLAGS = -T$(LD_SCRIPT) -Wl,--gc-sections
+LD_FLAGS = -T$(LD_SCRIPT) -Wl,--gc-sections -g
 
 # Source Files
 SRC = $(wildcard src/*.c)
@@ -30,6 +29,9 @@ BIN = build/$(TARGET).bin
 # Default Target
 all: $(BIN)
 
+ld:
+	echo $(LD_SCRIPT)
+
 # Compile .c -> .o
 build/%.o: src/%.c
 	@mkdir -p build
@@ -41,8 +43,9 @@ build/startup.o: $(ASM)
 	$(CC) $(CFLAGS) -c $< -o $@
 
 # Link everything into ELF
-$(ELF): $(OBJS)
-	$(CC) $(CFLAGS) $(LDFLAGS) $(OBJS) -o $@
+$(ELF): $(OBJ)
+# echo $(LD_SCRIPT)
+	$(CC) $(CFLAGS) $(LD_FLAGS) $(OBJ) -o $@
 
 # Convert ELF -> BIN
 $(BIN): $(ELF)
@@ -52,8 +55,22 @@ $(BIN): $(ELF)
 flash: $(BIN)
 	$(FLASH) write $(BIN) 0x8000000
 
+# debug
+debug:
+	@tmux new-session -d -s debug -n main
+	@tmux send-keys -t debug:main 'nvim' C-m
+	@tmux send-keys -t debug:main ':e src/main.c' C-m
+	@tmux split-window -h -t debug:main
+	@tmux send-keys -t debug:main.1 'openocd -f interface/stlink.cfg -f target/stm32f3x.cfg' C-m
+	@tmux split-window -v -t debug:main.1
+	@tmux send-keys -t debug:main.2 'arm-none-eabi-gdb $(ELF)' C-m
+	@tmux send-keys -t debug:main.2 'c' C-m
+	@tmux send-keys -t debug:main.2 'target extended-remote localhost:3333' C-m
+#@tmux send-keys -t debug:main.2 'file $(ELF)' C-m
+	@tmux attach -t debug
+
 # Clean
 clean:
 	rm -rf build
 
-.PHONY: all flash clean
+.PHONY: all flash debug clean

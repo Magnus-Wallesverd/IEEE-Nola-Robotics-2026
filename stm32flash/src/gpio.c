@@ -114,10 +114,10 @@ void DisablePUPD(GPIO_TypeDef *port, uint32_t pins){
     
     port->PUPDR = GenerateBitMask(port->PUPDR, pins, 2, mode0);
 }
-
+/*
 // Reads input pins (IDR)
 uint32_t PinRead(GPIO_TypeDef *port){return 0;}
-
+*/
 // sets output values to desired pin(s) (BSRRL)
 void PinWrite(GPIO_TypeDef *port, uint32_t pins){
     pins = ClearUpperBits(pins);

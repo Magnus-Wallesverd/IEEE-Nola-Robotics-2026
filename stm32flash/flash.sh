@@ -9,7 +9,6 @@ SRC_FILES="startup.s *.c"
 # -Wl discards unused code
 # -o is output 
 arm-none-eabi-gcc -mcpu=cortex-m4 -mthumb -mfpu=fpv4-sp-d16 -mfloat-abi=hard \
-
   -T linker/stm32f303.ld src/startup.s src/main.c src/gpio.c src/timx.c \
   -nostdlib -Wl,--gc-sections -o build/firmware.elf \
   -Iinclude
