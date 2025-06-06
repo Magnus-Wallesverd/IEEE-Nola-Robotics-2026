@@ -17,11 +17,18 @@ void put_char(char c){
 }
 void printf(const char *s){
     while(*s){
-        put_char(*s++);
+        put_char(*(s++));
+    }
+}
+void printn(int num){
+    for(int i = 0; i <4 ; i++){
+        char str = ((num>>(3-i))& 1)+'0';
+        put_char(str);
     }
 }
 void main(void){
     printf("Hello OPenOCD!");
+
     /* Reset the RCC clock configuration to the default reset state ------------*/
     /* Set HSION bit */
     //RCC->CR |= (uint32_t)0x00000001;
@@ -57,6 +64,7 @@ void main(void){
     */
     PinWrite(GPIOA,0x21);
     while(1){
-        for(volatile int i = 0; i < 10000; i++);
+        printn(0b0101);
+        printf(" PortA\n");
     }
  }
