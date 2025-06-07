@@ -11,8 +11,9 @@
  */
 
 #include "timx.h"
+#include <stdint.h>
 
-const unsigned char initmask = 0b10000001;  //preset
+const uint8_t char initmask = 0b10000001;  //preset
 
 // enable timer 1, 8, or 20 with some loaded preset
 // do not use on other timers. unknown behavior
@@ -31,8 +32,8 @@ void InitGenTIM(Gen_TIM_TypeDef *port){
 void InitBasicTIM(Basic_TIM_TypeDef *port){
     port->CR1 |= initmask;
 }
-/*
+
+
 void OutputPWM(Adv_TIM_TypeDef *port){
     
 }
-*/

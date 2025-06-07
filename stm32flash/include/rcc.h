@@ -26,4 +26,7 @@ typedef struct{
 
 #define RCC ((RCC_TypeDef *) 0x40021000)
 
+// only supports one timer 
+void TimerEnable(uint8_t timer);
+
 #endif

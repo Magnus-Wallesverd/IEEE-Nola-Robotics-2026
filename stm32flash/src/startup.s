@@ -54,8 +54,8 @@ zero_bss:
   movlt r2, #0
   strlt r2, [r0], #4
   blt zero_bss
-/* Call systemInit*/  
-  bl systemInit
+/* Call SystemInit*/  
+  bl SystemInit
 /* Call main */
   bl main
 
