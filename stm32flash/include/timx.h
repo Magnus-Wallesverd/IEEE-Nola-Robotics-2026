@@ -47,7 +47,7 @@ typedef struct{
     volatile uint32_t SR;       //0x10
     volatile uint32_t EGR;      //0x14
     volatile uint32_t CCMR1;    //0x18
-    volatile uint32_t RESERVE1; //0x1C
+    volatile uint32_t CCMR2;    //0x1C
     volatile uint32_t CCER;     //0x20
     volatile uint32_t CNT;      //0x24
     volatile uint32_t PSC;      //0x28
