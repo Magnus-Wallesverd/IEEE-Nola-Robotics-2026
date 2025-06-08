@@ -1,6 +1,7 @@
 /* Test Main */
-
+#include <math.h>
 #include "stm32f303.h"
+#include <stdlib.h>
 void put_char(char c){
     asm(
             "mov r0, #0x03\n"
@@ -26,17 +27,16 @@ void printn(int num,int len){
      
 }
 void main(void){
-    printf("Hello OPenOCD!"); 
-    RCC->AHBENR |= 0x20000;
-     /* RCC->APB1ENR |= 1;
-     */
-    SetPinOutput(GPIOA,0x21);
-    /*AlternateFunctionSet(GPIOA,0x03,1);
-    InitGenTIM(TIM2);
-    */
-    PinWrite(GPIOA,0x21);
+    //float target = 1000.0;
+    int k = TIM2->CNT;
+    //float error = target - k;
+    SetPinOutput(GPIOA,0x20);  
     while(1){
-        printn(GPIOA->IDR & 1 >>4,1);
-        printf("PA4\n");
+        k = TIM2->CNT;
+        //error = target-k;
+        if(k < 1){
+            TIM1->CCR1&=0;
+        }
     }
- }
+}
+ 

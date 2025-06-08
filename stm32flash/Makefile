@@ -66,6 +66,7 @@ debug:
 	@tmux send-keys -t debug:main.2 'arm-none-eabi-gdb $(ELF)' C-m
 	@tmux send-keys -t debug:main.2 'c' C-m
 	@tmux send-keys -t debug:main.2 'target extended-remote localhost:3333' C-m
+	@tmux send-keys -t debug:main.2 'monitor arm semihosting enable' C-m
 #@tmux send-keys -t debug:main.2 'file $(ELF)' C-m
 	@tmux attach -t debug
 
