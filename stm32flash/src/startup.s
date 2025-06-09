@@ -55,7 +55,7 @@ zero_bss:
   strlt r2, [r0], #4
   blt zero_bss
 /* Call SystemInit*/  
-  bl SystemInit
+  bl systeminit
 /* Call main */
   bl main
 
