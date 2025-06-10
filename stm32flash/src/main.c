@@ -1,6 +1,5 @@
 /* Test Main */
 #include "stm32f303.h"
-#include "systeminit.h"
 void put_char(char c){
     asm(
             "mov r0, #0x03\n"

@@ -59,7 +59,7 @@ flash: $(BIN)
 debug:
 	@tmux new-session -d -s debug -n main
 	@tmux send-keys -t debug:main 'nvim' C-m
-	@tmux send-keys -t debug:main ':e src/main.c' C-m
+	@tmux send-keys -t debug:main ':e src/systeminit.c' C-m
 	@tmux split-window -h -t debug:main
 	@tmux send-keys -t debug:main.1 'openocd -f interface/stlink.cfg -f target/stm32f3x.cfg' C-m
 	@tmux split-window -v -t debug:main.1
