@@ -1,5 +1,6 @@
 /* Test Main */
 #include "stm32f303.h"
+
 void put_char(char c){
     asm(
             "mov r0, #0x03\n"
@@ -25,13 +26,15 @@ void printn(int num,int len){
      
 }
 void main(void){
-    
+   int t = 0;
+    int u = 3000;
     //systeminit();
-    //float target = 1000.0;
-    //float error = target - k;
-    SetPinOutput(GPIOA,0x20);
     while(1){
+        int k= u-TIM3->CNT;
+
+        t++;
         PinWrite(GPIOA,0x20);
+        TIM1->CCR1 = (TIM1->ARR)* k/100; 
     }
 }
  

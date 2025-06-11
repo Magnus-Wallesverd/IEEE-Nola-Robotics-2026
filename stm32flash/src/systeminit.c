@@ -3,11 +3,11 @@
 // TIM3_CR2 Bit 7 has TIM1_CH selection 
 #include "stm32f303.h"
 
-#define DBGMCU_CR *((volatile uint32_t*) 0xE0042004)
+//#define DBGMCU_CR *((volatile uint32_t*) 0xE0042004)
 
 
 void systeminit(void){
-    DBGMCU_CR |= 3;
+    //DBGMCU_CR |= 3;
     RCC->APB1ENR |= (1 << 1);               // Enable TIM3
     RCC->APB2ENR |= (1 << 11);              // Enable TIM1
     
@@ -28,7 +28,7 @@ void systeminit(void){
     TIM1->PSC |= 0;                         // TIMx_CNT = f_ckpdc/(PSC+1)
     TIM1->ARR = 0xFFF;                      // Auto reload @ 10000
     TIM1->CCR1 |= 0x800;                    // compare @ 5000
-    TIM1->CCMR1 |= 0x60;                    // PWM Mode 1
+    TIM1->CCMR1 |= 0x68;                    // PWM Mode 1
     TIM1->CCER |= 1;                        // Refer to rm0316 Table 122 
     TIM1->BDTR |= 1<<15;                    // Main Output enable
     

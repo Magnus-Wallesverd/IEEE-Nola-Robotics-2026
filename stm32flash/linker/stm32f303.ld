@@ -14,7 +14,7 @@ SECTIONS
 {
   .text :
   {
-    KEEP(*(.isr_vector))   /* Vector table */
+    KEEP(*(.isr_vector))   /* Vector table that holds addresses*/
     *(.text*)              /* Code */
     *(.rodata*)            /* Constants */
     _etext = .;            /* End of code */
@@ -22,7 +22,8 @@ SECTIONS
 
   .data : AT(_etext)
   {
-    _sdata = .;
+    /* sdata is start of data and edata is the end of data */
+    _sdata = .; 
     *(.data*)
     _edata = .;
   } > RAM
