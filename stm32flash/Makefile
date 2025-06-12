@@ -14,7 +14,8 @@ FLASH = st-flash
 
 # Linker
 LD_SCRIPT = linker/stm32f303.ld
-LD_FLAGS = -T$(LD_SCRIPT) -Wl,--gc-sections -lm -lc -lgcc -lnosys -g
+LD_FLAGS = -T$(LD_SCRIPT) -Wl,--gc-sections -g 
+LIBS = -lc -lm -lgcc
 
 # Source Files
 SRC = $(wildcard src/*.c)
@@ -45,7 +46,7 @@ build/startup.o: $(ASM)
 # Link everything into ELF
 $(ELF): $(OBJ)
 # echo $(LD_SCRIPT)
-	$(CC) $(CFLAGS) $(LD_FLAGS) $(OBJ) -o $@
+	$(CC) $(CFLAGS) $(LD_FLAGS) $(OBJ) $(LIBS) -o $@
 
 # Convert ELF -> BIN
 $(BIN): $(ELF)

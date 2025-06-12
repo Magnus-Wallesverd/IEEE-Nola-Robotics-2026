@@ -54,6 +54,15 @@ zero_bss:
   movlt r2, #0
   strlt r2, [r0], #4
   blt zero_bss
+
+enable_fpu:
+  LDR.W R0, = 0xE000ED88
+  LDR R1, [R0]
+  ORR R1,R1, #(0xF <<20)
+  STR R1,[R0]
+  DSB
+  ISB
+
 /* Call SystemInit*/  
   bl systeminit
 /* Call main */
