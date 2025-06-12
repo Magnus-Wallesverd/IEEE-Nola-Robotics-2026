@@ -14,7 +14,7 @@ FLASH = st-flash
 
 # Linker
 LD_SCRIPT = linker/stm32f303.ld
-LD_FLAGS = -T$(LD_SCRIPT) -Wl,--gc-sections -g
+LD_FLAGS = -T$(LD_SCRIPT) -Wl,--gc-sections -lm -lc -lgcc -lnosys -g
 
 # Source Files
 SRC = $(wildcard src/*.c)

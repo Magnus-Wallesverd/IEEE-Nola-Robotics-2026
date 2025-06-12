@@ -1,6 +1,15 @@
 /* Test Main */
 #include "stm32f303.h"
+#include <math.h>
 
+int abs(int num){
+    if(num<0){
+        return num*(-1);
+    }
+    else{
+        return num;
+    }
+}
 void put_char(char c){
     asm(
             "mov r0, #0x03\n"
@@ -26,15 +35,15 @@ void printn(int num,int len){
      
 }
 void main(void){
-   int t = 0;
-    int u = 3000;
-    //systeminit();
+    int t = 0;
+    int k =0;
+    int u = 500;
+    int g = atan(u);
     while(1){
-        int k= u-TIM3->CNT;
+        k= u-TIM3->CNT;
 
         t++;
-        PinWrite(GPIOA,0x20);
-        TIM1->CCR1 = (TIM1->ARR)* k/100; 
+        TIM1->CCR1 = (TIM1->ARR)* abs(k)/u; 
     }
 }
  
