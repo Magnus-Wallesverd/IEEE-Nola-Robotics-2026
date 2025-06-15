@@ -31,8 +31,12 @@ g_pfnVectors:
   .word 0
   .word PendSV_Handler + 1
   .word SysTick_Handler + 1
-  .word IRQ0_Handler + 1
-
+  .word WWDG + 1 
+  .word 0, 0, 0, 0, 0, 0, 0, 0
+  .word 0, 0, 0, 0, 0, 0, 0, 0 
+  .word 0, 0, 0, 0, 0, 0, 0, 0 
+  .word 0, 0 
+  .word TIM1_CC + 1
   /* Add peripheral ISRs as needed here */
 
 /*  defines Reset_Handler's memory location */
@@ -71,22 +75,24 @@ zero_bss:
   strlt r2, [r0], #4    /*  store r2 = 0 into address pointed to by R0 increment register 0 address #4 bytes */
   blt zero_bss          /*  branch back to zero if N is set */
 
-/* Call SystemInit*/  
-  bl systeminit         /*  branch with link. link address is stored in link register */
+/* Call SystemInit*/
+  bl systeminit         /* branch with link. link address is stored in link register */
 
 /* Call main */
-  bl main               /*  brank with link to main. */
+/*  bl main                 brank with link to main. */
 
 infinite_loop:
   b infinite_loop
 
 /* Default handlers */
-NMI_Handler:       b .
-HardFault_Handler: b .
-MemManage_Handler: b .
-BusFault_Handler:  b .
-UsageFault_Handler:b .
-SVC_Handler:       b .
-DebugMon_Handler:  b .
-PendSV_Handler:    b .
-SysTick_Handler:   b .
+NMI_Handler:        b .
+HardFault_Handler:  b .
+MemManage_Handler:  b .
+BusFault_Handler:   b .
+UsageFault_Handler: b .
+SVC_Handler:        b .
+DebugMon_Handler:   b .
+PendSV_Handler:     b .
+SysTick_Handler:    bl systick_irq
+WWDG:               b .
+TIM1_CC:            b .

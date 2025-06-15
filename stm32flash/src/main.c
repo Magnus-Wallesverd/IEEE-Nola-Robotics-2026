@@ -27,7 +27,7 @@ void printn(int num,int len){
      
 }
 void main(void){
-    int t = 0;
+//   int t = 0;
     int k =0;
     int u = 500;
     while(1){

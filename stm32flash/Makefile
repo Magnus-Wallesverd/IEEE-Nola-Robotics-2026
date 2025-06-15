@@ -19,8 +19,12 @@ LIBS = -lc -lm -lgcc
 
 # Source Files
 SRC = $(wildcard src/*.c)
-ASM = src/startup.s
-OBJ = $(SRC:src/%.c=build/%.o) build/startup.o
+ASM = $(wildcard src/*.s)
+
+ASM_OBJ = $(ASM:src/%.s=build/%.o)
+C_OBJ = $(SRC:src/%.c=build/%.o)
+
+OBJ := $(C_OBJ) $(ASM_OBJ)
 
 # Target path to put build files
 TARGET = firmware
@@ -39,7 +43,7 @@ build/%.o: src/%.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
 # Compile startup.s -> .o
-build/startup.o: $(ASM)
+build/%.o: src/%.s
 	@mkdir -p build
 	$(CC) $(CFLAGS) -c $< -o $@
 
@@ -60,7 +64,7 @@ flash: $(BIN)
 debug:
 	@tmux new-session -d -s debug -n main
 	@tmux send-keys -t debug:main 'nvim' C-m
-	@tmux send-keys -t debug:main ':e src/systeminit.c' C-m
+	@tmux send-keys -t debug:main ':e. ' C-m
 	@tmux split-window -h -t debug:main
 	@tmux send-keys -t debug:main.1 'openocd -f interface/stlink.cfg -f target/stm32f3x.cfg' C-m
 	@tmux split-window -v -t debug:main.1

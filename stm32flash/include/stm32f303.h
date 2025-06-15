@@ -9,6 +9,7 @@
 #ifndef STM32F303_H
 #define STM32F303_H
 
+#include "backend.h"
 #include "gpio.h"
 #include "timx.h"
 #include "rcc.h"
