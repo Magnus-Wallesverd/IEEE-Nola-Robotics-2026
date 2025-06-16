@@ -12,6 +12,8 @@ void systeminit(void){
     STK->CTRL |= 0x6;
     STK->LOAD |= 0xFFFFFF;
 
+    SHPR3->SHPR3 |= 
+
     RCC->APB1ENR |= (1 << 1);               // Enable TIM3
     RCC->APB2ENR |= (1 << 11);              // Enable TIM1
     
@@ -28,16 +30,16 @@ void systeminit(void){
     //TIM1 PWM SEtup
     SetPinAlternate(GPIOA,0x100);           // set PA 8 to AF mode
     AlternateFunctionSet(GPIOA,1<<8,6);     // set PA 8 to AF6 Maps to TIM1_CH1 (check) 
-    TIM1->PSC   |= 0xFFF;                         // TIMx_CNT = f_ckpdc/(PSC+1)
-    TIM1->ARR    = 0xFFFF;                      // Auto reload @ 10000
-    TIM1->CCR1  |= 0x8000;                    // compare @ 5000
+    TIM1->PSC   |= 0xFFF;                   // TIMx_CNT = f_ckpdc/(PSC+1)
+    TIM1->ARR    = 0xFFFF;                  // Auto reload @ 10000
+    TIM1->CCR1  |= 0x8000;                  // compare @ 5000
     TIM1->CCMR1 |= 0x68;                    // PWM Mode 1
-    TIM1->CCER  |= 1;                        // Refer to rm0316 Table 122 
+    TIM1->CCER  |= 1;                       // Refer to rm0316 Table 122 
     //TIM1->DIER  |= 1<<0; // UIE
-    TIM1->BDTR  |= 1<<15;                    // Main Output enable
+    TIM1->BDTR  |= 1<<15;                   // Main Output enable
     
     TIM3->CR1 |= 0b10000001;                // Enable TIM3 Counter 
     TIM1->CR1 |= 0b10000001;                // Enable TIM1 counter
     //TIM1->SR  &= 0;     // clear UIF
-    STK->CTRL |= 0x1;
+    STK->CTRL |= 0x1;                       // 
 }
