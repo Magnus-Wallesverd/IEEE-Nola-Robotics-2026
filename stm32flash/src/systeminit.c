@@ -12,7 +12,7 @@ void systeminit(void){
     STK->CTRL |= 0x6;
     STK->LOAD |= 0xFFFFFF;
 
-    SHPR3->SHPR3 |= 
+    SCB->SHPR3 |= 0xF0000000;
 
     RCC->APB1ENR |= (1 << 1);               // Enable TIM3
     RCC->APB2ENR |= (1 << 11);              // Enable TIM1

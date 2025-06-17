@@ -37,6 +37,5 @@ typedef struct {
 
 #define STK   ((Systick_TypeDef *) 0xE000E010)
 #define SCB   ((SCB_TypeDef *)     0xE000ED00)
-#define SHPR3 ((SHPR3_TypeDef *)   0xE000ED20)
 
 #endif // !BACKEND_H

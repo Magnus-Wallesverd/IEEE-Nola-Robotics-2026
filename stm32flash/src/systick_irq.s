@@ -2,7 +2,6 @@
 .global systick_irq
 .type systick_irq, %function
 
-
 systick_irq:
     movw r4,  #0xFA
     movw r5,  #0xFB
@@ -12,6 +11,7 @@ systick_irq:
 
 set: 
     movw r4, #0xFF
+
 loop:
     sub r4, #0x1
     cmp r4, #0x0

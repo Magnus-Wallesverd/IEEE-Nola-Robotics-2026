@@ -1,6 +1,7 @@
 #ifndef TCB_H
 #define TCB_H
 
+#include "stm32f303.h"
 #include <stdint.h>
 
 typedef struct{
@@ -9,9 +10,6 @@ typedef struct{
     uint8_t  state;
     uint8_t  prio;
     uint8_t  flags;
-
 }TCB;
 
 #endif // !TCB_H
-#define TCB_H
-
