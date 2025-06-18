@@ -2,7 +2,6 @@
 #include <stdint.h>
 
 int taskscheduler(){
-    while(1){
-
-    }
+    
 }
+
