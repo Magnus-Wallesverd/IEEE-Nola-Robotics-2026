@@ -1,31 +1,32 @@
 //Initialize Timer, GPIO Circuitry.
 //
-// TIM3_CR2 Bit 7 has TIM1_CH selection 
+// TIM4_CR2 Bit 7 has TIM1_CH selection 
 #include "stm32f303.h"
 
 //#define DBGMCU_CR *((volatile uint32_t*) 0xE0042004)
 
 
 void systeminit(void){
-    //DBGMCU_CR |= 3;
     
+    /* systic interrupt init
     STK->CTRL |= 0x6;
     STK->LOAD |= 0xFFFFFF;
 
     SCB->SHPR3 |= 0xF0000000;
-
-    RCC->APB1ENR |= (1 << 1);               // Enable TIM3
+    */
+    
+    RCC->APB1ENR |= (1 << 2);               // Enable TIM4
     RCC->APB2ENR |= (1 << 11);              // Enable TIM1
     
-    //TIM3 ENCODer SEtup
-    RCC->AHBENR |= 0xA0000;                   // GPIO A&C  clock enable
-    SetPinAlternate(GPIOC,0xC0);// Set pins 0 & 1 to AF mode TIM3
-    AlternateFunctionSet(GPIOC,0xC0,2);      // Set pins PC0 & PC1 to AF2 for TIM3
-    TIM3->ARR = 0xffff;
-    TIM3->SMCR |=0b0011;                    // Encoder mode 1 - Counter counts up/down on TI1FP1 edge depending on TI2FP2  level. Consider trigger selection to sync counter.
-    TIM3->CCMR1 |= 0x101;                   // CC1 is input IC mapped on T1I, capture done every 2 events Note: CC1S bits are writable only when the channel is OFF (CC1E = 0 in TIMx_CCER). 
-    TIM3->CCER |= 0x11;                      // Capture mode 1 & 2 enabled & sensitive to TIxFP1 rising edge(Encoder Mode) 
-    TIM3->DIER |= 0x6;
+    //TIM4 ENCODer SEtup
+    RCC->AHBENR |= 0xA0000;                   // enable GPIO A&C  clock 
+    SetPinAlternate(GPIOA,0x1800);            // Set pins 11 & 12 to AF mode TIM4
+    AlternateFunctionSet(GPIOA,0x1800,10);      // Set pins PA11 & PA12 to AF10 for TIM4
+    TIM4->ARR = 0xffff;
+    TIM4->SMCR |=0b0011;                    // Encoder mode 1 - Counter counts up/down on TI1FP1 edge depending on TI2FP2  level. Consider trigger selection to sync counter.
+    TIM4->CCMR1 |= 0x101;                   // CC1 is input IC mapped on T1I, capture done every 2 events Note: CC1S bits are writable only when the channel is OFF (CC1E = 0 in TIMx_CCER). 
+    TIM4->CCER |= 0x11;                      // Capture mode 1 & 2 enabled & sensitive to TIxFP1 rising edge(Encoder Mode) 
+    TIM4->DIER |= 0x6;
     
     //TIM1 PWM SEtup
     SetPinAlternate(GPIOA,0x100);           // set PA 8 to AF mode
@@ -38,8 +39,11 @@ void systeminit(void){
     //TIM1->DIER  |= 1<<0; // UIE
     TIM1->BDTR  |= 1<<15;                   // Main Output enable
     
-    TIM3->CR1 |= 0b10000001;                // Enable TIM3 Counter 
+    TIM4->CR1 |= 0b10000001;                // Enable TIM4 Counter 
     TIM1->CR1 |= 0b10000001;                // Enable TIM1 counter
     //TIM1->SR  &= 0;     // clear UIF
-    STK->CTRL |= 0x1;                       // 
+    
+    /*systic interrupt init
+    STK->CTRL |= 0x1;
+    */ 
 }

@@ -86,9 +86,18 @@ void SetPinAlternate(GPIO_TypeDef *port, uint32_t pins){
 // selects Analog mode. takes GPIO struct and pins to set 
 void SetPinAnalog(GPIO_TypeDef *port, uint32_t pins){
 
+    // clears upper 16 bits
+    pins = ClearUpperBits(pins);
     
+    //sets MODER
     port->MODER = GenerateBitMask(port->MODER, pins, 2, mode3);
 
+}
+
+// set output type
+void SetOutputType(GPIO_TypeDef *port, uint32_t pins, uint8_t bit){
+    pins = ClearUpperBits(pins);
+    port->OTYPER = GenerateBitMask(port->OTYPER, pins, 1, bit);
 }
 
 // set pins in pull up mode
@@ -114,10 +123,10 @@ void DisablePUPD(GPIO_TypeDef *port, uint32_t pins){
     
     port->PUPDR = GenerateBitMask(port->PUPDR, pins, 2, mode0);
 }
-/*
-// Reads input pins (IDR)
-uint32_t PinRead(GPIO_TypeDef *port){return 0;}
-*/
+
+//Reads input pins (IDR)
+uint32_t PinRead(GPIO_TypeDef *port){return port->IDR;}
+
 // sets output values to desired pin(s) (BSRRL)
 void PinWrite(GPIO_TypeDef *port, uint32_t pins){
     pins = ClearUpperBits(pins);

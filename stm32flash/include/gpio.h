@@ -54,6 +54,9 @@ void SetPinAlternate(GPIO_TypeDef *port, uint32_t pins);
 // selects Analog mode. takes GPIO struct and pins to set 
 void SetPinAnalog(GPIO_TypeDef *port, uint32_t pins);
 
+// set output type. takes GPIO struct and pins to set
+void SetOutputType(GPIO_TypeDef *port, uint32_t pins, uint8_t bit);
+
 // set pins in pull up mode
 void SetPinPU(GPIO_TypeDef *port, uint32_t pins);
 

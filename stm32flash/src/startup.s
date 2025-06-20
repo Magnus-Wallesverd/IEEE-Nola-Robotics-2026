@@ -77,9 +77,9 @@ zero_bss:
 
 /* Call SystemInit*/
   bl systeminit         /* branch with link. link address is stored in link register */
-
+  bl lcdinit
 /* Call main */
-/*  bl main                 brank with link to main. */
+/*  bl main                 branch with link to main. */
 
 infinite_loop:
   b infinite_loop
@@ -93,6 +93,6 @@ UsageFault_Handler: b .
 SVC_Handler:        b .
 DebugMon_Handler:   b .
 PendSV_Handler:     b .
-SysTick_Handler:    bl systick_irq
+SysTick_Handler:    b . /* bl systick_irq */
 WWDG:               b .
 TIM1_CC:            b .
