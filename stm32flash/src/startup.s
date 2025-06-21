@@ -64,6 +64,38 @@ copy_data:              /*  This function uses the N flag to keep looping */
   strlt r3, [r0], #4    /*  store r3 to address pointed to by [r0] then increment register 0 address #4 bytes */
   blt copy_data         /*  branch to copy_data if N is set  */
 
+  ldr r0, = _stcb
+  ldr r1, = _etcb
+
+init_tcb:
+  cmp r0, r1
+  ittt lt 
+  movlt r2, #0 
+  strlt r2, [r0], #4
+  blt init_tcb
+
+  /* Padding between tcb and task space */
+  ldr r0, = _spadding
+  ldr r1, = _epadding
+  
+fill_padding:
+  cmp r0, r1
+  ittt lt
+  movlt r2, #0xFF
+  strlt r2, [r0], #4
+  blt fill_padding
+  
+  /* zero the taskspace */
+  ldr r0, = _staskspace 
+  ldr r1, = _etaskspace
+
+zero_taskspace:
+  cmp r0, r1
+  ittt lt 
+  movlt r2, #0
+  strlt r2, [r0], #4
+  blt zero_taskspace
+
   /* Zero initialize .bss */
   ldr r0, = _sbss       /*  load address pointer into r0 */
   ldr r1, = _ebss       /*  load address pointer into r1 */
@@ -75,11 +107,20 @@ zero_bss:
   strlt r2, [r0], #4    /*  store r2 = 0 into address pointed to by R0 increment register 0 address #4 bytes */
   blt zero_bss          /*  branch back to zero if N is set */
 
-/* Call SystemInit*/
-  bl systeminit         /* branch with link. link address is stored in link register */
-  bl lcdinit
-/* Call main */
-/*  bl main                 branch with link to main. */
+
+
+  /* Call systeminit, branch with link */
+  bl systeminit         
+  
+  bl initstack
+
+  bl taskscheduler
+  
+  /* Call lcdinit 
+  bl lcdinit */
+
+  /* Call main 
+  bl main  */
 
 infinite_loop:
   b infinite_loop

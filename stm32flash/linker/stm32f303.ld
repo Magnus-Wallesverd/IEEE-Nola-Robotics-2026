@@ -28,6 +28,27 @@ SECTIONS
     _edata = .;
   } > RAM
 
+  .tcb :
+  {
+    _stcb = .;
+    . = . + 0xA0;
+    _etcb = .;
+  } > RAM
+
+  .padding :
+  {
+    _spadding = .;
+    . = . + 0x100;
+    _epadding = .;
+  } > RAM
+
+  .taskspace : 
+  {
+    _staskspace = .;
+    . = . + 0x2800;
+    _etaskspace = .;
+  } > RAM 
+
   .bss :
   {
     _sbss = .;

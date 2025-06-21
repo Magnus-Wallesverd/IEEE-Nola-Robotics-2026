@@ -3,7 +3,7 @@
 /*
  * TODO abstract all register if necessary
  *      Remaining Registers
- *      OTYPER, OSPEEDR, LCKRR
+ *      OSPEEDR, LCKRR
  */
 
 
