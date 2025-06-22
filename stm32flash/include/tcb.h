@@ -24,15 +24,15 @@ extern uint32_t _staskspace[SIZE][STACK_SIZE / sizeof(uint32_t)];
 
 extern void save_sp(TCB *_stcb);
 
-void my_function1(void *ctx);
-void my_function2(void *ctx);
-void my_function3(void *ctx);
-void my_function4(void *ctx);
-void my_function5(void *ctx);
-void my_function6(void *ctx);
-void my_function7(void *ctx);
-void my_function8(void *ctx);
-void my_function9(void *ctx);
-void my_function10(void *ctx);
+void __attribute__((section(".task1"))) my_function1(void *ctx);
+void __attribute__((section(".task2"))) my_function2(void *ctx);
+void __attribute__((section(".task3"))) my_function3(void *ctx);
+void __attribute__((section(".task4"))) my_function4(void *ctx);
+void __attribute__((section(".task5"))) my_function5(void *ctx);
+void __attribute__((section(".task6"))) my_function6(void *ctx);
+void __attribute__((section(".task7"))) my_function7(void *ctx);
+void __attribute__((section(".task8"))) my_function8(void *ctx);
+void __attribute__((section(".task9"))) my_function9(void *ctx);
+void __attribute__((section(".task10"))) my_function10(void *ctx);
 
 #endif // !TCB_H

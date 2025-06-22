@@ -19,9 +19,9 @@ LIBS = -lc -lm -lgcc
 
 # Source Files
 SRC = $(wildcard src/*.c)
-ASM = $(wildcard src/*.s)
+ASM = $(wildcard asm/*.s)
 
-ASM_OBJ = $(ASM:src/%.s=build/%.o)
+ASM_OBJ = $(ASM:asm/%.s=build/%.o)
 C_OBJ = $(SRC:src/%.c=build/%.o)
 
 OBJ := $(C_OBJ) $(ASM_OBJ)
@@ -43,7 +43,7 @@ build/%.o: src/%.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
 # Compile startup.s -> .o
-build/%.o: src/%.s
+build/%.o: asm/%.s
 	@mkdir -p build
 	$(CC) $(CFLAGS) -c $< -o $@
 

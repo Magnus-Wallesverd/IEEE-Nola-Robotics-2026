@@ -5,7 +5,8 @@ TCB _stcb[SIZE];
 uint32_t _staskspace[SIZE][STACK_SIZE / sizeof(uint32_t)];
 
 void initstack(void){
-    int a = 0xFF;   
+    
+    // list of functions 
     void (*function_list[SIZE])(void *) = {
         my_function1,
         my_function2,
