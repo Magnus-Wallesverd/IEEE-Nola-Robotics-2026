@@ -36,7 +36,8 @@ g_pfnVectors:
   .word 0, 0, 0, 0, 0, 0, 0, 0 
   .word 0, 0, 0, 0, 0, 0, 0, 0 
   .word 0, 0 
-  .word TIM1_CC + 1
+  /* .word TIM1_CC + 1*/
+
   /* Add peripheral ISRs as needed here */
 
 /*  defines Reset_Handler's memory location */
@@ -81,7 +82,7 @@ init_tcb:
 fill_padding:
   cmp r0, r1
   ittt lt
-  movlt r2, #0xFF
+  movlt r2, #0xBB
   strlt r2, [r0], #4
   blt fill_padding
   
@@ -95,6 +96,17 @@ zero_taskspace:
   movlt r2, #0
   strlt r2, [r0], #4
   blt zero_taskspace
+
+  ldr r0, = _staskspace
+  ldr r1, = _etaskspace
+  ldr r2, = _stask_load
+
+task_loader:
+  cmp r0, r1
+  ittt lt 
+  ldrlt r3, [r0], #4 
+  strlt r3, [r2], #4
+  blt task_loader
 
   /* Zero initialize .bss */
   ldr r0, = _sbss       /*  load address pointer into r0 */
@@ -136,4 +148,4 @@ DebugMon_Handler:   b .
 PendSV_Handler:     b .
 SysTick_Handler:    b . /* bl systick_irq */
 WWDG:               b .
-TIM1_CC:            b .
+/* TIM1_CC:            b .*/

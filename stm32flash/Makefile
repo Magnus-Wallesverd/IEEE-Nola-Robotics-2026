@@ -75,8 +75,10 @@ debug:
 #@tmux send-keys -t debug:main.2 'file $(ELF)' C-m
 	@tmux attach -t debug
 
+dump:
+	@arm-none-eabi-objdump -S build/firmware.elf > dump.txt
 # Clean
 clean:
 	rm -rf build
 
-.PHONY: all flash debug clean
+.PHONY: all flash debug dump clean

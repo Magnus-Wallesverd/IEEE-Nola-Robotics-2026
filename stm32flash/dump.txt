@@ -1,0 +1,1175 @@
+
+build/firmware.elf:     file format elf32-littlearm
+
+
+Disassembly of section .text:
+
+08000000 <g_pfnVectors>:
+ 8000000:	00 00 01 20 7d 05 00 08 f3 05 00 08 f5 05 00 08     ... }...........
+ 8000010:	f7 05 00 08 f9 05 00 08 fb 05 00 08 00 00 00 00     ................
+	...
+ 800002c:	fd 05 00 08 ff 05 00 08 00 00 00 00 01 06 00 08     ................
+ 800003c:	03 06 00 08 05 06 00 08 00 00 00 00 00 00 00 00     ................
+	...
+
+080000ac <ClearUpperBits>:
+const uint8_t mode1  = 0b0001;     // output                
+const uint8_t mode2  = 0b0010;     // Alternate function    
+const uint8_t mode3  = 0b0011;     // Analog                
+
+// function to clear upper bits
+static uint32_t ClearUpperBits(uint32_t input){
+ 80000ac:	b480      	push	{r7}
+ 80000ae:	b083      	sub	sp, #12
+ 80000b0:	af00      	add	r7, sp, #0
+ 80000b2:	6078      	str	r0, [r7, #4]
+    return (input & masklow);
+ 80000b4:	f64f 73ff 	movw	r3, #65535	@ 0xffff
+ 80000b8:	461a      	mov	r2, r3
+ 80000ba:	687b      	ldr	r3, [r7, #4]
+ 80000bc:	4013      	ands	r3, r2
+}
+ 80000be:	4618      	mov	r0, r3
+ 80000c0:	370c      	adds	r7, #12
+ 80000c2:	46bd      	mov	sp, r7
+ 80000c4:	f85d 7b04 	ldr.w	r7, [sp], #4
+ 80000c8:	4770      	bx	lr
+
+080000ca <ClearLowerBits>:
+
+// function to clear lower bits
+static uint32_t ClearLowerBits(uint32_t input){
+ 80000ca:	b480      	push	{r7}
+ 80000cc:	b083      	sub	sp, #12
+ 80000ce:	af00      	add	r7, sp, #0
+ 80000d0:	6078      	str	r0, [r7, #4]
+    return (input << 16);
+ 80000d2:	687b      	ldr	r3, [r7, #4]
+ 80000d4:	041b      	lsls	r3, r3, #16
+}
+ 80000d6:	4618      	mov	r0, r3
+ 80000d8:	370c      	adds	r7, #12
+ 80000da:	46bd      	mov	sp, r7
+ 80000dc:	f85d 7b04 	ldr.w	r7, [sp], #4
+ 80000e0:	4770      	bx	lr
+
+080000e2 <GenerateBitMask>:
+
+static uint32_t GenerateBitMask(uint32_t reg, uint32_t pins, uint8_t bitwidth, uint8_t mode){
+ 80000e2:	b480      	push	{r7}
+ 80000e4:	b089      	sub	sp, #36	@ 0x24
+ 80000e6:	af00      	add	r7, sp, #0
+ 80000e8:	60f8      	str	r0, [r7, #12]
+ 80000ea:	60b9      	str	r1, [r7, #8]
+ 80000ec:	4611      	mov	r1, r2
+ 80000ee:	461a      	mov	r2, r3
+ 80000f0:	460b      	mov	r3, r1
+ 80000f2:	71fb      	strb	r3, [r7, #7]
+ 80000f4:	4613      	mov	r3, r2
+ 80000f6:	71bb      	strb	r3, [r7, #6]
+    
+    uint32_t mask = 0;
+ 80000f8:	2300      	movs	r3, #0
+ 80000fa:	61fb      	str	r3, [r7, #28]
+    uint32_t clearmask;
+    uint32_t result = 0;
+ 80000fc:	2300      	movs	r3, #0
+ 80000fe:	617b      	str	r3, [r7, #20]
+
+    if(bitwidth == 2){
+ 8000100:	79fb      	ldrb	r3, [r7, #7]
+ 8000102:	2b02      	cmp	r3, #2
+ 8000104:	d102      	bne.n	800010c <GenerateBitMask+0x2a>
+        clearmask = 0b11;
+ 8000106:	2303      	movs	r3, #3
+ 8000108:	61bb      	str	r3, [r7, #24]
+ 800010a:	e001      	b.n	8000110 <GenerateBitMask+0x2e>
+    }
+    else
+        clearmask = 0b1111;
+ 800010c:	230f      	movs	r3, #15
+ 800010e:	61bb      	str	r3, [r7, #24]
+
+    // checks each bit for 1 then generates the bit mask
+    for(int i = 0; i < 32/bitwidth; i++){
+ 8000110:	2300      	movs	r3, #0
+ 8000112:	613b      	str	r3, [r7, #16]
+ 8000114:	e01f      	b.n	8000156 <GenerateBitMask+0x74>
+        if((pins >> i) & 1){
+ 8000116:	68ba      	ldr	r2, [r7, #8]
+ 8000118:	693b      	ldr	r3, [r7, #16]
+ 800011a:	fa22 f303 	lsr.w	r3, r2, r3
+ 800011e:	f003 0301 	and.w	r3, r3, #1
+ 8000122:	2b00      	cmp	r3, #0
+ 8000124:	d014      	beq.n	8000150 <GenerateBitMask+0x6e>
+            result |= (clearmask << (bitwidth*i));
+ 8000126:	79fb      	ldrb	r3, [r7, #7]
+ 8000128:	693a      	ldr	r2, [r7, #16]
+ 800012a:	fb02 f303 	mul.w	r3, r2, r3
+ 800012e:	69ba      	ldr	r2, [r7, #24]
+ 8000130:	fa02 f303 	lsl.w	r3, r2, r3
+ 8000134:	697a      	ldr	r2, [r7, #20]
+ 8000136:	4313      	orrs	r3, r2
+ 8000138:	617b      	str	r3, [r7, #20]
+            mask |= (mode << (bitwidth*i));
+ 800013a:	79ba      	ldrb	r2, [r7, #6]
+ 800013c:	79fb      	ldrb	r3, [r7, #7]
+ 800013e:	6939      	ldr	r1, [r7, #16]
+ 8000140:	fb01 f303 	mul.w	r3, r1, r3
+ 8000144:	fa02 f303 	lsl.w	r3, r2, r3
+ 8000148:	461a      	mov	r2, r3
+ 800014a:	69fb      	ldr	r3, [r7, #28]
+ 800014c:	4313      	orrs	r3, r2
+ 800014e:	61fb      	str	r3, [r7, #28]
+    for(int i = 0; i < 32/bitwidth; i++){
+ 8000150:	693b      	ldr	r3, [r7, #16]
+ 8000152:	3301      	adds	r3, #1
+ 8000154:	613b      	str	r3, [r7, #16]
+ 8000156:	79fb      	ldrb	r3, [r7, #7]
+ 8000158:	2220      	movs	r2, #32
+ 800015a:	fb92 f3f3 	sdiv	r3, r2, r3
+ 800015e:	693a      	ldr	r2, [r7, #16]
+ 8000160:	429a      	cmp	r2, r3
+ 8000162:	dbd8      	blt.n	8000116 <GenerateBitMask+0x34>
+        }
+    }
+
+    return ((reg & ~result)|mask);
+ 8000164:	697b      	ldr	r3, [r7, #20]
+ 8000166:	43da      	mvns	r2, r3
+ 8000168:	68fb      	ldr	r3, [r7, #12]
+ 800016a:	401a      	ands	r2, r3
+ 800016c:	69fb      	ldr	r3, [r7, #28]
+ 800016e:	4313      	orrs	r3, r2
+}
+ 8000170:	4618      	mov	r0, r3
+ 8000172:	3724      	adds	r7, #36	@ 0x24
+ 8000174:	46bd      	mov	sp, r7
+ 8000176:	f85d 7b04 	ldr.w	r7, [sp], #4
+ 800017a:	4770      	bx	lr
+
+0800017c <SetPinInput>:
+
+//selects Input mode. takes GPIO struct and pins to set
+
+void SetPinInput(GPIO_TypeDef *port, uint32_t pins){
+ 800017c:	b580      	push	{r7, lr}
+ 800017e:	b082      	sub	sp, #8
+ 8000180:	af00      	add	r7, sp, #0
+ 8000182:	6078      	str	r0, [r7, #4]
+ 8000184:	6039      	str	r1, [r7, #0]
+    
+    // clears upper 16 bits
+    pins = ClearUpperBits(pins);
+ 8000186:	6838      	ldr	r0, [r7, #0]
+ 8000188:	f7ff ff90 	bl	80000ac <ClearUpperBits>
+ 800018c:	6038      	str	r0, [r7, #0]
+    
+    // sets MODER
+    port->MODER = GenerateBitMask(port->MODER, pins, 2, mode0);
+ 800018e:	687b      	ldr	r3, [r7, #4]
+ 8000190:	6818      	ldr	r0, [r3, #0]
+ 8000192:	2300      	movs	r3, #0
+ 8000194:	2202      	movs	r2, #2
+ 8000196:	6839      	ldr	r1, [r7, #0]
+ 8000198:	f7ff ffa3 	bl	80000e2 <GenerateBitMask>
+ 800019c:	4602      	mov	r2, r0
+ 800019e:	687b      	ldr	r3, [r7, #4]
+ 80001a0:	601a      	str	r2, [r3, #0]
+}
+ 80001a2:	bf00      	nop
+ 80001a4:	3708      	adds	r7, #8
+ 80001a6:	46bd      	mov	sp, r7
+ 80001a8:	bd80      	pop	{r7, pc}
+
+080001aa <SetPinOutput>:
+
+// selects General Output mode. takes GPIO struct and pins to set
+
+void SetPinOutput(GPIO_TypeDef *port, uint32_t pins){
+ 80001aa:	b580      	push	{r7, lr}
+ 80001ac:	b082      	sub	sp, #8
+ 80001ae:	af00      	add	r7, sp, #0
+ 80001b0:	6078      	str	r0, [r7, #4]
+ 80001b2:	6039      	str	r1, [r7, #0]
+    
+    // clears upper 16 bits
+    pins = ClearUpperBits(pins);
+ 80001b4:	6838      	ldr	r0, [r7, #0]
+ 80001b6:	f7ff ff79 	bl	80000ac <ClearUpperBits>
+ 80001ba:	6038      	str	r0, [r7, #0]
+
+    //sets MODER
+    port->MODER = GenerateBitMask(port->MODER, pins, 2, mode1);
+ 80001bc:	687b      	ldr	r3, [r7, #4]
+ 80001be:	6818      	ldr	r0, [r3, #0]
+ 80001c0:	2301      	movs	r3, #1
+ 80001c2:	2202      	movs	r2, #2
+ 80001c4:	6839      	ldr	r1, [r7, #0]
+ 80001c6:	f7ff ff8c 	bl	80000e2 <GenerateBitMask>
+ 80001ca:	4602      	mov	r2, r0
+ 80001cc:	687b      	ldr	r3, [r7, #4]
+ 80001ce:	601a      	str	r2, [r3, #0]
+}
+ 80001d0:	bf00      	nop
+ 80001d2:	3708      	adds	r7, #8
+ 80001d4:	46bd      	mov	sp, r7
+ 80001d6:	bd80      	pop	{r7, pc}
+
+080001d8 <SetPinAlternate>:
+
+// selects Alternate mode. takes GPIO struct and pins to set 
+void SetPinAlternate(GPIO_TypeDef *port, uint32_t pins){
+ 80001d8:	b580      	push	{r7, lr}
+ 80001da:	b082      	sub	sp, #8
+ 80001dc:	af00      	add	r7, sp, #0
+ 80001de:	6078      	str	r0, [r7, #4]
+ 80001e0:	6039      	str	r1, [r7, #0]
+    
+    // clears upper 16 bits
+    pins = ClearUpperBits(pins);
+ 80001e2:	6838      	ldr	r0, [r7, #0]
+ 80001e4:	f7ff ff62 	bl	80000ac <ClearUpperBits>
+ 80001e8:	6038      	str	r0, [r7, #0]
+    
+    //sets MODER
+    port->MODER = GenerateBitMask(port->MODER, pins, 2, mode2);
+ 80001ea:	687b      	ldr	r3, [r7, #4]
+ 80001ec:	6818      	ldr	r0, [r3, #0]
+ 80001ee:	2302      	movs	r3, #2
+ 80001f0:	2202      	movs	r2, #2
+ 80001f2:	6839      	ldr	r1, [r7, #0]
+ 80001f4:	f7ff ff75 	bl	80000e2 <GenerateBitMask>
+ 80001f8:	4602      	mov	r2, r0
+ 80001fa:	687b      	ldr	r3, [r7, #4]
+ 80001fc:	601a      	str	r2, [r3, #0]
+}
+ 80001fe:	bf00      	nop
+ 8000200:	3708      	adds	r7, #8
+ 8000202:	46bd      	mov	sp, r7
+ 8000204:	bd80      	pop	{r7, pc}
+
+08000206 <SetPinAnalog>:
+
+// selects Analog mode. takes GPIO struct and pins to set 
+void SetPinAnalog(GPIO_TypeDef *port, uint32_t pins){
+ 8000206:	b580      	push	{r7, lr}
+ 8000208:	b082      	sub	sp, #8
+ 800020a:	af00      	add	r7, sp, #0
+ 800020c:	6078      	str	r0, [r7, #4]
+ 800020e:	6039      	str	r1, [r7, #0]
+
+    // clears upper 16 bits
+    pins = ClearUpperBits(pins);
+ 8000210:	6838      	ldr	r0, [r7, #0]
+ 8000212:	f7ff ff4b 	bl	80000ac <ClearUpperBits>
+ 8000216:	6038      	str	r0, [r7, #0]
+    
+    //sets MODER
+    port->MODER = GenerateBitMask(port->MODER, pins, 2, mode3);
+ 8000218:	687b      	ldr	r3, [r7, #4]
+ 800021a:	6818      	ldr	r0, [r3, #0]
+ 800021c:	2303      	movs	r3, #3
+ 800021e:	2202      	movs	r2, #2
+ 8000220:	6839      	ldr	r1, [r7, #0]
+ 8000222:	f7ff ff5e 	bl	80000e2 <GenerateBitMask>
+ 8000226:	4602      	mov	r2, r0
+ 8000228:	687b      	ldr	r3, [r7, #4]
+ 800022a:	601a      	str	r2, [r3, #0]
+
+}
+ 800022c:	bf00      	nop
+ 800022e:	3708      	adds	r7, #8
+ 8000230:	46bd      	mov	sp, r7
+ 8000232:	bd80      	pop	{r7, pc}
+
+08000234 <SetOutputType>:
+
+// set output type
+void SetOutputType(GPIO_TypeDef *port, uint32_t pins, uint8_t bit){
+ 8000234:	b580      	push	{r7, lr}
+ 8000236:	b084      	sub	sp, #16
+ 8000238:	af00      	add	r7, sp, #0
+ 800023a:	60f8      	str	r0, [r7, #12]
+ 800023c:	60b9      	str	r1, [r7, #8]
+ 800023e:	4613      	mov	r3, r2
+ 8000240:	71fb      	strb	r3, [r7, #7]
+    pins = ClearUpperBits(pins);
+ 8000242:	68b8      	ldr	r0, [r7, #8]
+ 8000244:	f7ff ff32 	bl	80000ac <ClearUpperBits>
+ 8000248:	60b8      	str	r0, [r7, #8]
+    port->OTYPER = GenerateBitMask(port->OTYPER, pins, 1, bit);
+ 800024a:	68fb      	ldr	r3, [r7, #12]
+ 800024c:	6858      	ldr	r0, [r3, #4]
+ 800024e:	79fb      	ldrb	r3, [r7, #7]
+ 8000250:	2201      	movs	r2, #1
+ 8000252:	68b9      	ldr	r1, [r7, #8]
+ 8000254:	f7ff ff45 	bl	80000e2 <GenerateBitMask>
+ 8000258:	4602      	mov	r2, r0
+ 800025a:	68fb      	ldr	r3, [r7, #12]
+ 800025c:	605a      	str	r2, [r3, #4]
+}
+ 800025e:	bf00      	nop
+ 8000260:	3710      	adds	r7, #16
+ 8000262:	46bd      	mov	sp, r7
+ 8000264:	bd80      	pop	{r7, pc}
+
+08000266 <SetPinPU>:
+
+// set pins in pull up mode
+void SetPinPU(GPIO_TypeDef *port, uint32_t pins){
+ 8000266:	b580      	push	{r7, lr}
+ 8000268:	b082      	sub	sp, #8
+ 800026a:	af00      	add	r7, sp, #0
+ 800026c:	6078      	str	r0, [r7, #4]
+ 800026e:	6039      	str	r1, [r7, #0]
+    
+    pins = ClearUpperBits(pins);
+ 8000270:	6838      	ldr	r0, [r7, #0]
+ 8000272:	f7ff ff1b 	bl	80000ac <ClearUpperBits>
+ 8000276:	6038      	str	r0, [r7, #0]
+
+    port->PUPDR = GenerateBitMask(port->PUPDR, pins, 2, mode1);
+ 8000278:	687b      	ldr	r3, [r7, #4]
+ 800027a:	68d8      	ldr	r0, [r3, #12]
+ 800027c:	2301      	movs	r3, #1
+ 800027e:	2202      	movs	r2, #2
+ 8000280:	6839      	ldr	r1, [r7, #0]
+ 8000282:	f7ff ff2e 	bl	80000e2 <GenerateBitMask>
+ 8000286:	4602      	mov	r2, r0
+ 8000288:	687b      	ldr	r3, [r7, #4]
+ 800028a:	60da      	str	r2, [r3, #12]
+}
+ 800028c:	bf00      	nop
+ 800028e:	3708      	adds	r7, #8
+ 8000290:	46bd      	mov	sp, r7
+ 8000292:	bd80      	pop	{r7, pc}
+
+08000294 <SetPinPD>:
+
+// set pins in pull down mode
+void SetPinPD(GPIO_TypeDef *port, uint32_t pins){
+ 8000294:	b580      	push	{r7, lr}
+ 8000296:	b082      	sub	sp, #8
+ 8000298:	af00      	add	r7, sp, #0
+ 800029a:	6078      	str	r0, [r7, #4]
+ 800029c:	6039      	str	r1, [r7, #0]
+
+    pins = ClearUpperBits(pins);
+ 800029e:	6838      	ldr	r0, [r7, #0]
+ 80002a0:	f7ff ff04 	bl	80000ac <ClearUpperBits>
+ 80002a4:	6038      	str	r0, [r7, #0]
+
+    port->PUPDR = GenerateBitMask(port->PUPDR, pins, 2, mode2);
+ 80002a6:	687b      	ldr	r3, [r7, #4]
+ 80002a8:	68d8      	ldr	r0, [r3, #12]
+ 80002aa:	2302      	movs	r3, #2
+ 80002ac:	2202      	movs	r2, #2
+ 80002ae:	6839      	ldr	r1, [r7, #0]
+ 80002b0:	f7ff ff17 	bl	80000e2 <GenerateBitMask>
+ 80002b4:	4602      	mov	r2, r0
+ 80002b6:	687b      	ldr	r3, [r7, #4]
+ 80002b8:	60da      	str	r2, [r3, #12]
+}
+ 80002ba:	bf00      	nop
+ 80002bc:	3708      	adds	r7, #8
+ 80002be:	46bd      	mov	sp, r7
+ 80002c0:	bd80      	pop	{r7, pc}
+
+080002c2 <DisablePUPD>:
+
+// disables pullup pull down mode
+void DisablePUPD(GPIO_TypeDef *port, uint32_t pins){
+ 80002c2:	b580      	push	{r7, lr}
+ 80002c4:	b082      	sub	sp, #8
+ 80002c6:	af00      	add	r7, sp, #0
+ 80002c8:	6078      	str	r0, [r7, #4]
+ 80002ca:	6039      	str	r1, [r7, #0]
+    
+    pins = ClearUpperBits(pins);
+ 80002cc:	6838      	ldr	r0, [r7, #0]
+ 80002ce:	f7ff feed 	bl	80000ac <ClearUpperBits>
+ 80002d2:	6038      	str	r0, [r7, #0]
+    
+    port->PUPDR = GenerateBitMask(port->PUPDR, pins, 2, mode0);
+ 80002d4:	687b      	ldr	r3, [r7, #4]
+ 80002d6:	68d8      	ldr	r0, [r3, #12]
+ 80002d8:	2300      	movs	r3, #0
+ 80002da:	2202      	movs	r2, #2
+ 80002dc:	6839      	ldr	r1, [r7, #0]
+ 80002de:	f7ff ff00 	bl	80000e2 <GenerateBitMask>
+ 80002e2:	4602      	mov	r2, r0
+ 80002e4:	687b      	ldr	r3, [r7, #4]
+ 80002e6:	60da      	str	r2, [r3, #12]
+}
+ 80002e8:	bf00      	nop
+ 80002ea:	3708      	adds	r7, #8
+ 80002ec:	46bd      	mov	sp, r7
+ 80002ee:	bd80      	pop	{r7, pc}
+
+080002f0 <PinRead>:
+
+//Reads input pins (IDR)
+uint32_t PinRead(GPIO_TypeDef *port){return port->IDR;}
+ 80002f0:	b480      	push	{r7}
+ 80002f2:	b083      	sub	sp, #12
+ 80002f4:	af00      	add	r7, sp, #0
+ 80002f6:	6078      	str	r0, [r7, #4]
+ 80002f8:	687b      	ldr	r3, [r7, #4]
+ 80002fa:	691b      	ldr	r3, [r3, #16]
+ 80002fc:	4618      	mov	r0, r3
+ 80002fe:	370c      	adds	r7, #12
+ 8000300:	46bd      	mov	sp, r7
+ 8000302:	f85d 7b04 	ldr.w	r7, [sp], #4
+ 8000306:	4770      	bx	lr
+
+08000308 <PinWrite>:
+
+// sets output values to desired pin(s) (BSRRL)
+void PinWrite(GPIO_TypeDef *port, uint32_t pins){
+ 8000308:	b580      	push	{r7, lr}
+ 800030a:	b082      	sub	sp, #8
+ 800030c:	af00      	add	r7, sp, #0
+ 800030e:	6078      	str	r0, [r7, #4]
+ 8000310:	6039      	str	r1, [r7, #0]
+    pins = ClearUpperBits(pins);
+ 8000312:	6838      	ldr	r0, [r7, #0]
+ 8000314:	f7ff feca 	bl	80000ac <ClearUpperBits>
+ 8000318:	6038      	str	r0, [r7, #0]
+    port->BSRR = pins;
+ 800031a:	687b      	ldr	r3, [r7, #4]
+ 800031c:	683a      	ldr	r2, [r7, #0]
+ 800031e:	619a      	str	r2, [r3, #24]
+}
+ 8000320:	bf00      	nop
+ 8000322:	3708      	adds	r7, #8
+ 8000324:	46bd      	mov	sp, r7
+ 8000326:	bd80      	pop	{r7, pc}
+
+08000328 <ResetPins>:
+
+// reset gpio pins with logic high to the desired pin(s) (BSRRH)
+void ResetPins(GPIO_TypeDef *port, uint32_t pins){
+ 8000328:	b580      	push	{r7, lr}
+ 800032a:	b082      	sub	sp, #8
+ 800032c:	af00      	add	r7, sp, #0
+ 800032e:	6078      	str	r0, [r7, #4]
+ 8000330:	6039      	str	r1, [r7, #0]
+    pins = ClearLowerBits(pins);
+ 8000332:	6838      	ldr	r0, [r7, #0]
+ 8000334:	f7ff fec9 	bl	80000ca <ClearLowerBits>
+ 8000338:	6038      	str	r0, [r7, #0]
+    port->BSRR = pins;
+ 800033a:	687b      	ldr	r3, [r7, #4]
+ 800033c:	683a      	ldr	r2, [r7, #0]
+ 800033e:	619a      	str	r2, [r3, #24]
+}
+ 8000340:	bf00      	nop
+ 8000342:	3708      	adds	r7, #8
+ 8000344:	46bd      	mov	sp, r7
+ 8000346:	bd80      	pop	{r7, pc}
+
+08000348 <AlternateFunctionSet>:
+
+//sets an alternate function to the desired pin
+//one function can be set to many pins
+//calls generate4bitpinmask function above
+void AlternateFunctionSet(GPIO_TypeDef *port, uint32_t pins, uint32_t function){
+ 8000348:	b580      	push	{r7, lr}
+ 800034a:	b084      	sub	sp, #16
+ 800034c:	af00      	add	r7, sp, #0
+ 800034e:	60f8      	str	r0, [r7, #12]
+ 8000350:	60b9      	str	r1, [r7, #8]
+ 8000352:	607a      	str	r2, [r7, #4]
+    
+    pins = ClearUpperBits(pins);
+ 8000354:	68b8      	ldr	r0, [r7, #8]
+ 8000356:	f7ff fea9 	bl	80000ac <ClearUpperBits>
+ 800035a:	60b8      	str	r0, [r7, #8]
+
+    // sends upper bits first then lower bits
+    port->AFRH = GenerateBitMask(port->AFRH, (pins >> 8), 4, function);
+ 800035c:	68fb      	ldr	r3, [r7, #12]
+ 800035e:	6a58      	ldr	r0, [r3, #36]	@ 0x24
+ 8000360:	68bb      	ldr	r3, [r7, #8]
+ 8000362:	0a19      	lsrs	r1, r3, #8
+ 8000364:	687b      	ldr	r3, [r7, #4]
+ 8000366:	b2db      	uxtb	r3, r3
+ 8000368:	2204      	movs	r2, #4
+ 800036a:	f7ff feba 	bl	80000e2 <GenerateBitMask>
+ 800036e:	4602      	mov	r2, r0
+ 8000370:	68fb      	ldr	r3, [r7, #12]
+ 8000372:	625a      	str	r2, [r3, #36]	@ 0x24
+    port->AFRL = GenerateBitMask(port->AFRL, (pins & 0xFF), 4, function);
+ 8000374:	68fb      	ldr	r3, [r7, #12]
+ 8000376:	6a18      	ldr	r0, [r3, #32]
+ 8000378:	68bb      	ldr	r3, [r7, #8]
+ 800037a:	b2d9      	uxtb	r1, r3
+ 800037c:	687b      	ldr	r3, [r7, #4]
+ 800037e:	b2db      	uxtb	r3, r3
+ 8000380:	2204      	movs	r2, #4
+ 8000382:	f7ff feae 	bl	80000e2 <GenerateBitMask>
+ 8000386:	4602      	mov	r2, r0
+ 8000388:	68fb      	ldr	r3, [r7, #12]
+ 800038a:	621a      	str	r2, [r3, #32]
+}
+ 800038c:	bf00      	nop
+ 800038e:	3710      	adds	r7, #16
+ 8000390:	46bd      	mov	sp, r7
+ 8000392:	bd80      	pop	{r7, pc}
+
+08000394 <initstack>:
+#include <stdint.h>
+
+TCB _stcb[SIZE];
+uint32_t _staskspace[SIZE][STACK_SIZE / sizeof(uint32_t)];
+
+void initstack(void){
+ 8000394:	b4b0      	push	{r4, r5, r7}
+ 8000396:	b08d      	sub	sp, #52	@ 0x34
+ 8000398:	af00      	add	r7, sp, #0
+    
+    // list of functions 
+    void (*function_list[SIZE])(void *) = {
+ 800039a:	4b2a      	ldr	r3, [pc, #168]	@ (8000444 <initstack+0xb0>)
+ 800039c:	1d3c      	adds	r4, r7, #4
+ 800039e:	461d      	mov	r5, r3
+ 80003a0:	cd0f      	ldmia	r5!, {r0, r1, r2, r3}
+ 80003a2:	c40f      	stmia	r4!, {r0, r1, r2, r3}
+ 80003a4:	cd0f      	ldmia	r5!, {r0, r1, r2, r3}
+ 80003a6:	c40f      	stmia	r4!, {r0, r1, r2, r3}
+ 80003a8:	e895 0003 	ldmia.w	r5, {r0, r1}
+ 80003ac:	e884 0003 	stmia.w	r4, {r0, r1}
+        my_task8,
+        my_task9,
+        my_task10
+    };
+
+    for(int i = 0; i < SIZE; i++){
+ 80003b0:	2300      	movs	r3, #0
+ 80003b2:	62fb      	str	r3, [r7, #44]	@ 0x2c
+ 80003b4:	e03d      	b.n	8000432 <initstack+0x9e>
+        _stcb[i].sp = (uint32_t *)_staskspace[SIZE] - (i * TASK_BLOCK);
+ 80003b6:	6afb      	ldr	r3, [r7, #44]	@ 0x2c
+ 80003b8:	029b      	lsls	r3, r3, #10
+ 80003ba:	425b      	negs	r3, r3
+ 80003bc:	4a22      	ldr	r2, [pc, #136]	@ (8000448 <initstack+0xb4>)
+ 80003be:	441a      	add	r2, r3
+ 80003c0:	4922      	ldr	r1, [pc, #136]	@ (800044c <initstack+0xb8>)
+ 80003c2:	6afb      	ldr	r3, [r7, #44]	@ 0x2c
+ 80003c4:	011b      	lsls	r3, r3, #4
+ 80003c6:	440b      	add	r3, r1
+ 80003c8:	601a      	str	r2, [r3, #0]
+        _stcb[i].context = 0;
+ 80003ca:	4a20      	ldr	r2, [pc, #128]	@ (800044c <initstack+0xb8>)
+ 80003cc:	6afb      	ldr	r3, [r7, #44]	@ 0x2c
+ 80003ce:	011b      	lsls	r3, r3, #4
+ 80003d0:	4413      	add	r3, r2
+ 80003d2:	3308      	adds	r3, #8
+ 80003d4:	2200      	movs	r2, #0
+ 80003d6:	601a      	str	r2, [r3, #0]
+        _stcb[i].function = function_list[i];
+ 80003d8:	6afb      	ldr	r3, [r7, #44]	@ 0x2c
+ 80003da:	009b      	lsls	r3, r3, #2
+ 80003dc:	3330      	adds	r3, #48	@ 0x30
+ 80003de:	443b      	add	r3, r7
+ 80003e0:	f853 2c2c 	ldr.w	r2, [r3, #-44]
+ 80003e4:	4919      	ldr	r1, [pc, #100]	@ (800044c <initstack+0xb8>)
+ 80003e6:	6afb      	ldr	r3, [r7, #44]	@ 0x2c
+ 80003e8:	011b      	lsls	r3, r3, #4
+ 80003ea:	440b      	add	r3, r1
+ 80003ec:	3304      	adds	r3, #4
+ 80003ee:	601a      	str	r2, [r3, #0]
+        _stcb[i].pid = i;
+ 80003f0:	6afb      	ldr	r3, [r7, #44]	@ 0x2c
+ 80003f2:	b2d9      	uxtb	r1, r3
+ 80003f4:	4a15      	ldr	r2, [pc, #84]	@ (800044c <initstack+0xb8>)
+ 80003f6:	6afb      	ldr	r3, [r7, #44]	@ 0x2c
+ 80003f8:	011b      	lsls	r3, r3, #4
+ 80003fa:	4413      	add	r3, r2
+ 80003fc:	330c      	adds	r3, #12
+ 80003fe:	460a      	mov	r2, r1
+ 8000400:	701a      	strb	r2, [r3, #0]
+        _stcb[i].state = 0xA;
+ 8000402:	4a12      	ldr	r2, [pc, #72]	@ (800044c <initstack+0xb8>)
+ 8000404:	6afb      	ldr	r3, [r7, #44]	@ 0x2c
+ 8000406:	011b      	lsls	r3, r3, #4
+ 8000408:	4413      	add	r3, r2
+ 800040a:	330d      	adds	r3, #13
+ 800040c:	220a      	movs	r2, #10
+ 800040e:	701a      	strb	r2, [r3, #0]
+        _stcb[i].prio = 0xB;
+ 8000410:	4a0e      	ldr	r2, [pc, #56]	@ (800044c <initstack+0xb8>)
+ 8000412:	6afb      	ldr	r3, [r7, #44]	@ 0x2c
+ 8000414:	011b      	lsls	r3, r3, #4
+ 8000416:	4413      	add	r3, r2
+ 8000418:	330e      	adds	r3, #14
+ 800041a:	220b      	movs	r2, #11
+ 800041c:	701a      	strb	r2, [r3, #0]
+        _stcb[i].flags = 0xC;
+ 800041e:	4a0b      	ldr	r2, [pc, #44]	@ (800044c <initstack+0xb8>)
+ 8000420:	6afb      	ldr	r3, [r7, #44]	@ 0x2c
+ 8000422:	011b      	lsls	r3, r3, #4
+ 8000424:	4413      	add	r3, r2
+ 8000426:	330f      	adds	r3, #15
+ 8000428:	220c      	movs	r2, #12
+ 800042a:	701a      	strb	r2, [r3, #0]
+    for(int i = 0; i < SIZE; i++){
+ 800042c:	6afb      	ldr	r3, [r7, #44]	@ 0x2c
+ 800042e:	3301      	adds	r3, #1
+ 8000430:	62fb      	str	r3, [r7, #44]	@ 0x2c
+ 8000432:	6afb      	ldr	r3, [r7, #44]	@ 0x2c
+ 8000434:	2b09      	cmp	r3, #9
+ 8000436:	ddbe      	ble.n	80003b6 <initstack+0x22>
+    }
+}
+ 8000438:	bf00      	nop
+ 800043a:	bf00      	nop
+ 800043c:	3734      	adds	r7, #52	@ 0x34
+ 800043e:	46bd      	mov	sp, r7
+ 8000440:	bcb0      	pop	{r4, r5, r7}
+ 8000442:	4770      	bx	lr
+ 8000444:	0800063c 	.word	0x0800063c
+ 8000448:	200029a0 	.word	0x200029a0
+ 800044c:	20000000 	.word	0x20000000
+
+08000450 <taskscheduler>:
+
+void my_task10(void *ctx){
+    (void)ctx;
+}
+
+void taskscheduler(void){
+ 8000450:	b580      	push	{r7, lr}
+ 8000452:	af00      	add	r7, sp, #0
+    _stcb[0].function(_stcb[0].context);
+ 8000454:	4b06      	ldr	r3, [pc, #24]	@ (8000470 <taskscheduler+0x20>)
+ 8000456:	685b      	ldr	r3, [r3, #4]
+ 8000458:	4a05      	ldr	r2, [pc, #20]	@ (8000470 <taskscheduler+0x20>)
+ 800045a:	6892      	ldr	r2, [r2, #8]
+ 800045c:	4610      	mov	r0, r2
+ 800045e:	4798      	blx	r3
+    _stcb[1].function(_stcb[1].context);
+ 8000460:	4b03      	ldr	r3, [pc, #12]	@ (8000470 <taskscheduler+0x20>)
+ 8000462:	695b      	ldr	r3, [r3, #20]
+ 8000464:	4a02      	ldr	r2, [pc, #8]	@ (8000470 <taskscheduler+0x20>)
+ 8000466:	6992      	ldr	r2, [r2, #24]
+ 8000468:	4610      	mov	r0, r2
+ 800046a:	4798      	blx	r3
+}
+ 800046c:	bf00      	nop
+ 800046e:	bd80      	pop	{r7, pc}
+ 8000470:	20000000 	.word	0x20000000
+
+08000474 <systeminit>:
+#include "stm32f303.h"
+
+//#define DBGMCU_CR *((volatile uint32_t*) 0xE0042004)
+
+
+void systeminit(void){
+ 8000474:	b580      	push	{r7, lr}
+ 8000476:	af00      	add	r7, sp, #0
+    STK->LOAD |= 0xFFFFFF;
+
+    SCB->SHPR3 |= 0xF0000000;
+    */
+    
+    RCC->APB1ENR |= (1 << 2);               // Enable TIM4
+ 8000478:	4b3d      	ldr	r3, [pc, #244]	@ (8000570 <systeminit+0xfc>)
+ 800047a:	69db      	ldr	r3, [r3, #28]
+ 800047c:	4a3c      	ldr	r2, [pc, #240]	@ (8000570 <systeminit+0xfc>)
+ 800047e:	f043 0304 	orr.w	r3, r3, #4
+ 8000482:	61d3      	str	r3, [r2, #28]
+    RCC->APB2ENR |= (1 << 11);              // Enable TIM1
+ 8000484:	4b3a      	ldr	r3, [pc, #232]	@ (8000570 <systeminit+0xfc>)
+ 8000486:	699b      	ldr	r3, [r3, #24]
+ 8000488:	4a39      	ldr	r2, [pc, #228]	@ (8000570 <systeminit+0xfc>)
+ 800048a:	f443 6300 	orr.w	r3, r3, #2048	@ 0x800
+ 800048e:	6193      	str	r3, [r2, #24]
+    
+    //TIM4 ENCODer SEtup
+    RCC->AHBENR |= 0xA0000;                   // enable GPIO A&C  clock 
+ 8000490:	4b37      	ldr	r3, [pc, #220]	@ (8000570 <systeminit+0xfc>)
+ 8000492:	695b      	ldr	r3, [r3, #20]
+ 8000494:	4a36      	ldr	r2, [pc, #216]	@ (8000570 <systeminit+0xfc>)
+ 8000496:	f443 2320 	orr.w	r3, r3, #655360	@ 0xa0000
+ 800049a:	6153      	str	r3, [r2, #20]
+    SetPinAlternate(GPIOA,0x1800);            // Set pins 11 & 12 to AF mode TIM4
+ 800049c:	f44f 51c0 	mov.w	r1, #6144	@ 0x1800
+ 80004a0:	f04f 4090 	mov.w	r0, #1207959552	@ 0x48000000
+ 80004a4:	f7ff fe98 	bl	80001d8 <SetPinAlternate>
+    AlternateFunctionSet(GPIOA,0x1800,10);      // Set pins PA11 & PA12 to AF10 for TIM4
+ 80004a8:	220a      	movs	r2, #10
+ 80004aa:	f44f 51c0 	mov.w	r1, #6144	@ 0x1800
+ 80004ae:	f04f 4090 	mov.w	r0, #1207959552	@ 0x48000000
+ 80004b2:	f7ff ff49 	bl	8000348 <AlternateFunctionSet>
+    TIM4->ARR = 0xffff;
+ 80004b6:	4b2f      	ldr	r3, [pc, #188]	@ (8000574 <systeminit+0x100>)
+ 80004b8:	f64f 72ff 	movw	r2, #65535	@ 0xffff
+ 80004bc:	62da      	str	r2, [r3, #44]	@ 0x2c
+    TIM4->SMCR |=0b0011;                    // Encoder mode 1 - Counter counts up/down on TI1FP1 edge depending on TI2FP2  level. Consider trigger selection to sync counter.
+ 80004be:	4b2d      	ldr	r3, [pc, #180]	@ (8000574 <systeminit+0x100>)
+ 80004c0:	689b      	ldr	r3, [r3, #8]
+ 80004c2:	4a2c      	ldr	r2, [pc, #176]	@ (8000574 <systeminit+0x100>)
+ 80004c4:	f043 0303 	orr.w	r3, r3, #3
+ 80004c8:	6093      	str	r3, [r2, #8]
+    TIM4->CCMR1 |= 0x101;                   // CC1 is input IC mapped on T1I, capture done every 2 events Note: CC1S bits are writable only when the channel is OFF (CC1E = 0 in TIMx_CCER). 
+ 80004ca:	4b2a      	ldr	r3, [pc, #168]	@ (8000574 <systeminit+0x100>)
+ 80004cc:	699b      	ldr	r3, [r3, #24]
+ 80004ce:	4a29      	ldr	r2, [pc, #164]	@ (8000574 <systeminit+0x100>)
+ 80004d0:	f443 7380 	orr.w	r3, r3, #256	@ 0x100
+ 80004d4:	f043 0301 	orr.w	r3, r3, #1
+ 80004d8:	6193      	str	r3, [r2, #24]
+    TIM4->CCER |= 0x11;                      // Capture mode 1 & 2 enabled & sensitive to TIxFP1 rising edge(Encoder Mode) 
+ 80004da:	4b26      	ldr	r3, [pc, #152]	@ (8000574 <systeminit+0x100>)
+ 80004dc:	6a1b      	ldr	r3, [r3, #32]
+ 80004de:	4a25      	ldr	r2, [pc, #148]	@ (8000574 <systeminit+0x100>)
+ 80004e0:	f043 0311 	orr.w	r3, r3, #17
+ 80004e4:	6213      	str	r3, [r2, #32]
+    TIM4->DIER |= 0x6;
+ 80004e6:	4b23      	ldr	r3, [pc, #140]	@ (8000574 <systeminit+0x100>)
+ 80004e8:	68db      	ldr	r3, [r3, #12]
+ 80004ea:	4a22      	ldr	r2, [pc, #136]	@ (8000574 <systeminit+0x100>)
+ 80004ec:	f043 0306 	orr.w	r3, r3, #6
+ 80004f0:	60d3      	str	r3, [r2, #12]
+    
+    //TIM1 PWM SEtup
+    SetPinAlternate(GPIOA,0x100);           // set PA 8 to AF mode
+ 80004f2:	f44f 7180 	mov.w	r1, #256	@ 0x100
+ 80004f6:	f04f 4090 	mov.w	r0, #1207959552	@ 0x48000000
+ 80004fa:	f7ff fe6d 	bl	80001d8 <SetPinAlternate>
+    AlternateFunctionSet(GPIOA,1<<8,6);     // set PA 8 to AF6 Maps to TIM1_CH1 (check) 
+ 80004fe:	2206      	movs	r2, #6
+ 8000500:	f44f 7180 	mov.w	r1, #256	@ 0x100
+ 8000504:	f04f 4090 	mov.w	r0, #1207959552	@ 0x48000000
+ 8000508:	f7ff ff1e 	bl	8000348 <AlternateFunctionSet>
+    TIM1->PSC   |= 0xFFF;                   // TIMx_CNT = f_ckpdc/(PSC+1)
+ 800050c:	4b1a      	ldr	r3, [pc, #104]	@ (8000578 <systeminit+0x104>)
+ 800050e:	6a9b      	ldr	r3, [r3, #40]	@ 0x28
+ 8000510:	4a19      	ldr	r2, [pc, #100]	@ (8000578 <systeminit+0x104>)
+ 8000512:	ea6f 3313 	mvn.w	r3, r3, lsr #12
+ 8000516:	ea6f 3303 	mvn.w	r3, r3, lsl #12
+ 800051a:	6293      	str	r3, [r2, #40]	@ 0x28
+    TIM1->ARR    = 0xFFFF;                  // Auto reload @ 10000
+ 800051c:	4b16      	ldr	r3, [pc, #88]	@ (8000578 <systeminit+0x104>)
+ 800051e:	f64f 72ff 	movw	r2, #65535	@ 0xffff
+ 8000522:	62da      	str	r2, [r3, #44]	@ 0x2c
+    TIM1->CCR1  |= 0x8000;                  // compare @ 5000
+ 8000524:	4b14      	ldr	r3, [pc, #80]	@ (8000578 <systeminit+0x104>)
+ 8000526:	6b5b      	ldr	r3, [r3, #52]	@ 0x34
+ 8000528:	4a13      	ldr	r2, [pc, #76]	@ (8000578 <systeminit+0x104>)
+ 800052a:	f443 4300 	orr.w	r3, r3, #32768	@ 0x8000
+ 800052e:	6353      	str	r3, [r2, #52]	@ 0x34
+    TIM1->CCMR1 |= 0x68;                    // PWM Mode 1
+ 8000530:	4b11      	ldr	r3, [pc, #68]	@ (8000578 <systeminit+0x104>)
+ 8000532:	699b      	ldr	r3, [r3, #24]
+ 8000534:	4a10      	ldr	r2, [pc, #64]	@ (8000578 <systeminit+0x104>)
+ 8000536:	f043 0368 	orr.w	r3, r3, #104	@ 0x68
+ 800053a:	6193      	str	r3, [r2, #24]
+    TIM1->CCER  |= 1;                       // Refer to rm0316 Table 122 
+ 800053c:	4b0e      	ldr	r3, [pc, #56]	@ (8000578 <systeminit+0x104>)
+ 800053e:	6a1b      	ldr	r3, [r3, #32]
+ 8000540:	4a0d      	ldr	r2, [pc, #52]	@ (8000578 <systeminit+0x104>)
+ 8000542:	f043 0301 	orr.w	r3, r3, #1
+ 8000546:	6213      	str	r3, [r2, #32]
+    //TIM1->DIER  |= 1<<0; // UIE
+    TIM1->BDTR  |= 1<<15;                   // Main Output enable
+ 8000548:	4b0b      	ldr	r3, [pc, #44]	@ (8000578 <systeminit+0x104>)
+ 800054a:	6c5b      	ldr	r3, [r3, #68]	@ 0x44
+ 800054c:	4a0a      	ldr	r2, [pc, #40]	@ (8000578 <systeminit+0x104>)
+ 800054e:	f443 4300 	orr.w	r3, r3, #32768	@ 0x8000
+ 8000552:	6453      	str	r3, [r2, #68]	@ 0x44
+    
+    TIM4->CR1 |= 0b10000001;                // Enable TIM4 Counter 
+ 8000554:	4b07      	ldr	r3, [pc, #28]	@ (8000574 <systeminit+0x100>)
+ 8000556:	681b      	ldr	r3, [r3, #0]
+ 8000558:	4a06      	ldr	r2, [pc, #24]	@ (8000574 <systeminit+0x100>)
+ 800055a:	f043 0381 	orr.w	r3, r3, #129	@ 0x81
+ 800055e:	6013      	str	r3, [r2, #0]
+    TIM1->CR1 |= 0b10000001;                // Enable TIM1 counter
+ 8000560:	4b05      	ldr	r3, [pc, #20]	@ (8000578 <systeminit+0x104>)
+ 8000562:	681b      	ldr	r3, [r3, #0]
+ 8000564:	4a04      	ldr	r2, [pc, #16]	@ (8000578 <systeminit+0x104>)
+ 8000566:	f043 0381 	orr.w	r3, r3, #129	@ 0x81
+ 800056a:	6013      	str	r3, [r2, #0]
+    //TIM1->SR  &= 0;     // clear UIF
+    
+    /*systic interrupt init
+    STK->CTRL |= 0x1;
+    */ 
+}
+ 800056c:	bf00      	nop
+ 800056e:	bd80      	pop	{r7, pc}
+ 8000570:	40021000 	.word	0x40021000
+ 8000574:	40000800 	.word	0x40000800
+ 8000578:	40012c00 	.word	0x40012c00
+
+0800057c <Reset_Handler>:
+/*  Actual function representation */
+Reset_Handler:
+  
+  /* Copy .data from flash to RAM */
+  /* = _name sets up a pointer */
+  ldr r0, = _sdata /* start of RAM */
+ 800057c:	4822      	ldr	r0, [pc, #136]	@ (8000608 <WWDG+0x4>)
+  ldr r1, = _edata /* end of .data in RAM */
+ 800057e:	4923      	ldr	r1, [pc, #140]	@ (800060c <WWDG+0x8>)
+  ldr r2, = _etext /* Source to copy */
+ 8000580:	4a23      	ldr	r2, [pc, #140]	@ (8000610 <WWDG+0xc>)
+
+08000582 <copy_data>:
+
+copy_data:              /*  This function uses the N flag to keep looping */
+  cmp r0, r1            /*  compare pointers to see if start < end */
+ 8000582:	4288      	cmp	r0, r1
+  ittt lt               /*  if start < end */
+ 8000584:	bfbe      	ittt	lt
+  ldrlt r3, [r2], #4    /*  load r3 from address in [r2] then increment register 2 address #4 bytes */
+ 8000586:	f852 3b04 	ldrlt.w	r3, [r2], #4
+  strlt r3, [r0], #4    /*  store r3 to address pointed to by [r0] then increment register 0 address #4 bytes */
+ 800058a:	f840 3b04 	strlt.w	r3, [r0], #4
+  blt copy_data         /*  branch to copy_data if N is set  */
+ 800058e:	e7f8      	blt.n	8000582 <copy_data>
+
+  ldr r0, = _stcb
+ 8000590:	4820      	ldr	r0, [pc, #128]	@ (8000614 <WWDG+0x10>)
+  ldr r1, = _etcb
+ 8000592:	4921      	ldr	r1, [pc, #132]	@ (8000618 <WWDG+0x14>)
+
+08000594 <init_tcb>:
+
+init_tcb:
+  cmp r0, r1
+ 8000594:	4288      	cmp	r0, r1
+  ittt lt 
+ 8000596:	bfbe      	ittt	lt
+  movlt r2, #0 
+ 8000598:	2200      	movlt	r2, #0
+  strlt r2, [r0], #4
+ 800059a:	f840 2b04 	strlt.w	r2, [r0], #4
+  blt init_tcb
+ 800059e:	e7f9      	blt.n	8000594 <init_tcb>
+
+  /* Padding between tcb and task space */
+  ldr r0, = _spadding
+ 80005a0:	481e      	ldr	r0, [pc, #120]	@ (800061c <WWDG+0x18>)
+  ldr r1, = _epadding
+ 80005a2:	491f      	ldr	r1, [pc, #124]	@ (8000620 <WWDG+0x1c>)
+
+080005a4 <fill_padding>:
+  
+fill_padding:
+  cmp r0, r1
+ 80005a4:	4288      	cmp	r0, r1
+  ittt lt
+ 80005a6:	bfbe      	ittt	lt
+  movlt r2, #0xBB
+ 80005a8:	22bb      	movlt	r2, #187	@ 0xbb
+  strlt r2, [r0], #4
+ 80005aa:	f840 2b04 	strlt.w	r2, [r0], #4
+  blt fill_padding
+ 80005ae:	e7f9      	blt.n	80005a4 <fill_padding>
+  
+  /* zero the taskspace */
+  ldr r0, = _staskspace 
+ 80005b0:	481c      	ldr	r0, [pc, #112]	@ (8000624 <WWDG+0x20>)
+  ldr r1, = _etaskspace
+ 80005b2:	491d      	ldr	r1, [pc, #116]	@ (8000628 <WWDG+0x24>)
+
+080005b4 <zero_taskspace>:
+
+zero_taskspace:
+  cmp r0, r1
+ 80005b4:	4288      	cmp	r0, r1
+  ittt lt 
+ 80005b6:	bfbe      	ittt	lt
+  movlt r2, #0
+ 80005b8:	2200      	movlt	r2, #0
+  strlt r2, [r0], #4
+ 80005ba:	f840 2b04 	strlt.w	r2, [r0], #4
+  blt zero_taskspace
+ 80005be:	e7f9      	blt.n	80005b4 <zero_taskspace>
+
+  ldr r0, = _stask_load
+ 80005c0:	481a      	ldr	r0, [pc, #104]	@ (800062c <WWDG+0x28>)
+  ldr r1, = _etask_load
+ 80005c2:	491b      	ldr	r1, [pc, #108]	@ (8000630 <WWDG+0x2c>)
+  ldr r2, = _staskspace
+ 80005c4:	4a17      	ldr	r2, [pc, #92]	@ (8000624 <WWDG+0x20>)
+
+080005c6 <task_loader>:
+
+task_loader:
+  cmp r0, r1
+ 80005c6:	4288      	cmp	r0, r1
+  ittt lt 
+ 80005c8:	bfbe      	ittt	lt
+  ldrlt r3, [r0], #4 
+ 80005ca:	f850 3b04 	ldrlt.w	r3, [r0], #4
+  strlt r3, [r2], #4
+ 80005ce:	f842 3b04 	strlt.w	r3, [r2], #4
+  blt task_loader
+ 80005d2:	e7f8      	blt.n	80005c6 <task_loader>
+
+  /* Zero initialize .bss */
+  ldr r0, = _sbss       /*  load address pointer into r0 */
+ 80005d4:	4817      	ldr	r0, [pc, #92]	@ (8000634 <WWDG+0x30>)
+  ldr r1, = _ebss       /*  load address pointer into r1 */
+ 80005d6:	4918      	ldr	r1, [pc, #96]	@ (8000638 <WWDG+0x34>)
+
+080005d8 <zero_bss>:
+
+zero_bss:
+  cmp r0,r1             /*  zero out the bss section */
+ 80005d8:	4288      	cmp	r0, r1
+  ittt lt               /*  if start < end */
+ 80005da:	bfbe      	ittt	lt
+  movlt r2, #0          /*  move 0 into r2 */
+ 80005dc:	2200      	movlt	r2, #0
+  strlt r2, [r0], #4    /*  store r2 = 0 into address pointed to by R0 increment register 0 address #4 bytes */
+ 80005de:	f840 2b04 	strlt.w	r2, [r0], #4
+  blt zero_bss          /*  branch back to zero if N is set */
+ 80005e2:	e7f9      	blt.n	80005d8 <zero_bss>
+
+
+
+  /* Call systeminit, branch with link */
+  bl systeminit         
+ 80005e4:	f7ff ff46 	bl	8000474 <systeminit>
+  
+  bl initstack
+ 80005e8:	f7ff fed4 	bl	8000394 <initstack>
+
+  bl taskscheduler
+ 80005ec:	f7ff ff30 	bl	8000450 <taskscheduler>
+
+080005f0 <infinite_loop>:
+
+  /* Call main 
+  bl main  */
+
+infinite_loop:
+  b infinite_loop
+ 80005f0:	e7fe      	b.n	80005f0 <infinite_loop>
+
+080005f2 <NMI_Handler>:
+
+/* Default handlers */
+NMI_Handler:        b .
+ 80005f2:	e7fe      	b.n	80005f2 <NMI_Handler>
+
+080005f4 <HardFault_Handler>:
+HardFault_Handler:  b .
+ 80005f4:	e7fe      	b.n	80005f4 <HardFault_Handler>
+
+080005f6 <MemManage_Handler>:
+MemManage_Handler:  b .
+ 80005f6:	e7fe      	b.n	80005f6 <MemManage_Handler>
+
+080005f8 <BusFault_Handler>:
+BusFault_Handler:   b .
+ 80005f8:	e7fe      	b.n	80005f8 <BusFault_Handler>
+
+080005fa <UsageFault_Handler>:
+UsageFault_Handler: b .
+ 80005fa:	e7fe      	b.n	80005fa <UsageFault_Handler>
+
+080005fc <SVC_Handler>:
+SVC_Handler:        b .
+ 80005fc:	e7fe      	b.n	80005fc <SVC_Handler>
+
+080005fe <DebugMon_Handler>:
+DebugMon_Handler:   b .
+ 80005fe:	e7fe      	b.n	80005fe <DebugMon_Handler>
+
+08000600 <PendSV_Handler>:
+PendSV_Handler:     b .
+ 8000600:	e7fe      	b.n	8000600 <PendSV_Handler>
+
+08000602 <SysTick_Handler>:
+SysTick_Handler:    b . /* bl systick_irq */
+ 8000602:	e7fe      	b.n	8000602 <SysTick_Handler>
+
+08000604 <WWDG>:
+WWDG:               b .
+ 8000604:	e7fe      	b.n	8000604 <WWDG>
+ 8000606:	0000      	.short	0x0000
+  ldr r0, = _sdata /* start of RAM */
+ 8000608:	20000000 	.word	0x20000000
+  ldr r1, = _edata /* end of .data in RAM */
+ 800060c:	20000000 	.word	0x20000000
+  ldr r2, = _etext /* Source to copy */
+ 8000610:	08000664 	.word	0x08000664
+  ldr r0, = _stcb
+ 8000614:	20000000 	.word	0x20000000
+  ldr r1, = _etcb
+ 8000618:	200000a0 	.word	0x200000a0
+  ldr r0, = _spadding
+ 800061c:	200000a0 	.word	0x200000a0
+  ldr r1, = _epadding
+ 8000620:	200001a0 	.word	0x200001a0
+  ldr r0, = _staskspace 
+ 8000624:	200001a0 	.word	0x200001a0
+  ldr r1, = _etaskspace
+ 8000628:	200029a0 	.word	0x200029a0
+  ldr r0, = _stask_load
+ 800062c:	08000664 	.word	0x08000664
+  ldr r1, = _etask_load
+ 8000630:	08002f2c 	.word	0x08002f2c
+  ldr r0, = _sbss       /*  load address pointer into r0 */
+ 8000634:	200029a0 	.word	0x200029a0
+  ldr r1, = _ebss       /*  load address pointer into r1 */
+ 8000638:	200029a0 	.word	0x200029a0
+ 800063c:	08000665 	.word	0x08000665
+ 8000640:	08000a79 	.word	0x08000a79
+ 8000644:	08000e8d 	.word	0x08000e8d
+ 8000648:	080012a1 	.word	0x080012a1
+ 800064c:	080016b5 	.word	0x080016b5
+ 8000650:	08001ac9 	.word	0x08001ac9
+ 8000654:	08001edd 	.word	0x08001edd
+ 8000658:	080022f1 	.word	0x080022f1
+ 800065c:	08002705 	.word	0x08002705
+ 8000660:	08002b19 	.word	0x08002b19
+
+Disassembly of section .task_load:
+
+08000664 <my_task1>:
+void my_task1(void *ctx){
+ 8000664:	b480      	push	{r7}
+ 8000666:	b083      	sub	sp, #12
+ 8000668:	af00      	add	r7, sp, #0
+ 800066a:	6078      	str	r0, [r7, #4]
+}
+ 800066c:	bf00      	nop
+ 800066e:	370c      	adds	r7, #12
+ 8000670:	46bd      	mov	sp, r7
+ 8000672:	f85d 7b04 	ldr.w	r7, [sp], #4
+ 8000676:	4770      	bx	lr
+	...
+
+08000a78 <my_task2>:
+void my_task2(void *ctx){
+ 8000a78:	b480      	push	{r7}
+ 8000a7a:	b083      	sub	sp, #12
+ 8000a7c:	af00      	add	r7, sp, #0
+ 8000a7e:	6078      	str	r0, [r7, #4]
+}
+ 8000a80:	bf00      	nop
+ 8000a82:	370c      	adds	r7, #12
+ 8000a84:	46bd      	mov	sp, r7
+ 8000a86:	f85d 7b04 	ldr.w	r7, [sp], #4
+ 8000a8a:	4770      	bx	lr
+	...
+
+08000e8c <my_task3>:
+void my_task3(void *ctx){
+ 8000e8c:	b480      	push	{r7}
+ 8000e8e:	b083      	sub	sp, #12
+ 8000e90:	af00      	add	r7, sp, #0
+ 8000e92:	6078      	str	r0, [r7, #4]
+}
+ 8000e94:	bf00      	nop
+ 8000e96:	370c      	adds	r7, #12
+ 8000e98:	46bd      	mov	sp, r7
+ 8000e9a:	f85d 7b04 	ldr.w	r7, [sp], #4
+ 8000e9e:	4770      	bx	lr
+	...
+
+080012a0 <my_task4>:
+void my_task4(void *ctx){
+ 80012a0:	b480      	push	{r7}
+ 80012a2:	b083      	sub	sp, #12
+ 80012a4:	af00      	add	r7, sp, #0
+ 80012a6:	6078      	str	r0, [r7, #4]
+}
+ 80012a8:	bf00      	nop
+ 80012aa:	370c      	adds	r7, #12
+ 80012ac:	46bd      	mov	sp, r7
+ 80012ae:	f85d 7b04 	ldr.w	r7, [sp], #4
+ 80012b2:	4770      	bx	lr
+	...
+
+080016b4 <my_task5>:
+void my_task5(void *ctx){
+ 80016b4:	b480      	push	{r7}
+ 80016b6:	b083      	sub	sp, #12
+ 80016b8:	af00      	add	r7, sp, #0
+ 80016ba:	6078      	str	r0, [r7, #4]
+}
+ 80016bc:	bf00      	nop
+ 80016be:	370c      	adds	r7, #12
+ 80016c0:	46bd      	mov	sp, r7
+ 80016c2:	f85d 7b04 	ldr.w	r7, [sp], #4
+ 80016c6:	4770      	bx	lr
+	...
+
+08001ac8 <my_task6>:
+void my_task6(void *ctx){
+ 8001ac8:	b480      	push	{r7}
+ 8001aca:	b083      	sub	sp, #12
+ 8001acc:	af00      	add	r7, sp, #0
+ 8001ace:	6078      	str	r0, [r7, #4]
+}
+ 8001ad0:	bf00      	nop
+ 8001ad2:	370c      	adds	r7, #12
+ 8001ad4:	46bd      	mov	sp, r7
+ 8001ad6:	f85d 7b04 	ldr.w	r7, [sp], #4
+ 8001ada:	4770      	bx	lr
+	...
+
+08001edc <my_task7>:
+void my_task7(void *ctx){
+ 8001edc:	b480      	push	{r7}
+ 8001ede:	b083      	sub	sp, #12
+ 8001ee0:	af00      	add	r7, sp, #0
+ 8001ee2:	6078      	str	r0, [r7, #4]
+}
+ 8001ee4:	bf00      	nop
+ 8001ee6:	370c      	adds	r7, #12
+ 8001ee8:	46bd      	mov	sp, r7
+ 8001eea:	f85d 7b04 	ldr.w	r7, [sp], #4
+ 8001eee:	4770      	bx	lr
+	...
+
+080022f0 <my_task8>:
+void my_task8(void *ctx){
+ 80022f0:	b480      	push	{r7}
+ 80022f2:	b083      	sub	sp, #12
+ 80022f4:	af00      	add	r7, sp, #0
+ 80022f6:	6078      	str	r0, [r7, #4]
+}
+ 80022f8:	bf00      	nop
+ 80022fa:	370c      	adds	r7, #12
+ 80022fc:	46bd      	mov	sp, r7
+ 80022fe:	f85d 7b04 	ldr.w	r7, [sp], #4
+ 8002302:	4770      	bx	lr
+	...
+
+08002704 <my_task9>:
+void my_task9(void *ctx){
+ 8002704:	b480      	push	{r7}
+ 8002706:	b083      	sub	sp, #12
+ 8002708:	af00      	add	r7, sp, #0
+ 800270a:	6078      	str	r0, [r7, #4]
+}
+ 800270c:	bf00      	nop
+ 800270e:	370c      	adds	r7, #12
+ 8002710:	46bd      	mov	sp, r7
+ 8002712:	f85d 7b04 	ldr.w	r7, [sp], #4
+ 8002716:	4770      	bx	lr
+	...
+
+08002b18 <my_task10>:
+void my_task10(void *ctx){
+ 8002b18:	b480      	push	{r7}
+ 8002b1a:	b083      	sub	sp, #12
+ 8002b1c:	af00      	add	r7, sp, #0
+ 8002b1e:	6078      	str	r0, [r7, #4]
+}
+ 8002b20:	bf00      	nop
+ 8002b22:	370c      	adds	r7, #12
+ 8002b24:	46bd      	mov	sp, r7
+ 8002b26:	f85d 7b04 	ldr.w	r7, [sp], #4
+ 8002b2a:	4770      	bx	lr
+	...

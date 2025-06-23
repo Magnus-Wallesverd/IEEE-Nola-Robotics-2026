@@ -1,0 +1,7 @@
+start address _stask_load r0 0x8000858
+
+end address   _etask_load r1   0x8003130
+
+jumps 4 bytes then crashes with value at data r3 -1
+
+function might be misaligned

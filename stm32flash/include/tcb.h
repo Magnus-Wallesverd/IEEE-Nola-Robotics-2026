@@ -24,15 +24,15 @@ extern uint32_t _staskspace[SIZE][STACK_SIZE / sizeof(uint32_t)];
 
 extern void save_sp(TCB *_stcb);
 
-void __attribute__((section(".task1"))) my_function1(void *ctx);
-void __attribute__((section(".task2"))) my_function2(void *ctx);
-void __attribute__((section(".task3"))) my_function3(void *ctx);
-void __attribute__((section(".task4"))) my_function4(void *ctx);
-void __attribute__((section(".task5"))) my_function5(void *ctx);
-void __attribute__((section(".task6"))) my_function6(void *ctx);
-void __attribute__((section(".task7"))) my_function7(void *ctx);
-void __attribute__((section(".task8"))) my_function8(void *ctx);
-void __attribute__((section(".task9"))) my_function9(void *ctx);
-void __attribute__((section(".task10"))) my_function10(void *ctx);
+__attribute__((section(".task1"), used))  void  my_task1(void *ctx);
+__attribute__((section(".task2"), used))  void  my_task2(void *ctx);
+__attribute__((section(".task3"), used))  void  my_task3(void *ctx);
+__attribute__((section(".task4"), used))  void  my_task4(void *ctx);
+__attribute__((section(".task5"), used))  void  my_task5(void *ctx);
+__attribute__((section(".task6"), used))  void  my_task6(void *ctx);
+__attribute__((section(".task7"), used))  void  my_task7(void *ctx);
+__attribute__((section(".task8"), used))  void  my_task8(void *ctx);
+__attribute__((section(".task9"), used))  void  my_task9(void *ctx);
+__attribute__((section(".task10"), used)) void  my_task10(void *ctx);
 
 #endif // !TCB_H

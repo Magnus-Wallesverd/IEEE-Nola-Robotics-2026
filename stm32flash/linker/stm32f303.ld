@@ -45,70 +45,70 @@ SECTIONS
 
   /* STATIC SUB BLOCK MANAGEMENT*/
   . = ALIGN(1024);
-  .taskspace : 
+  .task_load : AT(_epadding)
   {
-    _staskspace = .;
-
+    _stask_load = .;
+   
     _task1_start = .;
     KEEP(*(.task1))
-    . = . + 0x400;
-    _task1_end = .;  
-    
+    _task1_end = _task1_start + 0x400;  
+    . = _task1_end;
+
     _task2_start = .;
     KEEP(*(.task2))
-    . = . + 0x400;
-    _task2_end = .;  
-
+    _task2_end = _task2_start + 0x400;  
+    . = _task2_end;
 
     _task3_start = .;
     KEEP(*(.task3))
-    . = . + 0x400;
-    _task3_end = .;  
-
+    _task3_end = _task3_start + 0x400;  
+    . = _task3_end;
 
     _task4_start = .;
     KEEP(*(.task4))
-    . = . + 0x400;
-    _task4_end = .;  
-
+    _task4_end = _task4_start + 0x400;  
+    . = _task4_end;
 
     _task5_start = .;
     KEEP(*(.task5))
-    . = . + 0x400;
-    _task5_end = .; 
-
+    _task5_end = _task5_start + 0x400;  
+    . = _task5_end;
 
     _task6_start = .;
     KEEP(*(.task6))
-    . = . + 0x400;
-    _task6_end = .; 
-
+    _task6_end = _task6_start + 0x400;  
+    . = _task6_end;
 
     _task7_start = .;
     KEEP(*(.task7))
-    . = . + 0x400;
-    _task7_end = .; 
-
+    _task7_end = _task7_start + 0x400;  
+    . = _task7_end;
 
     _task8_start = .;
     KEEP(*(.task8))
-    . = . + 0x400;
-    _task8_end = .; 
-
+    _task8_end = _task8_start + 0x400;  
+    . = _task8_end;
 
     _task9_start = .;
     KEEP(*(.task9))
-    . = . + 0x400;
-    _task9_end = .;  
-
+    _task9_end = _task9_start + 0x400;  
+    . = _task9_end;
 
     _task10_start = .;
     KEEP(*(.task10))
-    . = . + 0x400;
-    _task10_end = .; 
+    _task10_end = _task10_start + 0x400;  
+    . = _task10_end;
 
+
+    _etask_load = .;
+  } > FLASH 
+
+  .taskspace (NOLOAD) :
+  {
+    _staskspace = .;
+    . = . + 0x2800;
     _etaskspace = .;
-  } > RAM 
+  } > RAM
 
   .bss :
   {

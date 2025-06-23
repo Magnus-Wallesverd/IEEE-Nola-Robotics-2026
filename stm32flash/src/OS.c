@@ -8,16 +8,16 @@ void initstack(void){
     
     // list of functions 
     void (*function_list[SIZE])(void *) = {
-        my_function1,
-        my_function2,
-        // my_function3,
-        // my_function4,
-        // my_function5,
-        // my_function6,
-        // my_function7,
-        // my_function8,
-        // my_function9,
-        // my_function10
+        my_task1,
+        my_task2,
+        my_task3,
+        my_task4,
+        my_task5,
+        my_task6,
+        my_task7,
+        my_task8,
+        my_task9,
+        my_task10
     };
 
     for(int i = 0; i < SIZE; i++){
@@ -31,15 +31,43 @@ void initstack(void){
     }
 }
 
-void my_function1(void *ctx){
+void my_task1(void *ctx){
     (void)ctx;
-    SetPinOutput(GPIOA, 0x20);
-    PinWrite(GPIOA,0x20);
 }
 
-void my_function2(void *ctx){
+void my_task2(void *ctx){
     (void)ctx;
-    lcdinit();
+}
+
+void my_task3(void *ctx){
+    (void)ctx;
+}
+
+void my_task4(void *ctx){
+    (void)ctx;
+}
+void my_task5(void *ctx){
+    (void)ctx;
+}
+
+void my_task6(void *ctx){
+    (void)ctx;
+}
+
+void my_task7(void *ctx){
+    (void)ctx;
+}
+
+void my_task8(void *ctx){
+    (void)ctx;
+}
+
+void my_task9(void *ctx){
+    (void)ctx;
+}
+
+void my_task10(void *ctx){
+    (void)ctx;
 }
 
 void taskscheduler(void){
