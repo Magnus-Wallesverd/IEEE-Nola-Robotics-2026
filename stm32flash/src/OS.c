@@ -33,10 +33,13 @@ void initstack(void){
 
 void my_task1(void *ctx){
     (void)ctx;
+    SetPinOutput(GPIOA, 0x20);
+    PinWrite(GPIOA, 0x20);
 }
 
 void my_task2(void *ctx){
     (void)ctx;
+    lcdinit();
 }
 
 void my_task3(void *ctx){

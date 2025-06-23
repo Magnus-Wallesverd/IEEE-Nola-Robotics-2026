@@ -28,6 +28,8 @@ SECTIONS
     _edata = .;
   } > RAM
 
+  _ltask_flash = _etext + (_edata - _sdata);
+
   .tcb :
   {
     _stcb = .;
@@ -45,7 +47,7 @@ SECTIONS
 
   /* STATIC SUB BLOCK MANAGEMENT*/
   . = ALIGN(1024);
-  .task_load : AT(_epadding)
+  .task_load : AT(_ltask_flash)
   {
     _stask_load = .;
    

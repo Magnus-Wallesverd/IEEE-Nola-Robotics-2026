@@ -97,9 +97,9 @@ zero_taskspace:
   strlt r2, [r0], #4
   blt zero_taskspace
 
-  ldr r0, = _staskspace
-  ldr r1, = _etaskspace
-  ldr r2, = _stask_load
+  ldr r0, = _stask_load
+  ldr r1, = _etask_load
+  ldr r2, = _staskspace
 
 task_loader:
   cmp r0, r1
