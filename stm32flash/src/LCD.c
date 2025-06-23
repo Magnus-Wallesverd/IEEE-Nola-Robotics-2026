@@ -1,7 +1,7 @@
 #include "stm32f303.h"
 
 void lcdprint(void){
-    unsigned char str1[] = "Hello World!";
+    unsigned char str1[] = "HI FRIENDS?!";
     for(int i = 0; str1[i] != '\0'; i++){
         PinWrite(GPIOC, 0x500 + str1[i]);
         for(volatile int i = 0; i < 6; i++);
