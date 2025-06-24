@@ -23,7 +23,7 @@ extern TCB _stcb[SIZE];
 extern uint32_t _staskspace[SIZE][STACK_SIZE / sizeof(uint32_t)];
 
 extern void context_switch(TCB *_stcb);
-extern void foo(void )
+extern void foo(void);
 
 __attribute__((section(".task1"), used))  void  my_task1(void *ctx);
 __attribute__((section(".task2"), used))  void  my_task2(void *ctx);

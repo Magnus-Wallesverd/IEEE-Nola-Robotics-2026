@@ -7,9 +7,15 @@
 //balls
 context_switch: 
     
-    movw r0, sp
-    push {r0-r12}
-    
+    mov r4, sp
+    ldr r1, [r0]
+    mov sp, r1
+    push {r0-r3}
+    mov sp, r4
     bx lr
 
-foo: b foo
+.global foo
+.type foo, %function
+
+foo: 
+    b foo

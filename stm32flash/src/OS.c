@@ -21,7 +21,7 @@ void initstack(void){
     };
 
     for(int i = 0; i < SIZE; i++){
-        _stcb[i].sp = (uint32_t *)_staskspace[SIZE] - (i * TASK_BLOCK);
+        _stcb[i].sp = (uint32_t *)_staskspace[SIZE] - ((9-i) * TASK_BLOCK);
         _stcb[i].context = 0;
         _stcb[i].function = function_list[i];
         _stcb[i].pid = i;
@@ -44,6 +44,7 @@ void my_task2(void *ctx){
 
 void my_task3(void *ctx){
     (void)ctx;
+    foo();
 }
 
 void my_task4(void *ctx){
@@ -76,6 +77,7 @@ void my_task10(void *ctx){
 void taskscheduler(void){
     _stcb[0].function(_stcb[0].context);
     context_switch(&_stcb[0]);
-    /*_stcb[1].function(_stcb[1].context);*/
-    /*context_switch(&_stcb[0]);*/
+    _stcb[1].function(_stcb[1].context);
+    context_switch(&_stcb[0]);
+    _stcb[2].function(_stcb[2].context);
 }
