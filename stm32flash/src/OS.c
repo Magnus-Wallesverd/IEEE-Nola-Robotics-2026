@@ -75,6 +75,7 @@ void my_task10(void *ctx){
 
 void taskscheduler(void){
     _stcb[0].function(_stcb[0].context);
-    _stcb[1].function(_stcb[1].context);
+    context_switch(&_stcb[0]);
+    /*_stcb[1].function(_stcb[1].context);*/
+    /*context_switch(&_stcb[0]);*/
 }
-
