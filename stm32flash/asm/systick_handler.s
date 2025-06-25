@@ -1,0 +1,21 @@
+.text
+.global SysTick_Handler 
+
+/* SCB_ICSR block is 0xE000ED04 */
+/* bit 28 write 1 pendsv exception pending <- only way to trigger pendsv. 0 to clear */
+
+SysTick_Handler:
+     
+    ldr r0, =0x10000000
+    ldr r1, =0xE000ED04
+    str r0, [r1]
+    
+    /* r2 has value at pa5 address*/
+    /* exclusive or r2 with r0 and store into r2 */
+    ldr r0, =0x20
+    ldr r1, =0x48000014
+    ldr r2, [r1]
+    eor r2, r2, r0
+    str r2, [r1]
+
+    bx lr

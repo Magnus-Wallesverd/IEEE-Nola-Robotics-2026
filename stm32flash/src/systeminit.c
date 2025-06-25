@@ -8,18 +8,19 @@
 
 void systeminit(void){
     
-    /* systic interrupt init
+    // systic interrupt init
     STK->CTRL |= 0x6;
-    STK->LOAD |= 0xFFFFFF;
+    STK->LOAD |= 0xF423FF;
 
-    SCB->SHPR3 |= 0xF0000000;
-    */
+    SCB->SHPR3 |= 0xEF000000;
+    
     
     RCC->APB1ENR |= (1 << 2);               // Enable TIM4
     RCC->APB2ENR |= (1 << 11);              // Enable TIM1
     
     //TIM4 ENCODer SEtup
     RCC->AHBENR |= 0xA0000;                   // enable GPIO A&C  clock 
+    SetPinOutput(GPIOA, 0x20);                // OutputMode GPIOA
     SetPinAlternate(GPIOA,0x1800);            // Set pins 11 & 12 to AF mode TIM4
     AlternateFunctionSet(GPIOA,0x1800,10);      // Set pins PA11 & PA12 to AF10 for TIM4
     TIM4->ARR = 0xffff;
@@ -43,7 +44,4 @@ void systeminit(void){
     TIM1->CR1 |= 0b10000001;                // Enable TIM1 counter
     //TIM1->SR  &= 0;     // clear UIF
     
-    /*systic interrupt init
-    STK->CTRL |= 0x1;
-    */ 
 }

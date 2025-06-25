@@ -150,3 +150,5 @@ void AlternateFunctionSet(GPIO_TypeDef *port, uint32_t pins, uint32_t function){
     port->AFRH = GenerateBitMask(port->AFRH, (pins >> 8), 4, function);
     port->AFRL = GenerateBitMask(port->AFRL, (pins & 0xFF), 4, function);
 }
+
+

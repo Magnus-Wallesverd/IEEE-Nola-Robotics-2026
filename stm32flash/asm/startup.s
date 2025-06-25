@@ -126,8 +126,6 @@ zero_bss:
   
   bl initstack
 
-  bl taskscheduler
-  
   /* Call lcdinit 
   bl lcdinit */
 
@@ -145,7 +143,5 @@ BusFault_Handler:   b .
 UsageFault_Handler: b .
 SVC_Handler:        b .
 DebugMon_Handler:   b .
-PendSV_Handler:     b .
-SysTick_Handler:    b . /* bl systick_irq */
 WWDG:               b .
-/* TIM1_CC:            b .*/
+/* TIM1_CC:         b .*/
