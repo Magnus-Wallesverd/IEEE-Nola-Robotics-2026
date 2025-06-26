@@ -65,6 +65,19 @@ copy_data:              /*  This function uses the N flag to keep looping */
   strlt r3, [r0], #4    /*  store r3 to address pointed to by [r0] then increment register 0 address #4 bytes */
   blt copy_data         /*  branch to copy_data if N is set  */
 
+
+/* Load up CCMRAM boundary addresses */
+  ldr r0, =_ccmram
+  ldr r1, =_eccmram
+
+copy_data2:
+  cmp r0, r1
+  ittt lt
+  ldrlt r3, [r2], #4
+  strlt r3, [r0], #4
+  blt copy_data2
+
+
   ldr r0, = _stcb
   ldr r1, = _etcb
 
