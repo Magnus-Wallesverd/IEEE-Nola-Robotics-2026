@@ -120,17 +120,29 @@ zero_bss:
   blt zero_bss          /*  branch back to zero if N is set */
 
 
+  
 
   /* Call systeminit, branch with link */
-  bl systeminit         
-  
+  bl systeminit
+
   bl initstack
+  bl my_task1
+test:
+  ldr r0, =_stcb
+  ldr r1, [r0]
+  mov sp, r1
 
-  /* Call lcdinit 
-  bl lcdinit */
 
-  /* Call main 
-  bl main  */
+/*
+task_boot:
+
+  ldr r0, =_staskspace 
+
+  pop {PC}
+  add r1, r0, #1
+  push {r1}
+
+*/
 
 infinite_loop:
   b infinite_loop

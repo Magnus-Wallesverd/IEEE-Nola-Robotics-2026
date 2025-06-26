@@ -76,9 +76,11 @@ debug:
 	@tmux attach -t debug
 
 dump:
-	@arm-none-eabi-objdump -S build/firmware.elf > dump.txt
+	@arm-none-eabi-objdump -S build/firmware.elf > build/dump.txt
 # Clean
+disas:
+	@arm-none-eabi-objdump -D build/firmware.elf > build/out.asm
 clean:
 	rm -rf build
 
-.PHONY: all flash debug dump clean
+.PHONY: all flash debug dump disas clean

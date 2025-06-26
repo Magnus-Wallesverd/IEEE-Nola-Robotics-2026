@@ -36,50 +36,55 @@ void initstack(void){
 
 void my_task1(void *ctx){
     (void)ctx;
-    SetPinOutput(GPIOA, 0x20);
-    PinWrite(GPIOA, 0x20);
+    while (1); 
 }
 
 void my_task2(void *ctx){
     (void)ctx;
-    lcdinit();
+    while (1); 
 }
 
 void my_task3(void *ctx){
     (void)ctx;
+    while (1); 
 }
 
 void my_task4(void *ctx){
     (void)ctx;
+    while (1); 
 }
+
 void my_task5(void *ctx){
     (void)ctx;
+    while (1); 
 }
 
 void my_task6(void *ctx){
     (void)ctx;
+    while (1); 
 }
 
 void my_task7(void *ctx){
     (void)ctx;
+    while (1); 
 }
 
 void my_task8(void *ctx){
     (void)ctx;
+    while (1); 
 }
 
 void my_task9(void *ctx){
     (void)ctx;
+    while (1); 
 }
 
 void my_task10(void *ctx){
     (void)ctx;
+    while (1); 
 }
 
 void taskscheduler(void){
-    for(volatile int i = 0; i < 90900;i ++);
-    for(volatile int i = 0; i < 4;i ++){
-        GPIOA->ODR ^=0x20;
-        for(volatile int i = 0; i < 45400;i ++);
-    }
+    //return &_stcb[0]+0x10;
+    
 }
