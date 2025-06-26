@@ -1,6 +1,6 @@
 #include "stm32f303.h"
 #include <stdint.h>
-
+extern uint32_t _task1_end;
 TCB _stcb[SIZE];
 uint32_t _staskspace[SIZE][STACK_SIZE / sizeof(uint32_t)];
 
@@ -21,7 +21,8 @@ void initstack(void){
     };
 
     for(int i = 0; i < SIZE; i++){
-        _stcb[i].sp = (uint32_t *)_staskspace[SIZE] - (((SIZE-1)-i) * TASK_BLOCK);
+        
+        _stcb[i].sp = &(_task1_end)+ i*0x100 ;
         _stcb[i].context = 0;
         _stcb[i].function = function_list[i];
         _stcb[i].pid = i;
@@ -36,7 +37,8 @@ void initstack(void){
 
 void my_task1(void *ctx){
     (void)ctx;
-    while (1); 
+    while(1);
+     
 }
 
 void my_task2(void *ctx){

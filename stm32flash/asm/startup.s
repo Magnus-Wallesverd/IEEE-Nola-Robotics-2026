@@ -65,52 +65,22 @@ copy_data:              /*  This function uses the N flag to keep looping */
   strlt r3, [r0], #4    /*  store r3 to address pointed to by [r0] then increment register 0 address #4 bytes */
   blt copy_data         /*  branch to copy_data if N is set  */
 
-  ldr r0, = _stcb
-  ldr r1, = _etcb
 
-init_tcb:
-  cmp r0, r1
-  ittt lt 
-  movlt r2, #0 
-  strlt r2, [r0], #4
-  blt init_tcb
+/* Load up CCMRAM boundary addresses */
+  ldr r0, =_ccmram
+  ldr r1, =_eccmram
 
-  /* Padding between tcb and task space */
-  ldr r0, = _spadding
-  ldr r1, = _epadding
-  
-fill_padding:
+copy_data2:
   cmp r0, r1
   ittt lt
-  movlt r2, #0xBB
-  strlt r2, [r0], #4
-  blt fill_padding
+  ldrlt r3, [r2], #4
+  strlt r3, [r0], #4
+  blt copy_data2
+
   
   /* zero the taskspace */
-  ldr r0, = _staskspace 
-  ldr r1, = _etaskspace
 
-zero_taskspace:
-  cmp r0, r1
-  ittt lt 
-  movlt r2, #0
-  strlt r2, [r0], #4
-  blt zero_taskspace
-
-  ldr r0, = _stask_load
-  ldr r1, = _etask_load
-  ldr r2, = _staskspace
-
-task_loader:
-  cmp r0, r1
-  ittt lt 
-  ldrlt r3, [r0], #4 
-  strlt r3, [r2], #4
-  blt task_loader
-
-  /* Zero initialize .bss */
-  ldr r0, = _sbss       /*  load address pointer into r0 */
-  ldr r1, = _ebss       /*  load address pointer into r1 */
+  /* Zero initialize .bss*/
 
 zero_bss:
   cmp r0,r1             /*  zero out the bss section */
@@ -124,13 +94,10 @@ zero_bss:
 
   /* Call systeminit, branch with link */
   bl systeminit
-
   bl initstack
-  bl my_task1
 test:
-  ldr r0, =_stcb
-  ldr r1, [r0]
-  mov sp, r1
+  ldr r0, =0x200001a1
+  bx r0
 
 
 /*
