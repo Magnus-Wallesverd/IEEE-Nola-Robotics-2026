@@ -1,7 +1,6 @@
 /* Test Main */
 #include "stm32f303.h"
 #include <math.h>
-
 void put_char(char c){
     asm(
             "mov r0, #0x03\n"
@@ -26,6 +25,8 @@ void printn(int num,int len){
     }
      
 }
+
+__attribute__((section(".ccmram")))
 void main(void){
 //   int t = 0;
     int k =0;

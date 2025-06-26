@@ -21,45 +21,20 @@ SECTIONS
     _etext = .;            /* End of code */
   } > FLASH
 
-  .data : AT(_etext)
+  .data : 
   {
     /* sdata is start of data and edata is the end of data */
-    _sdata = .; 
+    _sdata = . ; 
     *(.data*)
-    _edata = .;
-  } > RAM
-  
-  .ccmram :
-  {
-    _ccmram = .;
-    *(.ccmram*)
-    _eccmram = .;
-
-  } > CCMRAM AT> FLASH
-
-
-
-  _ltask_flash = _etext + (_edata - _sdata);
-
-  .tcb :
-  {
-    _stcb = .;
+    _stcb = . ;
     . = . + 0xA0;
-    _etcb = .;
-  } > RAM
 
-  .padding :
-  {
-    _spadding = .;
-    . = . + 0x100;
-    _epadding = .;
-  } > RAM
+    
+    _spadding = . ;
+    . = . + 0x100 ;
+    _epadding = . ;
 
 
-  /* STATIC SUB BLOCK MANAGEMENT*/
-  . = ALIGN(1024);
-  .task_load : AT(_ltask_flash)
-  {
     _stask_load = .;
    
     _task1_start = .;
@@ -114,14 +89,18 @@ SECTIONS
 
 
     _etask_load = .;
-  } > FLASH 
 
-  .taskspace (NOLOAD) :
+    _edata = .;
+  } > RAM AT>FLASH
+  
+  .ccmram :
   {
-    _staskspace = .;
-    . = . + 0x2800;
-    _etaskspace = .;
-  } > RAM
+    _ccmram = .;
+    *(.ccmram*)
+    _eccmram = .;
+
+  } > CCMRAM AT> FLASH
+
 
   .bss :
   {
