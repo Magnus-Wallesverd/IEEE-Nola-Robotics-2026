@@ -1,10 +1,12 @@
 #include "stm32f303.h"
 #include <stdint.h>
+
 extern uint32_t _task1_end;
 TCB _stcb[SIZE];
 uint32_t _staskspace[SIZE][STACK_SIZE / sizeof(uint32_t)];
+// static StackFrame fakeframe[SIZE];
 
-void initstack(void){
+void tcbinit(void){
     
     // list of functions 
     void (*function_list[SIZE])(void *) = {
@@ -26,7 +28,7 @@ void initstack(void){
         _stcb[i].context = 0;
         _stcb[i].function = function_list[i];
         _stcb[i].pid = i;
-        _stcb[i].state = 0xA;
+        _stcb[i].state = 0;
         _stcb[i].prio = 0xB;
         _stcb[i].flags = 0xC;
     }
@@ -86,7 +88,6 @@ void my_task10(void *ctx){
     while (1); 
 }
 
-void taskscheduler(void){
-    //return &_stcb[0]+0x10;
-    
+TCB* taskscheduler(void){
+    return &_stcb[0];
 }

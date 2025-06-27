@@ -66,6 +66,16 @@ copy_data:              /*  This function uses the N flag to keep looping */
   blt copy_data         /*  branch to copy_data if N is set  */
 
 
+  ldr r0, = _spadding
+  ldr r1, = _epadding
+
+fill_padding:
+  cmp   r0, r1
+  ittt  lt
+  movlt  r2, #0xdead
+  strlt r2, [r0], #4
+  blt fill_padding
+
 /* Load up CCMRAM boundary addresses */
   ldr r0, =_ccmram
   ldr r1, =_eccmram
@@ -77,10 +87,27 @@ copy_data2:
   strlt r3, [r0], #4
   blt copy_data2
 
-  
-  /* zero the taskspace */
+  ldr r4, = _task1_end 
+  ldr r5, = _task10_end
+  ldr r6, = _task1_start
+  mov r7, sp
+
+init_frames:
+  cmp  r4, r5
+  mov  r0, r12
+  mov  r1, #0
+  orr  r2, r6, #1
+  movt r3, #0x100
+  mov  sp, r4
+  push {r0-r3}
+  add r4, r4, #0x400
+  add r6, r6, #0x400
+  blt init_frames
+  mov sp, r7
 
   /* Zero initialize .bss*/
+  ldr r0, =_sbss
+  ldr r1, =_ebss
 
 zero_bss:
   cmp r0,r1             /*  zero out the bss section */
@@ -90,26 +117,9 @@ zero_bss:
   blt zero_bss          /*  branch back to zero if N is set */
 
 
-  
-
   /* Call systeminit, branch with link */
   bl systeminit
-  bl initstack
-test:
-  ldr r0, =0x200001a1
-  bx r0
-
-
-/*
-task_boot:
-
-  ldr r0, =_staskspace 
-
-  pop {PC}
-  add r1, r0, #1
-  push {r1}
-
-*/
+  bl tcbinit
 
 infinite_loop:
   b infinite_loop
