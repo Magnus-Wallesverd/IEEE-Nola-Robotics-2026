@@ -9,4 +9,6 @@ SysTick_Handler:
     ldr r0, =0x10000000
     ldr r1, =0xE000ED04
     str r0, [r1]
+    
+    ldr r7, =0xdeadbeef
     bx lr

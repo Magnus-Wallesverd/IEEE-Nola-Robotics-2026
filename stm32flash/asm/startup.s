@@ -96,7 +96,7 @@ copy_data2:
 
 init_frames:
   cmp  r4, r5
-  mov  r0, r12
+  mov  r0, #0xFFFF
   mov  r1, #0
   orr  r2, r6, #1
   movt r3, #0x100
@@ -125,8 +125,15 @@ zero_bss:
   bl systeminit
   
 control:
-  ldr r1, 0x2
-  msr r1, control
+  mrs r1, control
+  orr r1, r1, #0x02
+  msr control, r1
+  ISB
+
+psp_move:
+  ldr r0, = _estack
+  msr psp, r0
+  ISB
 
 infinite_loop:
   b infinite_loop
@@ -139,5 +146,5 @@ BusFault_Handler:   b .
 UsageFault_Handler: b .
 SVC_Handler:        b .
 DebugMon_Handler:   b .
-/* WWDG:               b .*/
+WWDG:               b .
 /* TIM1_CC:         b .*/

@@ -13,7 +13,7 @@ void systeminit(void){
     STK->LOAD |= 0xF423FF;
     
     // priority set
-    SCB->SHPR3 |= 0xE0F000000;
+    SCB->SHPR3 |= 0xE0F00000;
     
     
     RCC->APB1ENR |= (1 << 2);               // Enable TIM4
