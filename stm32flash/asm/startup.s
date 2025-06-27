@@ -87,9 +87,11 @@ copy_data2:
   strlt r3, [r0], #4
   blt copy_data2
 
+
   ldr r4, = _task1_end 
   ldr r5, = _task10_end
   ldr r6, = _task1_start
+  ldr r12, =0xdeadbeef
   mov r7, sp
 
 init_frames:
@@ -99,6 +101,7 @@ init_frames:
   orr  r2, r6, #1
   movt r3, #0x100
   mov  sp, r4
+  push {r0-r3}
   push {r0-r3}
   add r4, r4, #0x400
   add r6, r6, #0x400
@@ -117,13 +120,13 @@ zero_bss:
   blt zero_bss          /*  branch back to zero if N is set */
 
 
+  bl tcbinit
   /* Call systeminit, branch with link */
   bl systeminit
-  bl tcbinit
 
 infinite_loop:
   b infinite_loop
-
+  
 /* Default handlers */
 NMI_Handler:        b .
 HardFault_Handler:  b .
@@ -132,5 +135,5 @@ BusFault_Handler:   b .
 UsageFault_Handler: b .
 SVC_Handler:        b .
 DebugMon_Handler:   b .
-WWDG:               b .
+/* WWDG:               b .*/
 /* TIM1_CC:         b .*/
