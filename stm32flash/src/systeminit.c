@@ -11,8 +11,9 @@ void systeminit(void){
     // systic interrupt init
     STK->CTRL |= 0x6;
     STK->LOAD |= 0xF423FF;
-
-    SCB->SHPR3 |= 0xEF000000;
+    
+    // priority set
+    SCB->SHPR3 |= 0xE0F000000;
     
     
     RCC->APB1ENR |= (1 << 2);               // Enable TIM4

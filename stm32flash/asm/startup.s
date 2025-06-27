@@ -123,6 +123,10 @@ zero_bss:
   bl tcbinit
   /* Call systeminit, branch with link */
   bl systeminit
+  
+control:
+  ldr r1, 0x2
+  msr r1, control
 
 infinite_loop:
   b infinite_loop
