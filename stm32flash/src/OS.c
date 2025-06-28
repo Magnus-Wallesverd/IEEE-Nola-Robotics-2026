@@ -3,7 +3,9 @@
 
 extern uint32_t _task1_end;
 TCB _stcb[SIZE];
-uint32_t _staskspace[SIZE][STACK_SIZE / sizeof(uint32_t)];
+TCB *current_tcb;
+TCB *next_tcb;
+
 // static StackFrame fakeframe[SIZE];
 
 void tcbinit(void){
@@ -24,7 +26,7 @@ void tcbinit(void){
 
     for(int i = 0; i < SIZE; i++){
         
-        _stcb[i].sp = &(_task1_end)+ i*0x100 ;
+        // _stcb[i].sp = &(_task1_end)+ i*0x100 ;
         _stcb[i].context = 0;
         _stcb[i].function = function_list[i];
         _stcb[i].pid = i;
@@ -89,5 +91,9 @@ void my_task10(void *ctx){
 }
 
 TCB* taskscheduler(void){
-    return &_stcb[0];
+    next_tcb++;
+    if(next_tcb >= &_stcb[SIZE]){
+        next_tcb = _stcb;
+    }
+    return next_tcb;
 }

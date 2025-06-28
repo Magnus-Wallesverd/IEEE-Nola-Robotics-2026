@@ -87,25 +87,32 @@ copy_data2:
   strlt r3, [r0], #4
   blt copy_data2
 
-
+ 
   ldr r4, = _task1_end 
   ldr r5, = _task10_end
   ldr r6, = _task1_start
-  ldr r12, =0xdeadbeef
   mov r7, sp
+  ldr r8, = _stcb
 
 init_frames:
   cmp  r4, r5
-  mov  r0, #0xFFFF
-  mov  r1, #0
   orr  r2, r6, #1
-  movt r3, #0x100
+  mov  r3, #0x01000000
+  mov r12, #0
   mov  sp, r4
+  push {r3}
+  push {r2}
+  push {r12,lr}
+  mov r0, #0
+  mov r1, #0
+  mov r2, #0
+  mov r3, #0
   push {r0-r3}
-  push {r0-r3}
+  str sp, [r8], #0x10
   add r4, r4, #0x400
   add r6, r6, #0x400
   blt init_frames
+  
   mov sp, r7
 
   /* Zero initialize .bss*/
@@ -123,18 +130,25 @@ zero_bss:
   bl tcbinit
   /* Call systeminit, branch with link */
   bl systeminit
-  
-control:
-  mrs r1, control
-  orr r1, r1, #0x02
-  msr control, r1
-  ISB
+
+set_global:
+  ldr r0, =_stcb
+  ldr r1, =current_tcb
+  ldr r2, =next_tcb
+  str r0, [r1]
+  str r0, [r2]
 
 psp_move:
-  ldr r5, =_task1_end
-  ldr r0, = _estack
-  msr psp, r0
+  ldr r0, = _stcb
+  ldr r1, [r0]
+  msr psp, r1
   ISB
+
+clear:
+    mov r0, #0
+    mov r1, #0
+    mov r2, #0
+    mov r3, #0
 
 infinite_loop:
   b infinite_loop
