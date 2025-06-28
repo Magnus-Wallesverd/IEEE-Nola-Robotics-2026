@@ -87,7 +87,7 @@ copy_data2:
   strlt r3, [r0], #4
   blt copy_data2
 
-/*
+
   ldr r4, = _task1_end 
   ldr r5, = _task10_end
   ldr r6, = _task1_start
@@ -107,7 +107,7 @@ init_frames:
   add r6, r6, #0x400
   blt init_frames
   mov sp, r7
-*/
+
   /* Zero initialize .bss*/
   ldr r0, =_sbss
   ldr r1, =_ebss
@@ -131,12 +131,13 @@ control:
   ISB
 
 psp_move:
-  ldr r0, = _task1_end
+  ldr r5, =_task1_end
+  ldr r0, = _estack
   msr psp, r0
   ISB
 
 infinite_loop:
-  b infinite_loopldr r1, [r0] 
+  b infinite_loop
   
 /* Default handlers */
 NMI_Handler:        b .
