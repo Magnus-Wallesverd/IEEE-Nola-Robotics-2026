@@ -133,9 +133,9 @@ zero_bss:
 
 set_global:
   ldr r0, =_stcb
-  ldr r1, =current_tcb
+  /*ldr r1, =current_tcb */
   ldr r2, =next_tcb
-  str r0, [r1]
+  /* str r0, [r1] */
   str r0, [r2]
 
 psp_move:
@@ -144,11 +144,12 @@ psp_move:
   msr psp, r1
   ISB
 
-clear:
-    mov r0, #0
-    mov r1, #0
-    mov r2, #0
-    mov r3, #0
+#define STK   ((Systick_TypeDef *) 0xE000E010)
+SysTick_start:
+    ldr r0, =0xE000E010
+    ldr r1, [r0]
+    orr r1, r1, #1
+    str r1, [r0]
 
 infinite_loop:
   b infinite_loop

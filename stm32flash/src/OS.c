@@ -2,9 +2,11 @@
 #include <stdint.h>
 
 extern uint32_t _task1_end;
+uint32_t global_tick;
 TCB _stcb[SIZE];
 TCB *current_tcb;
 TCB *next_tcb;
+
 
 // static StackFrame fakeframe[SIZE];
 
@@ -35,14 +37,11 @@ void tcbinit(void){
         _stcb[i].flags = 0xC;
     }
 
-    // systick counter enable
-    STK->CTRL |= 0x1;
 }
 
 void my_task1(void *ctx){
     (void)ctx;
-    while(1);
-     
+    while (1); 
 }
 
 void my_task2(void *ctx){
