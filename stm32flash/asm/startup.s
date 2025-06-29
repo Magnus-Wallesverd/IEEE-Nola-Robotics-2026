@@ -93,7 +93,7 @@ copy_data2:
   ldr r6, = _task1_start
   mov r7, sp
   ldr r8, = _stcb
-
+  ldr r9, = _stcb
 init_frames:
   cmp  r4, r5
   orr  r2, r6, #1
@@ -108,6 +108,7 @@ init_frames:
   mov r2, #0
   mov r3, #0
   push {r0-r3}
+  
   str sp, [r8], #0x10
   add r4, r4, #0x400
   add r6, r6, #0x400
@@ -133,23 +134,12 @@ zero_bss:
 
 set_global:
   ldr r0, =_stcb
-  /*ldr r1, =current_tcb */
+  ldr r1, =current_tcb 
   ldr r2, =next_tcb
-  /* str r0, [r1] */
+  str r0, [r1]
   str r0, [r2]
 
-psp_move:
-  ldr r0, = _stcb
-  ldr r1, [r0]
-  msr psp, r1
-  ISB
-
-#define STK   ((Systick_TypeDef *) 0xE000E010)
-SysTick_start:
-    ldr r0, =0xE000E010
-    ldr r1, [r0]
-    orr r1, r1, #1
-    str r1, [r0]
+SVC #0
 
 infinite_loop:
   b infinite_loop
@@ -160,7 +150,6 @@ HardFault_Handler:  b .
 MemManage_Handler:  b .
 BusFault_Handler:   b .
 UsageFault_Handler: b .
-SVC_Handler:        b .
 DebugMon_Handler:   b .
 WWDG:               b .
 /* TIM1_CC:         b .*/

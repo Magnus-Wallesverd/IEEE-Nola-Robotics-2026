@@ -41,12 +41,14 @@ void tcbinit(void){
 
 void my_task1(void *ctx){
     (void)ctx;
-    while (1); 
+    while(1){
+        PinWrite(GPIOA, 0x20);
+    } 
 }
 
 void my_task2(void *ctx){
     (void)ctx;
-    while (1); 
+    while (1);
 }
 
 void my_task3(void *ctx){
@@ -86,7 +88,10 @@ void my_task9(void *ctx){
 
 void my_task10(void *ctx){
     (void)ctx;
-    while (1); 
+    while (1){
+        ResetPins(GPIOA,0x20);
+
+    }
 }
 
 TCB* taskscheduler(void){
