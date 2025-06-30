@@ -7,9 +7,6 @@ TCB _stcb[SIZE];
 TCB *current_tcb;
 TCB *next_tcb;
 
-
-// static StackFrame fakeframe[SIZE];
-
 void tcbinit(void){
     
     // list of functions 
@@ -48,49 +45,64 @@ void my_task1(void *ctx){
 
 void my_task2(void *ctx){
     (void)ctx;
-    while (1);
+    while (1){
+        ResetPins(GPIOA,0x20);
+    }
 }
 
 void my_task3(void *ctx){
     (void)ctx;
-    while (1); 
+    while(1){
+        PinWrite(GPIOA, 0x20);
+    } 
 }
 
 void my_task4(void *ctx){
     (void)ctx;
-    while (1); 
+    while (1){
+        ResetPins(GPIOA,0x20);
+    }
 }
 
 void my_task5(void *ctx){
     (void)ctx;
-    while (1); 
+    while(1){
+        PinWrite(GPIOA, 0x20);
+    } 
 }
 
 void my_task6(void *ctx){
     (void)ctx;
-    while (1); 
+    while (1){
+        ResetPins(GPIOA,0x20);
+    }
 }
 
 void my_task7(void *ctx){
     (void)ctx;
-    while (1); 
+    while(1){
+        PinWrite(GPIOA, 0x20);
+    } 
 }
 
 void my_task8(void *ctx){
     (void)ctx;
-    while (1); 
+    while (1){
+        ResetPins(GPIOA,0x20);
+    }
 }
 
 void my_task9(void *ctx){
     (void)ctx;
-    while (1); 
+    while(1){
+        PinWrite(GPIOA, 0x20);
+    } 
 }
 
 void my_task10(void *ctx){
     (void)ctx;
     while (1){
         ResetPins(GPIOA,0x20);
-
     }
 }
 

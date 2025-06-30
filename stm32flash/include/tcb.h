@@ -18,24 +18,13 @@ typedef struct {
     uint8_t  flags;
 }TCB;
 
-//fake frame for init
-typedef struct{
-    uint32_t r0;
-    uint32_t r1;
-    uint32_t r2;
-    uint32_t r3;
-    uint32_t r12;
-    uint32_t lr;
-    uint32_t pc;
-    uint32_t xPSR;
-} StackFrame;   
+enum states{
+    READY = 0,
+    RUNNING,
+    BLOCKED
+};
 
 extern TCB _stcb[SIZE];
-
-extern uint32_t _staskspace[SIZE][TASK_BLOCK];
-
-
-#define fakeframe ((StackFrame *) _task1_end-0x32)
 
 __attribute__((section(".task1"), used, naked))  void  my_task1(void *ctx);
 __attribute__((section(".task2"), used, naked))  void  my_task2(void *ctx);
