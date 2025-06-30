@@ -94,6 +94,7 @@ copy_data2:
   mov r7, sp
   ldr r8, = _stcb
   ldr r9, = _stcb
+
 init_frames:
   cmp  r4, r5
   orr  r2, r6, #1
@@ -127,9 +128,8 @@ zero_bss:
   strlt r2, [r0], #4    /*  store r2 = 0 into address pointed to by R0 increment register 0 address #4 bytes */
   blt zero_bss          /*  branch back to zero if N is set */
 
-
+  /* C initializers */
   bl tcbinit
-  /* Call systeminit, branch with link */
   bl systeminit
 
 set_global:
@@ -139,7 +139,9 @@ set_global:
   str r0, [r1]
   str r0, [r2]
 
-SVC #0
+service:
+  SVC #0
+
 
 infinite_loop:
   b infinite_loop

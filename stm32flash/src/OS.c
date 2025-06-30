@@ -27,7 +27,7 @@ void tcbinit(void){
         _stcb[i].context = 0;
         _stcb[i].function = function_list[i];
         _stcb[i].pid = i;
-        _stcb[i].state = 0;
+        _stcb[i].state = READY;
         _stcb[i].prio = 0xB;
         _stcb[i].flags = 0xC;
     }

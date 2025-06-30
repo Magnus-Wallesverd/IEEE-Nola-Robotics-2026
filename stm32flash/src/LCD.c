@@ -43,6 +43,4 @@ void lcdinit(void){
     for(volatile int i = 0; i < 1818; i++);
     ResetPins(GPIOC, 0xFF);
     for(volatile int i = 0; i < 909; i++);  
-    
-    lcdprint();
 }

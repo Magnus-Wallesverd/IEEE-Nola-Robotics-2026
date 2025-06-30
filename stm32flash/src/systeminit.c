@@ -10,6 +10,8 @@ void systeminit(void){
     
     // systic interrupt init
     STK->CTRL |= 0x6;
+
+    // System clock time interval
     STK->LOAD |= 0x3D08FF;
     
     // priority set

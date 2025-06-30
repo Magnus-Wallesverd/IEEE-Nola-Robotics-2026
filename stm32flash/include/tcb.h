@@ -26,7 +26,8 @@ typedef struct {
 enum states{
     READY = 0,
     RUNNING,
-    BLOCKED
+    BLOCKED,
+    SLEEPING
 };
 
 extern TCB _stcb[SIZE];

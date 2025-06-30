@@ -1,0 +1,5 @@
+Problem:
+static threads are cool but what if we want to go deeper and have functions dynamically chosen at runtime?
+
+Solution:
+???
