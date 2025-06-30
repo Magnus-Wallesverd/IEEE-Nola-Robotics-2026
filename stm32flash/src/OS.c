@@ -38,8 +38,19 @@ void tcbinit(void){
 
 void my_task1(void *ctx){
     (void)ctx;
+    int speed;
+    int target = 1000;
+    int t1 =0;
+    int d1 =0;
+    int pwm=0;
+    int A=3;
+    int B=4;
     while(1){
-        PinWrite(GPIOA, 0x20);
+	speed = (TIM3->CNT - d1)/(global_tick - t1);
+	pwm = A*(target-TIM3->CNT)+B*(speed);
+	d1 = TIM3->CNT;
+	t1 = global_tick;
+
     } 
 }
 
