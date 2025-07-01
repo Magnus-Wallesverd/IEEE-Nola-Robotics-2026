@@ -11,11 +11,11 @@
 ### TODO
 
 - Hardware Abstraction Layer
-  - timx.c
-  - syscfg.c
-  - exti.c
+  - i2c
+  - threads and workers and task queue
 
 ### UPDATES
 
- - gpio hardware abstraction completed. will push if testing shows its necerssary
- - file directories have been cleaned up on branches from here
+- round robin context switcher added
+- gpio hardware abstraction completed. will push if testing shows its necerssary
+- file directories have been cleaned up on branches from here
