@@ -88,9 +88,9 @@ copy_data2:
   blt copy_data2
 
  
-  ldr r4, = _task1_end 
-  ldr r5, = _task10_end
-  ldr r6, = _task1_start
+  ldr r4, = _thread1_end 
+  ldr r5, = _thread10_end
+  ldr r6, = _thread1_start
   mov r7, sp
   ldr r8, = _stcb
   ldr r9, = _stcb

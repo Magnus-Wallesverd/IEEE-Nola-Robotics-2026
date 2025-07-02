@@ -1,7 +1,7 @@
 #include "stm32f303.h"
 #include <stdint.h>
 
-extern uint32_t _task1_end;
+extern uint32_t _thread1_end;
 uint32_t global_tick;
 TCB _stcb[SIZE];
 TCB *current_tcb;
@@ -11,16 +11,16 @@ void tcbinit(void){
     
     // list of functions 
     void (*function_list[SIZE])(void *) = {
-        my_task1,
-        my_task2,
-        my_task3,
-        my_task4,
-        my_task5,
-        my_task6,
-        my_task7,
-        my_task8,
-        my_task9,
-        my_task10
+        my_thread1,
+        my_thread2,
+        my_thread3,
+        my_thread4,
+        my_thread5,
+        my_thread6,
+        my_thread7,
+        my_thread8,
+        my_thread9,
+        my_thread10
     };
 
     for(int i = 0; i < SIZE; i++){
@@ -35,61 +35,61 @@ void tcbinit(void){
 
 void worker_function(void){
     while(1){
-         
+    
     }
 }
 
-void my_task1(void *ctx){
+void my_thread1(void *ctx){
     (void)ctx;
     worker_function();
 }
 
-void my_task2(void *ctx){
+void my_thread2(void *ctx){
     (void)ctx;
     worker_function();
 }
 
-void my_task3(void *ctx){
+void my_thread3(void *ctx){
     (void)ctx;
     worker_function();
 }
 
-void my_task4(void *ctx){
+void my_thread4(void *ctx){
     (void)ctx;
     worker_function();
 }
 
-void my_task5(void *ctx){
+void my_thread5(void *ctx){
     (void)ctx;
     worker_function();
 }
 
-void my_task6(void *ctx){
+void my_thread6(void *ctx){
     (void)ctx;
     worker_function();
 }
 
-void my_task7(void *ctx){
+void my_thread7(void *ctx){
     (void)ctx;
     worker_function();
 }
 
-void my_task8(void *ctx){
+void my_thread8(void *ctx){
     (void)ctx;
     worker_function();
 }
 
-void my_task9(void *ctx){
+void my_thread9(void *ctx){
     (void)ctx;
     worker_function();
 }
 
-void my_task10(void *ctx){
+void my_thread10(void *ctx){
     (void)ctx;
     worker_function();
 }
 
-TCB* taskscheduler(void){
+TCB* threadscheduler(void){
     next_tcb++;
     if(next_tcb >= &_stcb[SIZE]){
         next_tcb = _stcb;
