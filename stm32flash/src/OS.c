@@ -2,6 +2,8 @@
 #include <stdint.h>
 
 extern uint32_t _task1_end;
+uint32_t speed=0;
+uint32_t d1=0;
 uint32_t global_tick;
 TCB _stcb[SIZE];
 TCB *current_tcb;
@@ -38,20 +40,32 @@ void tcbinit(void){
 
 void my_task1(void *ctx){
     (void)ctx;
-    int speed;
     int target = 1000;
     int t1 =0;
-    int d1 =0;
     int pwm=0;
     int A=3;
     int B=4;
     while(1){
-	speed = (TIM3->CNT - d1)/(global_tick - t1);
-	pwm = A*(target-TIM3->CNT)+B*(speed);
-	d1 = TIM3->CNT;
-	t1 = global_tick;
-
+	    pwm = A*(target-TIM4->CNT)+B*(speed);
+        if(pwm <0){
+            //toggle bit the rotate backward
+        }
+        else{
+            //rotate forward.
+        }
+        if(pwm> TIM1->ARR){
+            pwm = 0xFFFF;
+         }
+        else if(pwm < 0){
+            pwm = 0;
+        }
+        TIM1->CCR1 = pwm;
     } 
+}
+
+void update_speed(void){
+    speed = (TIM4->CNT-d1);
+    d1=TIM4->CNT;
 }
 
 void my_task2(void *ctx){
