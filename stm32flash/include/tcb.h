@@ -18,6 +18,11 @@ typedef struct {
     uint8_t  flags;
 }TCB;
 
+typedef struct {
+    void (*function)(void *args);
+    void *args;
+}work_item_t;
+
 enum states{
     READY = 0,
     RUNNING,

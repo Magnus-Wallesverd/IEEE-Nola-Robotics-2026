@@ -24,8 +24,6 @@ void tcbinit(void){
     };
 
     for(int i = 0; i < SIZE; i++){
-        
-        // _stcb[i].sp = &(_task1_end)+ i*0x100 ;
         _stcb[i].context = 0;
         _stcb[i].function = function_list[i];
         _stcb[i].pid = i;
@@ -33,77 +31,62 @@ void tcbinit(void){
         _stcb[i].prio = 0xB;
         _stcb[i].flags = 0xC;
     }
+}
 
+void worker_function(void){
+    while(1){
+         
+    }
 }
 
 void my_task1(void *ctx){
     (void)ctx;
-    while(1){
-        PinWrite(GPIOA, 0x20);
-    } 
+    worker_function();
 }
 
 void my_task2(void *ctx){
     (void)ctx;
-    while (1){
-        ResetPins(GPIOA,0x20);
-    }
+    worker_function();
 }
 
 void my_task3(void *ctx){
     (void)ctx;
-    while(1){
-        PinWrite(GPIOA, 0x20);
-    } 
+    worker_function();
 }
 
 void my_task4(void *ctx){
     (void)ctx;
-    while (1){
-        ResetPins(GPIOA,0x20);
-    }
+    worker_function();
 }
 
 void my_task5(void *ctx){
     (void)ctx;
-    while(1){
-        PinWrite(GPIOA, 0x20);
-    } 
+    worker_function();
 }
 
 void my_task6(void *ctx){
     (void)ctx;
-    while (1){
-        ResetPins(GPIOA,0x20);
-    }
+    worker_function();
 }
 
 void my_task7(void *ctx){
     (void)ctx;
-    while(1){
-        PinWrite(GPIOA, 0x20);
-    } 
+    worker_function();
 }
 
 void my_task8(void *ctx){
     (void)ctx;
-    while (1){
-        ResetPins(GPIOA,0x20);
-    }
+    worker_function();
 }
 
 void my_task9(void *ctx){
     (void)ctx;
-    while(1){
-        PinWrite(GPIOA, 0x20);
-    } 
+    worker_function();
 }
 
 void my_task10(void *ctx){
     (void)ctx;
-    while (1){
-        ResetPins(GPIOA,0x20);
-    }
+    worker_function();
 }
 
 TCB* taskscheduler(void){
