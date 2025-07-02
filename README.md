@@ -10,12 +10,10 @@
 
 ### TODO
 
-- Hardware Abstraction Layer
-  - timx.c
-  - syscfg.c
-  - exti.c
+- worker function 
+- shared queue
 
 ### UPDATES
 
- - gpio hardware abstraction completed. will push if testing shows its necerssary
- - file directories have been cleaned up on branches from here
+- merged to develop
+- working context switcher
