@@ -1,5 +1,7 @@
 #include "stm32f303.h"
 #include <stdint.h>
+#include "math.h"
+
 
 extern uint32_t _task1_end;
 uint32_t speed=0;
@@ -40,24 +42,24 @@ void tcbinit(void){
 
 void my_task1(void *ctx){
     (void)ctx;
-    int target = 1000;
-    int t1 =0;
+    int target = 5000;
     int pwm=0;
-    int A=3;
-    int B=4;
+    int A=2;
+    int B=30;
     while(1){
-	    pwm = A*(target-TIM4->CNT)+B*(speed);
+	    pwm = A*(target-TIM4->CNT)+speed/B;
         if(pwm <0){
             //toggle bit the rotate backward
         }
         else{
             //rotate forward.
         }
-        if(pwm> TIM1->ARR){
-            pwm = 0xFFFF;
-         }
-        else if(pwm < 0){
-            pwm = 0;
+        pwm = abs(pwm);
+        if(abs(pwm) > TIM1->ARR){
+            pwm = TIM1->ARR;
+        }
+        if(pwm < 300){
+            pwm =0;
         }
         TIM1->CCR1 = pwm;
     } 
@@ -136,5 +138,7 @@ TCB* taskscheduler(void){
     if(next_tcb >= &_stcb[SIZE]){
         next_tcb = _stcb;
     }
-    return next_tcb;
+    return current_tcb;
 }
+
+
