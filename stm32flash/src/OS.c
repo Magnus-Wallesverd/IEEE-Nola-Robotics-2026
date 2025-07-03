@@ -7,6 +7,7 @@ TCB _stcb[SIZE];
 TCB *current_tcb;
 TCB *next_tcb;
 
+
 void tcbinit(void){
     
     // list of functions 

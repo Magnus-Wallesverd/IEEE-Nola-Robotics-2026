@@ -8,6 +8,8 @@
 #define STACK_SIZE 1024
 #define TASK_BLOCK (1024/sizeof(uint32_t))
 
+// old tcb struct still in use 
+// TODO redesign to save bytes
 typedef struct {
     uint32_t *sp;
     void (*function)(void *context);
@@ -18,11 +20,17 @@ typedef struct {
     uint8_t  flags;
 }TCB;
 
+// struct for "work items". 
+// work items contain function pointers w/ args
 typedef struct {
     void (*function)(void *args);
     void *args;
 }work_item_t;
 
+// function pointer
+typedef void (*task_func_t)(void*);  // add when ready -> (void* args);
+
+// states for threads
 enum states{
     READY = 0,
     RUNNING,
