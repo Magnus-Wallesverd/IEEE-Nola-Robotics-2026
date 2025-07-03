@@ -8,6 +8,13 @@ work_item_t *front = &task_queue[0];
 work_item_t *end   = &task_queue[0];
 uint32_t task_queue_count  = 0;
 
+void taskinit(void){
+    for(int i = 0; i < QUEUE_SIZE; i++){
+        
+        enqueue();
+    }
+}
+
 void enqueue(work_item_t *task){
     if(task_queue_count == SIZE){
         return;
