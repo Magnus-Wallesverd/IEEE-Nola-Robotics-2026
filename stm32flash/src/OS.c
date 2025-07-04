@@ -8,8 +8,6 @@ TCB *current_tcb;
 TCB *next_tcb;
 
 
-void tcbinit(void){
-    
     // list of functions 
     void (*function_list[SIZE])(void *) = {
         my_thread1,
@@ -35,13 +33,12 @@ void tcbinit(void){
 }
 
 void worker_function(void){
-    while(1){
-        work_item_t* item = dequeue();
-        if(item == (void*)0){
-            return;
-        } else {
-            item->function(item->args);
-        }
+    // take item off queue
+    work_item_t* item = dequeue();
+    if(item == (void*)0){
+        return;
+    } else {
+        item->function(item->args);
     }
 }
 
