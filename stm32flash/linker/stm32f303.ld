@@ -87,8 +87,12 @@ SECTIONS
     _thread10_end = _thread10_start + 0x400;  
     . = _thread10_end;
 
-
     _ethread_load = .;
+
+    _task_queue = .;
+    KEEP(*(.task_queue))
+    _task_queue_end = .;
+
 
     _edata = .;
   } > RAM AT>FLASH

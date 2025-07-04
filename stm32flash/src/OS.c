@@ -36,7 +36,12 @@ void tcbinit(void){
 
 void worker_function(void){
     while(1){
-    
+        work_item_t* item = dequeue();
+        if(item == (void*)0){
+            return;
+        } else {
+            item->function(item->args);
+        }
     }
 }
 

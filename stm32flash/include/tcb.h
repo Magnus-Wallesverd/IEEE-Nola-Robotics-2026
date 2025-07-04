@@ -20,15 +20,6 @@ typedef struct {
     uint8_t  flags;
 }TCB;
 
-// struct for "work items". 
-// work items contain function pointers w/ args
-typedef struct {
-    void (*function)(void *args);
-    void *args;
-}work_item_t;
-
-// function pointer
-typedef void (*task_func_t)(void*);  // add when ready -> (void* args);
 
 // states for threads
 enum states{

@@ -10,6 +10,7 @@
 #define STM32F303_H
 
 #include "tcb.h"
+#include "task_queue.h"
 #include "backend.h"
 #include "gpio.h"
 #include "timx.h"
