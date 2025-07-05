@@ -7,7 +7,7 @@
   
 ## task queue 🙌
 
-### test
+### test 🙅
 
 - after function table is populated ISR/SVC enqueues
   - how big is the queue? 
@@ -33,3 +33,8 @@
 ## Library function
 
 - maybe make enqueue/dequeue reusable?
+
+## pretest realizations 😱
+
+- race conditions exist if a thread accesses the queue right before an interrupt
+- thread states wont help here because i could end up starving my threads
