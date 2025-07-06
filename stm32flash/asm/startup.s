@@ -130,7 +130,7 @@ zero_bss:
 
   /* C initializers */
   bl tcbinit
-  bl taskinit
+  /*bl taskinit*/
   bl systeminit
 
 set_global:

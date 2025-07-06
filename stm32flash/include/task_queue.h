@@ -23,5 +23,8 @@ void enqueue(work_item_t *task);
 // init
 void taskinit(void);
 
+extern void lock(void);
+extern void unlock(void);
+
 #endif // !TASK_QUEUE_H
 

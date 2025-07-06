@@ -10,10 +10,15 @@
 
 ### TODO
 
-- worker function 
-- shared queue
+- add a lock/unlock
+  - add a yield()
+- upgrade the scheduler
+- add logging/trace
+- research memory allocation (OS Part 2)
 
 ### UPDATES
 
+- worker function 
+- shared queue
 - merged to develop
 - working context switcher

@@ -3,10 +3,12 @@
 
 extern uint32_t _thread1_end;
 uint32_t global_tick;
+uint8_t  flag = 0;
 TCB _stcb[SIZE];
 TCB *current_tcb;
 TCB *next_tcb;
 
+void tcbinit(void){
 
     // list of functions 
     void (*function_list[SIZE])(void *) = {
@@ -33,8 +35,11 @@ TCB *next_tcb;
 }
 
 void worker_function(void){
+    
     // take item off queue
+    lock();
     work_item_t* item = dequeue();
+    unlock();
     if(item == (void*)0){
         return;
     } else {
@@ -44,52 +49,72 @@ void worker_function(void){
 
 void my_thread1(void *ctx){
     (void)ctx;
-    worker_function();
+    while(1){
+        worker_function();
+    }
 }
 
 void my_thread2(void *ctx){
     (void)ctx;
-    worker_function();
+    while(1){
+        worker_function();
+    }
 }
 
 void my_thread3(void *ctx){
     (void)ctx;
-    worker_function();
+    while(1){
+        worker_function();
+    }
 }
 
 void my_thread4(void *ctx){
     (void)ctx;
-    worker_function();
+    while(1){
+        worker_function();
+    }
 }
 
 void my_thread5(void *ctx){
     (void)ctx;
-    worker_function();
+    while(1){
+        worker_function();
+    }
 }
 
 void my_thread6(void *ctx){
     (void)ctx;
-    worker_function();
+    while(1){
+        worker_function();
+    }
 }
 
 void my_thread7(void *ctx){
     (void)ctx;
-    worker_function();
+    while(1){
+        worker_function();
+    }
 }
 
 void my_thread8(void *ctx){
     (void)ctx;
-    worker_function();
+    while(1){
+        worker_function();
+    }
 }
 
 void my_thread9(void *ctx){
     (void)ctx;
-    worker_function();
+    while(1){
+        worker_function();
+    }
 }
 
 void my_thread10(void *ctx){
     (void)ctx;
-    worker_function();
+    while(1){
+        worker_function();
+    }
 }
 
 TCB* threadscheduler(void){

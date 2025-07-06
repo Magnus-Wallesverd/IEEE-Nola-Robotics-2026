@@ -6,7 +6,8 @@
 
 work_item_t task_pool[POOL_SIZE];
 
-__attribute__((section(".task_queue")))
+// TODO 
+// __attribute__((section(".task_queue")))
 work_item_t* task_queue[SIZE];
 
 work_item_t** front = &task_queue[0];
@@ -14,7 +15,6 @@ work_item_t** end   = &task_queue[0];
 uint32_t task_queue_count  = 0;
 
 
-// TODO check if im returning the right type
 void enqueue(work_item_t *task){
     if(task_queue_count == SIZE){
         return;
@@ -55,7 +55,7 @@ void taskinit(void){
     // tasks table
     task_func_t function_table[POOL_SIZE] = {
         blink_led,
-        lcdprint
+        blink_led,
     };
     
     // load a function pointers into a work item array
