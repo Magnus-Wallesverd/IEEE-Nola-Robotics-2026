@@ -36,14 +36,20 @@ void tcbinit(void){
 
 void worker_function(void){
     
+    work_item_t* item;
     // take item off queue
-    lock();
-    work_item_t* item = dequeue();
-    unlock();
+    current_tcb->state = RUNNING;
+    if(lock() == 1){
+        item = dequeue();
+        unlock();
+    } else { yield(); }
+
     if(item == (void*)0){
+        current_tcb->state = IDLE;
         return;
     } else {
         item->function(item->args);
+        current_tcb->state = IDLE;
     }
 }
 

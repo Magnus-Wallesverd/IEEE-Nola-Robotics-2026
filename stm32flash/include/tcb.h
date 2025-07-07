@@ -26,7 +26,7 @@ enum states{
     READY = 0,
     RUNNING,
     BLOCKED,
-    SLEEPING
+    IDLE
 };
 
 extern TCB _stcb[SIZE];

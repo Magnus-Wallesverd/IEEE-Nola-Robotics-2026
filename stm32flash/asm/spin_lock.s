@@ -13,7 +13,11 @@ try:
     itt eq
     strexeq r0, r1, [r2]
     cmpeq r0, #0
-    bne try
+    bne fail
+    mov r0, #1
+    bx lr
+fail:
+    mov r0, #0
     bx lr
 
 .global unlock

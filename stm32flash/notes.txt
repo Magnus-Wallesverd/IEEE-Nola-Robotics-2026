@@ -3,3 +3,9 @@ static threads are cool but what if we want to go deeper and have functions dyna
 
 Solution:
 ???
+
+Problem:
+still spin locking
+
+Solution:
+dont loop in lock. check if try was successful

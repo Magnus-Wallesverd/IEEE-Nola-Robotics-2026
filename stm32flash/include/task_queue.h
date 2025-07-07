@@ -23,7 +23,7 @@ void enqueue(work_item_t *task);
 // init
 void taskinit(void);
 
-extern void lock(void);
+extern uint32_t lock(void);
 extern void unlock(void);
 extern void yield(void);
 
