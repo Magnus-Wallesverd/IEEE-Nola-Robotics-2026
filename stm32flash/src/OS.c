@@ -51,6 +51,7 @@ void my_thread1(void *ctx){
     (void)ctx;
     while(1){
         worker_function();
+        yield();
     }
 }
 

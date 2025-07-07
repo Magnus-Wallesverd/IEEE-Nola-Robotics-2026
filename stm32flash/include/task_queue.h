@@ -25,6 +25,7 @@ void taskinit(void);
 
 extern void lock(void);
 extern void unlock(void);
+extern void yield(void);
 
 #endif // !TASK_QUEUE_H
 
