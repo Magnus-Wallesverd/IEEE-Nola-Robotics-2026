@@ -42,12 +42,13 @@ void tcbinit(void){
 
 void my_task1(void *ctx){
     (void)ctx;
-    int target = 5000;
+    int target = 1000;
     int pwm=0;
     int A=2;
-    int B=30;
+    int B=300;
     while(1){
-	    pwm = A*(target-TIM4->CNT)+speed/B;
+        int error = target - (int)TIM4->CNT ;
+	    pwm = (error)*A+B*(error)*speed;
         if(pwm <0){
             //toggle bit the rotate backward
         }
