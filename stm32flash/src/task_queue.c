@@ -1,7 +1,7 @@
 #include "stm32f303.h"
 #include <stdint.h>
 
-#define QUEUE_SIZE 2 
+#define TASK_QUEUE_SIZE 2 
 #define POOL_SIZE 2
 
 work_item_t task_pool[POOL_SIZE];
@@ -12,10 +12,9 @@ work_item_t* task_queue[SIZE];
 
 work_item_t** front = &task_queue[0];
 work_item_t** end   = &task_queue[0];
-uint32_t task_queue_count  = 0;
 
 
-void enqueue(work_item_t *task){
+void enqueue(work_item_t* task){
     if(task_queue_count == SIZE){
         return;
     }else if(end <= &task_queue[SIZE-1]){
@@ -65,7 +64,7 @@ void taskinit(void){
     }
     
     // need to enqueue the address of the task
-    for(int i = 0; i < QUEUE_SIZE; i++){
+    for(int i = 0; i < TASK_QUEUE_SIZE; i++){
         enqueue(&task_pool[i]);
     }
 }

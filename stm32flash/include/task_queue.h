@@ -7,7 +7,7 @@
 // struct for "work items". 
 // work items contain function pointers w/ args
 typedef struct {
-    void (*function)(void *args);
+    void (*function)(void* args);
     void *args;
 }work_item_t;
 
@@ -18,7 +18,7 @@ typedef void (*task_func_t)(void* args);
 work_item_t* dequeue(void);
 
 // task queue function
-void enqueue(work_item_t *task);
+void enqueue(work_item_t* task);
 
 // init
 void taskinit(void);
