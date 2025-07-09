@@ -58,70 +58,60 @@ void worker_function(void){
 void my_thread1(void *ctx){
     (void)ctx;
     while(1){
-        worker_function();
     }
 }
 
 void my_thread2(void *ctx){
     (void)ctx;
     while(1){
-        worker_function();
     }
 }
 
 void my_thread3(void *ctx){
     (void)ctx;
     while(1){
-        worker_function();
     }
 }
 
 void my_thread4(void *ctx){
     (void)ctx;
     while(1){
-        worker_function();
     }
 }
 
 void my_thread5(void *ctx){
     (void)ctx;
     while(1){
-        worker_function();
     }
 }
 
 void my_thread6(void *ctx){
     (void)ctx;
     while(1){
-        worker_function();
     }
 }
 
 void my_thread7(void *ctx){
     (void)ctx;
     while(1){
-        worker_function();
     }
 }
 
 void my_thread8(void *ctx){
     (void)ctx;
     while(1){
-        worker_function();
     }
 }
 
 void my_thread9(void *ctx){
     (void)ctx;
     while(1){
-        worker_function();
     }
 }
 
 void my_thread10(void *ctx){
     (void)ctx;
     while(1){
-        worker_function();
     }
 }
 
