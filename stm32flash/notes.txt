@@ -9,3 +9,9 @@ still spin locking
 
 Solution:
 dont loop in lock. check if try was successful
+
+Problem:
+threads need display
+
+Solution:
+make an lcd display queue and display text to screen

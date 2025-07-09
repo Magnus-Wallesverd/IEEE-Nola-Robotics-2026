@@ -1,8 +1,9 @@
 #include "stm32f303.h"
 #include <stdint.h>
 
+#define MSG_POOL_SIZE 10
 
-lcd_item_t display_pool[POOL_SIZE];
+lcd_item_t display_pool[MSG_POOL_SIZE];
 
 // TODO 
 // __attribute__((section(".display_queue")))
@@ -12,7 +13,7 @@ lcd_item_t** front = &display_queue[0];
 lcd_item_t** end   = &display_queue[0];
 
 
-void enqueue(lcd_item_t* display){
+void enqueue(lcd_item_t* payload){
     if(display_queue_count == SIZE){
         return;
     }else if(end <= &display_queue[SIZE-1]){

@@ -6,19 +6,24 @@
 
 // struct for "lcd items". 
 // lcd items contain function pointers w/ args
-typedef struct {
-    void (*function)(void* args);
-    void* args;
-}lcd_item_t;
 
-// function pointer
-typedef void (*display_func_t)(void* args);
+typdef struct{
+    uint32_t encoder_data;
+    uint32_t pwm_data;
+    uint32_t error_data;
+}lcd_motor_data_t;
+
+typedef struct {
+    uint32_t tag;
+    void*    data_ptr;  
+    uint32_t timestamp;
+}lcd_item_t;
 
 // display queue function
 lcd_item_t* dequeue(void);
 
 // display queue function
-void enqueue(lcd_item_t* display);
+void enqueue(lcd_item_t* payload);
 
 // init
 void displayinit(void);
