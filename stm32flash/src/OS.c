@@ -46,10 +46,12 @@ void worker_function(void){
 
     if(item == (void*)0){
         current_tcb->state = IDLE;
+        yield();
         return;
     } else {
         item->function(item->args);
         current_tcb->state = IDLE;
+        yield();
     }
 }
 
@@ -57,7 +59,6 @@ void my_thread1(void *ctx){
     (void)ctx;
     while(1){
         worker_function();
-        yield();
     }
 }
 
