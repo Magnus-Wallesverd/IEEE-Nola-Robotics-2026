@@ -8,7 +8,7 @@
 // work items contain function pointers w/ args
 typedef struct {
     void (*function)(void* args);
-    void *args;
+    void* args;
 }work_item_t;
 
 // function pointer
@@ -22,10 +22,6 @@ void enqueue(work_item_t* task);
 
 // init
 void taskinit(void);
-
-extern uint32_t lock(void);
-extern void unlock(void);
-extern void yield(void);
 
 #endif // !TASK_QUEUE_H
 

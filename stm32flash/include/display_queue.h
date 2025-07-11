@@ -7,7 +7,7 @@
 // struct for "lcd items". 
 // lcd items contain function pointers w/ args
 
-typdef struct{
+typedef struct{
     uint32_t encoder_data;
     uint32_t pwm_data;
     uint32_t error_data;
@@ -27,10 +27,6 @@ void enqueue(lcd_item_t* payload);
 
 // init
 void displayinit(void);
-
-extern uint32_t lock(void);
-extern void unlock(void);
-extern void yield(void);
 
 #endif // !DISPLAY_QUEUE_H
 

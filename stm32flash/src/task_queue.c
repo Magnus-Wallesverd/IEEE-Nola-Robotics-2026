@@ -4,20 +4,21 @@
 #define TASK_QUEUE_SIZE 2 
 #define POOL_SIZE 2
 
+uint32_t task_queue_count = 0; 
 work_item_t task_pool[POOL_SIZE];
 
 // TODO 
 // __attribute__((section(".task_queue")))
-work_item_t* task_queue[SIZE];
+work_item_t* task_queue[TASK_QUEUE_SIZE];
 
 work_item_t** front = &task_queue[0];
 work_item_t** end   = &task_queue[0];
 
 
 void enqueue(work_item_t* task){
-    if(task_queue_count == SIZE){
+    if(task_queue_count == TASK_QUEUE_SIZE){
         return;
-    }else if(end <= &task_queue[SIZE-1]){
+    }else if(end <= &task_queue[TASK_QUEUE_SIZE-1]){
         *end = task;
         end++;
         task_queue_count++;
@@ -34,7 +35,7 @@ work_item_t* dequeue(void){
     work_item_t* item = *front;
     if(task_queue_count == 0){
         return (void*)0;
-    }else if(front<=&task_queue[SIZE-1]){
+    }else if(front<=&task_queue[TASK_QUEUE_SIZE-1]){
         *front = (void*)0;
         front++;
         task_queue_count--;

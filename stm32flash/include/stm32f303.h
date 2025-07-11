@@ -11,6 +11,7 @@
 
 #include "tcb.h"
 #include "task_queue.h"
+#include "display_queue.h"
 #include "backend.h"
 #include "gpio.h"
 #include "timx.h"

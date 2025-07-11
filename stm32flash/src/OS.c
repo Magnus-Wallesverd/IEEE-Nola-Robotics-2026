@@ -3,7 +3,7 @@
 
 extern uint32_t _thread1_end;
 uint32_t global_tick;
-uint8_t  flag = 0;
+uint8_t  task_flag = 0;
 TCB _stcb[SIZE];
 TCB *current_tcb;
 TCB *next_tcb;
@@ -39,7 +39,7 @@ void worker_function(void){
     work_item_t* item;
     // take item off queue
     current_tcb->state = RUNNING;
-    if(lock() == 1){
+    if(lock(&task_flag) == 1){
         item = dequeue();
         unlock();
     } else { yield(); }
