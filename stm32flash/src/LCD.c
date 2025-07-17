@@ -2,7 +2,7 @@
 
 void lcd_print(void* args){
     (void)args;
-    unsigned char str1[] = "HI FRIENDS?!";
+    unsigned char str1[] = "hello world";
     for(int i = 0; str1[i] != '\0'; i++){
         PinWrite(GPIOC, 0x500 + str1[i]);
         for(volatile int i = 0; i < 6; i++);
