@@ -11,7 +11,7 @@ void systeminit(void){
     STK->CTRL |= 0x6;
 
     // System clock time interval
-    STK->LOAD |= 0x3D08FF;
+    STK->LOAD |= 0x1F3F;
     
     // priority set
     SCB->SHPR3 |= 0xE0F00000;
