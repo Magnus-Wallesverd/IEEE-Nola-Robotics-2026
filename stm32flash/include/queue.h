@@ -4,6 +4,12 @@
 #include "stm32f303.h"
 #include <stdint.h>
 
+#define TASK_QUEUE_SIZE 3 
+#define FUNC_POOL_SIZE 3
+#define MSG_POOL_SIZE 3
+#define MSG_QUEUE_SIZE 3 
+
+
 typedef void (*func_t)(void* args);
 
 typedef struct{
@@ -19,11 +25,19 @@ typedef struct {
     void* args;
 }work_item_t;
 
+typedef struct {
+    uint32_t tag;
+    void*    data_ptr;
+    uint32_t timestamp;
+}lcd_item_t;
+
+extern queue_t* task_queue_ptr;
+
 void enqueue(queue_t* q, void* args);
-
 void* dequeue(queue_t* q);
+void task_queue_init(queue_t* q);
 
-extern uint32_t lock(void);
+extern uint32_t lock(uint32_t* flag);
 extern void unlock(void);
 extern void yield(void);
 

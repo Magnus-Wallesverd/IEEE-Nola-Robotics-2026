@@ -1,9 +1,8 @@
 #include "stm32f303.h"
 #include <stdint.h>
 
-extern uint32_t _thread1_end;
 uint32_t global_tick;
-uint8_t  task_flag = 0;
+uint32_t  task_flag = 0;
 TCB _stcb[SIZE];
 TCB *current_tcb;
 TCB *next_tcb;
@@ -37,82 +36,74 @@ void tcbinit(void){
 void worker_function(void){
     
     work_item_t* item;
+    
     // take item off queue
     current_tcb->state = RUNNING;
     if(lock(&task_flag) == 1){
-        item = dequeue();
+        item = (work_item_t*)dequeue(task_queue_ptr);
         unlock();
     } else { yield(); }
-
+    
     if(item == (void*)0){
         current_tcb->state = IDLE;
         yield();
         return;
     } else {
-        item->function(item->args);
-        current_tcb->state = IDLE;
+        item->fn(item->args);
+        current_tcb->state = READY;
         yield();
     }
+
 }
 
 void my_thread1(void *ctx){
     (void)ctx;
-    while(1){
-    }
+    worker_function();
 }
 
 void my_thread2(void *ctx){
     (void)ctx;
-    while(1){
-    }
+    worker_function();
 }
 
 void my_thread3(void *ctx){
     (void)ctx;
-    while(1){
-    }
+    worker_function();
 }
 
 void my_thread4(void *ctx){
     (void)ctx;
-    while(1){
-    }
+    worker_function();
 }
 
 void my_thread5(void *ctx){
     (void)ctx;
-    while(1){
-    }
+    worker_function();
 }
 
 void my_thread6(void *ctx){
     (void)ctx;
-    while(1){
-    }
+    worker_function();
 }
 
 void my_thread7(void *ctx){
     (void)ctx;
-    while(1){
-    }
+    worker_function();
 }
 
 void my_thread8(void *ctx){
     (void)ctx;
-    while(1){
-    }
+    worker_function();
 }
 
 void my_thread9(void *ctx){
     (void)ctx;
-    while(1){
-    }
+    worker_function();
 }
 
 void my_thread10(void *ctx){
     (void)ctx;
-    while(1){
-    }
+    worker_function();
 }
 
 TCB* threadscheduler(void){

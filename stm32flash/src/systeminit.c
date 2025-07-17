@@ -1,10 +1,9 @@
 //Initialize Timer, GPIO Circuitry.
 //
-// TIM4_CR2 Bit 7 has TIM1_CH selection 
+// TIM4_CR2 Bit 7 has TIM1_CH selection
 #include "stm32f303.h"
 
 //#define DBGMCU_CR *((volatile uint32_t*) 0xE0042004)
-
 
 void systeminit(void){
     

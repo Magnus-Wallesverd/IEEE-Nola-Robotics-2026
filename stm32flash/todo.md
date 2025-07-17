@@ -38,3 +38,7 @@
 
 - race conditions exist if a thread accesses the queue right before an interrupt
 - thread states wont help here because i could end up starving my threads
+
+## cleanup system init
+
+- it looks awful

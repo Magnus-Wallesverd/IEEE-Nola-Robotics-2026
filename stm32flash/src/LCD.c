@@ -1,6 +1,6 @@
 #include "stm32f303.h"
 
-void lcdprint(void* args){
+void lcd_print(void* args){
     (void)args;
     unsigned char str1[] = "HI FRIENDS?!";
     for(int i = 0; str1[i] != '\0'; i++){
@@ -12,7 +12,7 @@ void lcdprint(void* args){
     }
 }
 
-void lcdinit(void){
+void lcd_init(void){
 
     SetPinOutput(GPIOC, 0x7FF);
     SetOutputType(GPIOC,1<<9,1);
