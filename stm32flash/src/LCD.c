@@ -2,7 +2,16 @@
 
 void lcd_print(void* args){
     (void)args;
-    unsigned char str1[] = "hello world";
+    unsigned char str1[] = "hello world 1";
+    unsigned char str2[] = "hello world 2";
+ 
+    PinWrite(GPIOC,0x1c0|0x14);
+    for(volatile int i = 0; i < 60; i++);
+    ResetPins(GPIOC, 1<<8);
+    for(volatile int i = 0; i < 60; i++);
+    ResetPins(GPIOC, 0xc0|0x14);
+    for(volatile int i = 0; i < 60; i++);
+    
     for(int i = 0; str1[i] != '\0'; i++){
         PinWrite(GPIOC, 0x500 + str1[i]);
         for(volatile int i = 0; i < 6; i++);
@@ -10,6 +19,14 @@ void lcd_print(void* args){
         ResetPins(GPIOC, 0x500 + str1[i]);
         for(volatile int i = 0; i < 6; i++);
     }
+
+    // for(int i = 0; str2[i] != '\0'; i++){
+    //     PinWrite(GPIOC, 0x500 + str2[i]);
+    //     for(volatile int i = 0; i < 6; i++);
+    //     ResetPins(GPIOC, 1<<8);
+    //     ResetPins(GPIOC, 0x500 + str2[i]);
+    //     for(volatile int i = 0; i < 6; i++);
+    // }
 }
 
 void lcd_init(void){
