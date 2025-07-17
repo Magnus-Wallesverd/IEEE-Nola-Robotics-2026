@@ -130,6 +130,7 @@ zero_bss:
 
   /* C initializers */
   bl tcbinit
+  bl task_queue_init
   /*bl taskinit*/
   bl systeminit
 

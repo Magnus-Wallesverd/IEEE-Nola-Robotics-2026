@@ -35,10 +35,10 @@ extern queue_t* task_queue_ptr;
 
 void enqueue(queue_t* q, void* args);
 void* dequeue(queue_t* q);
-void task_queue_init(queue_t* q);
+void task_queue_init(void);
 
 extern uint32_t lock(uint32_t* flag);
-extern void unlock(void);
+extern void unlock(uint32_t* flag);
 extern void yield(void);
 
 #endif // !QUEUE_H

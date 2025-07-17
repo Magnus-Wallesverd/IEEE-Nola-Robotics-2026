@@ -41,7 +41,7 @@ void worker_function(void){
     current_tcb->state = RUNNING;
     if(lock(&task_flag) == 1){
         item = (work_item_t*)dequeue(task_queue_ptr);
-        unlock();
+        unlock(&task_flag);
     } else { yield(); }
     
     if(item == (void*)0){

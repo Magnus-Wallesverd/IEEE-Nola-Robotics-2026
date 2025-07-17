@@ -2,7 +2,7 @@
 #include <stdint.h>
 
 void enqueue(queue_t* q, void* args){
-    if(q->count == q->size){
+    if(q->count == q->size || *(uint32_t*)args == 0){
         return;
     }else if(q->end <= q->array+q->size-1){
         *(q->end) = args;

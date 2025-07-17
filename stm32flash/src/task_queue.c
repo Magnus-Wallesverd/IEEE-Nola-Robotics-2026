@@ -10,12 +10,12 @@ const func_t fn_table[FUNC_POOL_SIZE] = {
     lcd_print
 };
 
-void task_queue_init(queue_t* q){
-    q->count = 0;
-    q->array = task_queue_array;
-    q->size  = TASK_QUEUE_SIZE;
-    q->front = q->array;
-    q->end   = q->array;
+void task_queue_init(void){
+    task_queue_ptr->count = 0;
+    task_queue_ptr->array = task_queue_array;
+    task_queue_ptr->size  = TASK_QUEUE_SIZE;
+    task_queue_ptr->front = task_queue_ptr->array;
+    task_queue_ptr->end   = task_queue_ptr->array;
 
     // load a function pointers into a work item array
     for(int i = 0; i < FUNC_POOL_SIZE; i++){
@@ -25,6 +25,6 @@ void task_queue_init(queue_t* q){
     
     // need to enqueue the address of the task
     for(int i = 0; i < TASK_QUEUE_SIZE; i++){
-        enqueue(q, &task_pool[i]);
+        enqueue(task_queue_ptr, &task_pool[i]);
     }
 }
