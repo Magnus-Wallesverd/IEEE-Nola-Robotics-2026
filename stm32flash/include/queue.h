@@ -25,20 +25,10 @@ typedef struct {
     void* args;
 }work_item_t;
 
-typedef struct {
-    uint32_t tag;
-    void*    data_ptr;
-    uint32_t timestamp;
-}lcd_item_t;
-
 extern queue_t* task_queue_ptr;
 
 void enqueue(queue_t* q, void* args);
 void* dequeue(queue_t* q);
 void task_queue_init(void);
-
-extern uint32_t lock(uint32_t* flag);
-extern void unlock(uint32_t* flag);
-extern void yield(void);
 
 #endif // !QUEUE_H
