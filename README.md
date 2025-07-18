@@ -6,10 +6,16 @@
 
 - Pull requests
 - Label branches as following: feature/"feature-name" without quotes
-- All branches will be merged to a Develop branch first before main
+- All feature/ branches will be merged to a develop branch first before main
 
 ### TODO
 
 - Hardware Abstraction Layer
-- Hall sensor Interfacing rm0316 pg.563
+  - i2c
+  - threads and workers and task queue
 
+### UPDATES
+
+- round robin context switcher added
+- gpio hardware abstraction completed. will push if testing shows its necerssary
+- file directories have been cleaned up on branches from here

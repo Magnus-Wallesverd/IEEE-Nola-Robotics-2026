@@ -2,7 +2,9 @@
 // addresses are offset in bytes in the manual
 /*
  * TODO abstract all register if necessary
-*/
+ *      Remaining Registers
+ *      OSPEEDR, LCKRR
+ */
 
 
 #ifndef GPIO_H
@@ -40,12 +42,6 @@ volatile uint32_t BRR;      //x28
 
 // prototype functions
 
-// clears upper 16 bits
-uint32_t ClearUpperBits(uint32_t pins);
-
-// clears lower 16 bits
-uint32_t ClearLowerBits(uint32_t pins);
-
 // selects Input mode. takes GPIO struct and pins to set 
 void SetPinInput(GPIO_TypeDef *port, uint32_t pins);
 
@@ -57,6 +53,9 @@ void SetPinAlternate(GPIO_TypeDef *port, uint32_t pins);
 
 // selects Analog mode. takes GPIO struct and pins to set 
 void SetPinAnalog(GPIO_TypeDef *port, uint32_t pins);
+
+// set output type. takes GPIO struct and pins to set
+void SetOutputType(GPIO_TypeDef *port, uint32_t pins, uint8_t bit);
 
 // set pins in pull up mode
 void SetPinPU(GPIO_TypeDef *port, uint32_t pins);

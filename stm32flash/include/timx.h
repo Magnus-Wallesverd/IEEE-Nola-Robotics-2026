@@ -7,6 +7,7 @@
 #define TIMX_H
 
 #include <stdint.h>
+#include "gpio.h"
 
 // Advanced Timers: 1, 8, 20
 typedef struct{
@@ -46,7 +47,7 @@ typedef struct{
     volatile uint32_t SR;       //0x10
     volatile uint32_t EGR;      //0x14
     volatile uint32_t CCMR1;    //0x18
-    volatile uint32_t RESERVE1; //0x1C
+    volatile uint32_t CCMR2;    //0x1C
     volatile uint32_t CCER;     //0x20
     volatile uint32_t CNT;      //0x24
     volatile uint32_t PSC;      //0x28
@@ -107,9 +108,18 @@ typedef struct{
 // only one timer per call
 void InitAdvTIM(Adv_TIM_TypeDef *port);
 
+// turns on pwm mode 
+void ActivatePWM(Adv_TIM_TypeDef *port);
+
 // enable timer 2, 3, or 4
 // one timer per call
-void InitGenTIM(Gen_TIM_TypeDef * port);
+void InitGenTIM(Gen_TIM_TypeDef *port);
 
+// enables timer 6 & 7
+// one timer per call
+void InitBasicTIM(Basic_TIM_TypeDef *port);
+
+// outputs PWM
+void OutputPWM(Adv_TIM_TypeDef *port);
 
 #endif
