@@ -5,9 +5,16 @@ static void setup(uint32_t PINS){
     PinWrite(GPIOC, PINS);
     for(volatile int i = 0; i < 6; i++);
     ResetPins(GPIOC, E_PIN);
-    for(volatile int i = 0; i < 6; i++);
     ResetPins(GPIOC, 0xFF);
     for(volatile int i = 0; i < 6; i++);
+}
+
+static void putchar(char buffer){
+        PinWrite(GPIOC, RS_E_PINS + buffer);
+        for(volatile int i = 0; i < 6; i++);
+        ResetPins(GPIOC, E_PIN);
+        ResetPins(GPIOC, RS_PIN + buffer);
+        for(volatile int i = 0; i < 6; i++);
 }
 
 // hex to char array
@@ -24,17 +31,17 @@ static void stringify(uint32_t num, char buffer[]){
 
     for(uint8_t i = 0;i<SIZE; i++){
         if(buffer[i]!=0){
-            printf("%c\n",buffer[i]);
+            putchar(buffer[i]);
         }
     }
 }
 
-static void print(buffer[]){
+static void print(char buffer[]){
     for(int i = 0; buffer[i] != '\0'; i++){
-        PinWrite(GPIOC, RS_E_PINS + entry_1[i]);
+        PinWrite(GPIOC, RS_E_PINS + buffer[i]);
         for(volatile int i = 0; i < 6; i++);
         ResetPins(GPIOC, E_PIN);
-        ResetPins(GPIOC, RS_PIN + entry_1[i]);
+        ResetPins(GPIOC, RS_PIN + buffer[i]);
         for(volatile int i = 0; i < 6; i++);
     }
 }
@@ -43,7 +50,6 @@ static void lcd_ddram_cmd(uint32_t addr){
     PinWrite(GPIOC, (E_PIN|addr));
     for(volatile int i = 0; i < 6; i++);
     ResetPins(GPIOC, E_PIN);
-    for(volatile int i = 0; i < 6; i++);
     ResetPins(GPIOC, addr);
     for(volatile int i = 0; i < 6; i++);
 }
@@ -60,6 +66,7 @@ void lcd_init(void){
     setup((E_PIN|FUNC_SET));
     setup((E_PIN|DISP_SET));
     setup((E_PIN|CLR_LCD));
+    for(volatile int i = 0; i < 1818; i++);
 }
 
 void lcd_print(void* args){
@@ -92,7 +99,7 @@ void move_cursor(uint32_t x,uint32_t y){
             temp = (LINE1 | y);
             lcd_ddram_cmd(temp);
             break;
-        case 1
+        case 1:
             temp = (LINE2 | y);
             lcd_ddram_cmd(temp);
             break;
