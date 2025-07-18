@@ -5,14 +5,13 @@
 
 /* Basic ARM implementation spin lock */
 lock:
-    ldr r2, =flag
     mov r1, #1
 try:
-    ldrex r0, [r2]
-    cmp r0, #0
+    ldrex r2, [r0]
+    cmp r2, #0
     itt eq
-    strexeq r0, r1, [r2]
-    cmpeq r0, #0
+    strexeq r3, r1, [r0]
+    cmpeq r3, #0
     bne fail
     mov r0, #1
     bx lr
@@ -24,9 +23,8 @@ fail:
 .type unlock, %function
 
 unlock:
-    ldr r2, =flag
     mov r1, #0
-    str r1, [r2]
+    str r1, [r0]
     bx lr
 
 .global yield
@@ -38,4 +36,5 @@ yield:
     str r0, [r1]
     ISB
     DSB
+    wfi
     bx lr

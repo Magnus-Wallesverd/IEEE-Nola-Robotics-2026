@@ -12,8 +12,8 @@
 // TODO redesign to save bytes
 typedef struct {
     uint32_t *sp;
-    void (*function)(void *context);
-    void *context;
+    uint32_t total_age;
+    uint32_t queue_age;
     uint8_t  pid;
     uint8_t  state;
     uint8_t  prio;

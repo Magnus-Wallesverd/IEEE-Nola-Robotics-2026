@@ -79,6 +79,6 @@ void ResetPins(GPIO_TypeDef *port, uint32_t pins);
 void AlternateFunctionSet(GPIO_TypeDef *port, uint32_t function, uint32_t pins);
 
 // dummy function
-void blink_led(void* args);
+void blink_led(void*);
 
 #endif
