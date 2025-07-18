@@ -29,7 +29,7 @@ static void stringify(uint32_t num, char buffer[]){
         i++;
     }
 
-    for(uint8_t i = 0;i<SIZE; i++){
+    for(uint8_t i = 0;i<BUFFER_SIZE; i++){
         if(buffer[i]!=0){
             putchar(buffer[i]);
         }
@@ -73,7 +73,7 @@ void lcd_print(void* args){
     (void)args;
 
     static char entry_1[] ={"g_tick"};
-    char buffer[BUFFER_SIZE];
+    char buffer[BUFFER_SIZE] = {0};
     move_cursor(0,0);
     print(entry_1);
     
