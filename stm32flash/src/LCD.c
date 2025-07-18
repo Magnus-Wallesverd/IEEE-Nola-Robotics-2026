@@ -1,62 +1,88 @@
 #include "stm32f303.h"
 
-void lcd_init(void){
-    
-    // setup
-    SetPinOutput(GPIOC, 0x7FF);
-    SetOutputType(GPIOC,1<<9,1);
-    SetPinPD(GPIOC, 0X5FF);
-    SetPinPU(GPIOC,1<<9);
-    
-    // function block
-    PinWrite(GPIOC, (E_PIN|FUNC_SET));
-    for(volatile int i = 0; i < 6; i++);
-    ResetPins(GPIOC, E_PIN);
-    for(volatile int i = 0; i < 6; i++);
-    ResetPins(GPIOC, 0xFF);
-    for(volatile int i = 0; i < 6; i++);
+static void setup(uint32_t PINS){
 
-    // display block
-    PinWrite(GPIOC, (E_PIN|DISP_SET));
+    PinWrite(GPIOC, PINS);
     for(volatile int i = 0; i < 6; i++);
     ResetPins(GPIOC, E_PIN);
     for(volatile int i = 0; i < 6; i++);
     ResetPins(GPIOC, 0xFF);
     for(volatile int i = 0; i < 6; i++);
-    
-    // clear block
-    PinWrite(GPIOC, (E_PIN|CLR_LCD));
-    for(volatile int i = 0; i < 1818; i++);
-    ResetPins(GPIOC, E_PIN);
-    for(volatile int i = 0; i < 1818; i++);
-    ResetPins(GPIOC, 0xFF);
-    for(volatile int i = 0; i < 909; i++);  
 }
 
-void lcd_print(void* args){
-    (void)args;
-    static char entry_1[] ={"g_tick"};
-    lcd_goto(0,0);
+// hex to char array
+static void stringify(uint32_t num, char buffer[]){
+    char temp = 0;
+    char i = 0;
+    
+    while(num != 0){
+        temp = num % 10;
+        num /= 10;
+        buffer[BUFFER_SIZE-1-i] = temp + NUM_BASE;
+        i++;
+    }
 
-    for(int i = 0; entry_1[i] != '\0'; i++){
+    for(uint8_t i = 0;i<SIZE; i++){
+        if(buffer[i]!=0){
+            printf("%c\n",buffer[i]);
+        }
+    }
+}
+
+static void print(buffer[]){
+    for(int i = 0; buffer[i] != '\0'; i++){
         PinWrite(GPIOC, RS_E_PINS + entry_1[i]);
         for(volatile int i = 0; i < 6; i++);
         ResetPins(GPIOC, E_PIN);
         ResetPins(GPIOC, RS_PIN + entry_1[i]);
         for(volatile int i = 0; i < 6; i++);
     }
+}
 
+static void lcd_ddram_cmd(uint32_t addr){
+    PinWrite(GPIOC, (E_PIN|addr));
+    for(volatile int i = 0; i < 6; i++);
+    ResetPins(GPIOC, E_PIN);
+    for(volatile int i = 0; i < 6; i++);
+    ResetPins(GPIOC, addr);
+    for(volatile int i = 0; i < 6; i++);
+}
+
+void lcd_init(void){
+    
+    // port setup
+    SetPinOutput(GPIOC, 0x7FF);
+    SetOutputType(GPIOC,1<<9,1);
+    SetPinPD(GPIOC, 0X5FF);
+    SetPinPU(GPIOC,1<<9);
+    
+    // initialization
+    setup((E_PIN|FUNC_SET));
+    setup((E_PIN|DISP_SET));
+    setup((E_PIN|CLR_LCD));
+}
+
+void lcd_print(void* args){
+    (void)args;
+
+    static char entry_1[] ={"g_tick"};
+    char buffer[BUFFER_SIZE];
+    move_cursor(0,0);
+    print(entry_1);
+    
+    uint32_t t0 = 0;
+    uint32_t t1 = 0;
     while(1){
-        lcd_goto(0,8);
-        PinWrite(GPIOC, RS_E_PINS + );
-        for(volatile int i = 0; i < 6; i++);
-        ResetPins(GPIOC, E_PIN);
-        ResetPins(GPIOC, RS_PIN + entry_1[i]);
-        for(volatile int i = 0; i < 6; i++);
+        t0 = get_global_tick();
+        while((t0-t1) > REFRESH_RATE){
+            move_cursor(0,8);
+            stringify(get_global_tick(),buffer);
+            t1=t0;
+        }
     }
 }
 
-void lcd_goto(uint32_t x,uint32_t y){
+void move_cursor(uint32_t x,uint32_t y){
     uint32_t temp;
     if(y>MAX_WIDTH){
         return;
@@ -66,7 +92,7 @@ void lcd_goto(uint32_t x,uint32_t y){
             temp = (LINE1 | y);
             lcd_ddram_cmd(temp);
             break;
-        case 1:
+        case 1
             temp = (LINE2 | y);
             lcd_ddram_cmd(temp);
             break;
@@ -79,13 +105,4 @@ void lcd_goto(uint32_t x,uint32_t y){
             lcd_ddram_cmd(temp);
             break;
     }
-}
-
-void lcd_ddram_cmd(uint32_t addr){
-    PinWrite(GPIOC, (E_PIN|addr));
-    for(volatile int i = 0; i < 6; i++);
-    ResetPins(GPIOC, E_PIN);
-    for(volatile int i = 0; i < 6; i++);
-    ResetPins(GPIOC, addr);
-    for(volatile int i = 0; i < 6; i++);
 }

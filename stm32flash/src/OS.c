@@ -7,6 +7,10 @@ TCB _stcb[SIZE];
 TCB *current_tcb;
 TCB *next_tcb;
 
+uint32_t get_global_tick(void){
+    return global_tick;
+}
+
 void tcbinit(void){
 
     for(int i = 0; i < SIZE; i++){

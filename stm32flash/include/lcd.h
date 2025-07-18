@@ -12,14 +12,14 @@
 #define LINE3       0x80
 #define LINE4       0xC0
 #define MAX_WIDTH   19
+#define BUFFER_SIZE 12
+#define NUM_BASE    0x30
+#define REFRESH_RATE 200
 
 void lcd_init(void);
 void lcd_print(void* args);
 
-// sends cursor to position
-void lcd_goto(uint32_t x,uint32_t y);
-
-// set ddram address
-void lcd_ddram_cmd(uint32_t addr);
+// move cursor (cartesian) 
+void move_cursor(uint32_t x,uint32_t y);
 
 #endif // !LCD_H
