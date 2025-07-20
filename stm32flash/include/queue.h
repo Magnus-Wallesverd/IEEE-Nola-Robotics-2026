@@ -15,6 +15,7 @@ typedef void (*func_t)(void* args);
 typedef struct{
     uint32_t size;
     uint32_t count;
+    uint32_t max_time;
     void**   front;
     void**   end;
     void**   array;

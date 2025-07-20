@@ -16,10 +16,9 @@ typedef struct {
     uint32_t queue_age;
     uint8_t  pid;
     uint8_t  state;
-    uint8_t  prio;
+    uint8_t  priority;
     uint8_t  flags;
 }TCB;
-
 
 // states for threads
 enum states{
@@ -29,7 +28,11 @@ enum states{
     IDLE
 };
 
-extern TCB _stcb[SIZE];
+enum thread_priority{
+    LOW = 0,
+    MID,
+    HIGH
+};
 
 __attribute__((section(".thread1"), used, naked))  void  my_thread1(void *ctx);
 __attribute__((section(".thread2"), used, naked))  void  my_thread2(void *ctx);
@@ -41,5 +44,8 @@ __attribute__((section(".thread7"), used, naked))  void  my_thread7(void *ctx);
 __attribute__((section(".thread8"), used, naked))  void  my_thread8(void *ctx);
 __attribute__((section(".thread9"), used, naked))  void  my_thread9(void *ctx);
 __attribute__((section(".thread10"), used, naked)) void  my_thread10(void *ctx);
+
+extern TCB _stcb[SIZE];
+extern void (*function_list[SIZE])(void *);
 
 #endif // !TCB_H

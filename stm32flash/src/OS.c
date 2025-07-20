@@ -18,8 +18,8 @@ void tcbinit(void){
         _stcb[i].queue_age = 0;
         _stcb[i].pid = i;
         _stcb[i].state = READY;
-        _stcb[i].prio = 0xB;
-        _stcb[i].flags = 0xC;
+        _stcb[i].priority = HIGH;
+        _stcb[i].flags = 0xFF;
     }
 }
 
@@ -117,6 +117,17 @@ void my_thread10(void *ctx){
 }
 
 TCB* threadscheduler(void){
+    next_tcb++;
+    if(next_tcb >= &_stcb[SIZE]){
+        next_tcb = _stcb;
+    }
+    return next_tcb;
+}
+
+TCB* nts(void){
+    current_tcb->queue_age++;
+    current_tcb->total_age++;
+
     next_tcb++;
     if(next_tcb >= &_stcb[SIZE]){
         next_tcb = _stcb;
