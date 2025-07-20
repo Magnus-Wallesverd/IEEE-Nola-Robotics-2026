@@ -31,5 +31,5 @@ extern queue_t* task_queue_ptr;
 void enqueue(queue_t* q, void* args);
 void* dequeue(queue_t* q);
 void task_queue_init(void);
-
+void demote_thread(TCB* tcb);
 #endif // !QUEUE_H

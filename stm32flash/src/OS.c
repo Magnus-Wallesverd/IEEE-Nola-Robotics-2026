@@ -127,6 +127,7 @@ TCB* threadscheduler(void){
 TCB* nts(void){
     current_tcb->queue_age++;
     current_tcb->total_age++;
+    // if(current_tcb)
 
     next_tcb++;
     if(next_tcb >= &_stcb[SIZE]){
