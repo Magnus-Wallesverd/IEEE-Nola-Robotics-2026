@@ -17,7 +17,7 @@ typedef struct {
     uint8_t  pid;
     uint8_t  state;
     uint8_t  priority;
-    uint8_t  flags;
+    uint8_t  queue_time;
 }TCB;
 
 // states for threads

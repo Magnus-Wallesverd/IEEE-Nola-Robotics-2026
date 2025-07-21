@@ -3,9 +3,6 @@
 
 #define NUM_OF_QUEUES 3
 #define MLFQ_QUEUE_SIZE 10
-#define HIGH_QUEUE_MAX_TIME 10
-#define MID_QUEUE_MAX_TIME 20
-#define LOW_QUEUE_MAX_TIME 50
 
 queue_t high_queue;
 queue_t mid_queue;
@@ -56,12 +53,14 @@ void mlfq_init(void){
 void demote_thread(TCB* tcb){
 
     if(tcb->priority == HIGH){
-        tcb->priority = MID;
         enqueue(mid_queue_ptr,dequeue(high_queue_ptr));
+        tcb->priority = MID;
+        tcb->queue_time = MID_QUEUE_MAX_TIME;
         tcb->queue_age = 0;
     } else if(tcb->priority == MID){
-        tcb->priority = LOW;
         enqueue(low_queue_ptr,dequeue(mid_queue_ptr));
+        tcb->priority = LOW;
+        tcb->queue_time = LOW_QUEUE_MAX_TIME;
         tcb->queue_age = 0;
     } else { return; }
 }

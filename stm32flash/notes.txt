@@ -9,3 +9,5 @@ for a mlfq this demotion function should
 if priority level is not 0
     dequeue from the current level 
     enqueue in the lower level
+
+dawg i need doubly linked lists...
