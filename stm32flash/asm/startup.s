@@ -88,12 +88,13 @@ copy_data2:
   blt copy_data2
 
  
-  ldr r4, = _task1_end 
-  ldr r5, = _task10_end
-  ldr r6, = _task1_start
+  ldr r4, = _thread1_end 
+  ldr r5, = _thread10_end
+  ldr r6, = _thread1_start
   mov r7, sp
   ldr r8, = _stcb
   ldr r9, = _stcb
+
 init_frames:
   cmp  r4, r5
   orr  r2, r6, #1
@@ -127,10 +128,11 @@ zero_bss:
   strlt r2, [r0], #4    /*  store r2 = 0 into address pointed to by R0 increment register 0 address #4 bytes */
   blt zero_bss          /*  branch back to zero if N is set */
 
-
+  /* C initializers */
   bl tcbinit
-  /* Call systeminit, branch with link */
+  bl task_queue_init
   bl systeminit
+  bl lcd_init
 
 set_global:
   ldr r0, =_stcb
@@ -139,7 +141,9 @@ set_global:
   str r0, [r1]
   str r0, [r2]
 
-SVC #0
+service:
+  SVC #0
+
 
 infinite_loop:
   b infinite_loop

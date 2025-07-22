@@ -37,4 +37,6 @@ typedef struct {
 #define STK   ((Systick_TypeDef *) 0xE000E010)
 #define SCB   ((SCB_TypeDef *)     0xE000ED00)
 
+uint32_t get_global_tick(void);
+
 #endif // !BACKEND_H

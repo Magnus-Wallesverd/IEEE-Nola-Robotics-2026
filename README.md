@@ -10,12 +10,15 @@
 
 ### TODO
 
-- Hardware Abstraction Layer
-  - timx.c
-  - syscfg.c
-  - exti.c
+- add a lock/unlock
+  - add a yield()
+- upgrade the scheduler
+- add logging/trace
+- research memory allocation (OS Part 2)
 
 ### UPDATES
 
- - gpio hardware abstraction completed. will push if testing shows its necerssary
- - file directories have been cleaned up on branches from here
+- worker function 
+- shared queue
+- merged to develop
+- working context switcher
