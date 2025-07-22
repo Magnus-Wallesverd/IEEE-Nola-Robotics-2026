@@ -28,12 +28,10 @@ SECTIONS
     *(.data*)
     _stcb = . ;
     . = . + 0xA0;
-
     
     _spadding = . ;
     . = . + 0x100 ;
     _epadding = . ;
-
 
     _sthread_load = .;
    
@@ -93,10 +91,9 @@ SECTIONS
     KEEP(*(.task_queue))
     _task_queue_end = .;
 
-
     _edata = .;
   } > RAM AT>FLASH
-  
+ 
   .ccmram :
   {
     _ccmram = .;
@@ -104,7 +101,6 @@ SECTIONS
     _eccmram = .;
 
   } > CCMRAM AT> FLASH
-
 
   .bss :
   {

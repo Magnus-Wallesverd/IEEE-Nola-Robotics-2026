@@ -128,6 +128,7 @@ zero_bss:
   strlt r2, [r0], #4    /*  store r2 = 0 into address pointed to by R0 increment register 0 address #4 bytes */
   blt zero_bss          /*  branch back to zero if N is set */
 
+  bl bmp_search
   /* C initializers */
   bl tcbinit
   bl task_queue_init
