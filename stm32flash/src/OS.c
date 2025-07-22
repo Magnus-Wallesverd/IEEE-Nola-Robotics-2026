@@ -1,6 +1,10 @@
 #include "stm32f303.h"
 #include <stdint.h>
+#include "math.h"
 
+extern uint32_t _task1_end;
+uint32_t speed=0;
+uint32_t d1=0;
 uint32_t global_tick;
 uint32_t  task_flag = 0;
 TCB _stcb[SIZE];
@@ -48,9 +52,27 @@ void worker_function(void){
 
 void my_thread1(void *ctx){
     (void)ctx;
+    int target = 1000;
+    int t1 =0;
+    int pwm=0;
+    int A=3;
+    int B=4;
     while(1){
-        worker_function();
-    }
+	    pwm = A*(target-TIM4->CNT)+B*(target-TIM4->CNT)*(speed);
+        if(pwm <0){
+            //toggle bit the rotate backward
+        }
+        else{
+            //rotate forward.
+        }
+        if(pwm> TIM1->ARR){
+            pwm = 0xFFFF;
+         }
+        else if(pwm < 0){
+            pwm = 0;
+        }
+        TIM1->CCR1 = pwm;
+    } 
 }
 
 void my_thread2(void *ctx){
