@@ -21,6 +21,11 @@ static void putchar(char buffer){
 static void stringify(uint32_t num, char buffer[]){
     char temp = 0;
     char i = 0;
+
+    if(num == 0){
+        putchar(num + NUM_BASE);
+        return;
+    }
     
     while(num != 0){
         temp = num % 10;
@@ -72,18 +77,26 @@ void lcd_init(void){
 void lcd_print(void* args){
     (void)args;
 
-    static char entry_1[] ={"g_tick"};
+    static char entry_1[] ={"speed"};
+    static char entry_2[] ={"TIM4 CNT"};
     char buffer[BUFFER_SIZE] = {0};
     move_cursor(0,0);
     print(entry_1);
+    move_cursor(1,0);
+    print(entry_2);
     
+    uint32_t x = 0;
     uint32_t t0 = 0;
     uint32_t t1 = 0;
     while(1){
         t0 = get_global_tick();
         while((t0-t1) > REFRESH_RATE){
-            move_cursor(0,8);
-            stringify(get_global_tick(),buffer);
+            x=TIM4->CNT;
+            // move_cursor(0,10);
+            // stringify(speed, buffer);
+            move_cursor(1,10);
+            stringify(x,buffer);
+            // __asm volatile("BKPT #0");
             t1=t0;
         }
     }

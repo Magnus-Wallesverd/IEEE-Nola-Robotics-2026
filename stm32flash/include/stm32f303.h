@@ -19,5 +19,5 @@
 #include "exti.h"
 #include "syscfg.h"
 #include "lcd.h"
-
+#include "motor.h"
 #endif

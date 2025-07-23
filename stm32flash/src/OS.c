@@ -52,27 +52,9 @@ void worker_function(void){
 
 void my_thread1(void *ctx){
     (void)ctx;
-    int target = 1000;
-    int t1 =0;
-    int pwm=0;
-    int A=3;
-    int B=4;
     while(1){
-	    pwm = A*(target-TIM4->CNT)+B*(target-TIM4->CNT)*(speed);
-        if(pwm <0){
-            //toggle bit the rotate backward
-        }
-        else{
-            //rotate forward.
-        }
-        if(pwm> TIM1->ARR){
-            pwm = 0xFFFF;
-         }
-        else if(pwm < 0){
-            pwm = 0;
-        }
-        TIM1->CCR1 = pwm;
-    } 
+        worker_function();
+    }
 }
 
 void my_thread2(void *ctx){
@@ -140,7 +122,7 @@ void my_thread10(void *ctx){
 
 TCB* threadscheduler(void){
     next_tcb++;
-    if(next_tcb >= &_stcb[SIZE]){
+    if(next_tcb >= &_stcb[2]){
         next_tcb = _stcb;
     }
     return next_tcb;

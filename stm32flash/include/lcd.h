@@ -14,7 +14,7 @@
 #define MAX_WIDTH   19
 #define BUFFER_SIZE 12
 #define NUM_BASE    0x30
-#define REFRESH_RATE 200
+#define REFRESH_RATE 16
 
 void lcd_init(void);
 void lcd_print(void* args);
