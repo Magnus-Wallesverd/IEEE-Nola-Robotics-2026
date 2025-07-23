@@ -11,10 +11,10 @@
  */
 
 typedef struct{
-    void* next;
     void* prev;
+    void* next;
     void* data;
-    void* reserved;
+    void* head;
 }node_t;
 
 // finds empty block
