@@ -4,8 +4,8 @@
 node_t heap[DLL_SIZE];
 uint32_t memory_bmp1 = 0;
 uint32_t memory_bmp2 = 0;
-uint32_t* bmp1_ptr= 0;
-uint32_t* bmp2_ptr= 0;
+uint32_t* bmp1_ptr= &memory_bmp1;
+uint32_t* bmp2_ptr= &memory_bmp2;
 
 void add_next(void* head, void* ptr){
     if(~memory_bmp1 != 0){

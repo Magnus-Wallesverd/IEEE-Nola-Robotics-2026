@@ -1,7 +1,3 @@
-## threads need display
-
-- make an lcd display queue and display text to screen
-
 ## cleanup system init
 
 - it looks awful
@@ -10,3 +6,7 @@
 
 - finish queue logic
 - make linked list api
+
+## dll.c
+
+- finish helper functions 
