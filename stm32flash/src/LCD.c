@@ -20,24 +20,14 @@ static void putchar(char buffer){
 // hex to char array
 static void stringify(uint32_t num, char buffer[]){
     char temp = 0;
-    char i = 0;
 
-    if(num == 0){
-        putchar(num + NUM_BASE);
-        return;
-    }
-    
-    while(num != 0){
+    for(int i = 0;i<BUFFER_SIZE;i++){
         temp = num % 10;
         num /= 10;
         buffer[BUFFER_SIZE-1-i] = temp + NUM_BASE;
-        i++;
     }
-
-    for(uint8_t i = 0;i<BUFFER_SIZE; i++){
-        if(buffer[i]!=0){
-            putchar(buffer[i]);
-        }
+    for(int i = 0;i<BUFFER_SIZE; i++){
+        putchar(buffer[i]);
     }
 }
 
@@ -78,7 +68,7 @@ void lcd_print(void* args){
     (void)args;
 
     static char entry_1[] ={"speed"};
-    static char entry_2[] ={"TIM4 CNT"};
+    static char entry_2[] ={"TIM4"};
     char buffer[BUFFER_SIZE] = {0};
     move_cursor(0,0);
     print(entry_1);
@@ -92,9 +82,9 @@ void lcd_print(void* args){
         t0 = get_global_tick();
         while((t0-t1) > REFRESH_RATE){
             x=TIM4->CNT;
-            // move_cursor(0,10);
-            // stringify(speed, buffer);
-            move_cursor(1,10);
+            move_cursor(0,6);
+            stringify(speed, buffer);
+            move_cursor(1,6);
             stringify(x,buffer);
             // __asm volatile("BKPT #0");
             t1=t0;
