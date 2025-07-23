@@ -20,19 +20,14 @@ static void putchar(char buffer){
 // hex to char array
 static void stringify(uint32_t num, char buffer[]){
     char temp = 0;
-    char i = 0;
-    
-    while(num != 0){
+
+    for(int i = 0;i<BUFFER_SIZE;i++){
         temp = num % 10;
         num /= 10;
         buffer[BUFFER_SIZE-1-i] = temp + NUM_BASE;
-        i++;
     }
-
-    for(uint8_t i = 0;i<BUFFER_SIZE; i++){
-        if(buffer[i]!=0){
-            putchar(buffer[i]);
-        }
+    for(int i = 0;i<BUFFER_SIZE; i++){
+        putchar(buffer[i]);
     }
 }
 
