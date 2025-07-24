@@ -20,4 +20,5 @@
 #include "syscfg.h"
 #include "lcd.h"
 #include "motor.h"
+#include "math.h"
 #endif

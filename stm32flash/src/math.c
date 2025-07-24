@@ -8,5 +8,15 @@ int abs(int num){
     return num;
 }
 
+short int twos16Bit(uint16_t num){
+    if(num >> 15){
+        num = ~num;
+        num++;
+        return num*(-1);
+    }
+    else{
+        return (short int)num;
+    }
+}
 
 

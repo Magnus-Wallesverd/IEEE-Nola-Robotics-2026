@@ -4,6 +4,6 @@
 #include "stm32f303.h"
 
 int abs(int num);
-
+short int twos16Bit(uint16_t num);
 
 #endif

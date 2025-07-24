@@ -15,7 +15,7 @@
 #define BUFFER_SIZE 5
 #define NUM_BASE    0x30
 #define REFRESH_RATE 16
-
+extern short int speed;
 void lcd_init(void);
 void lcd_print(void* args);
 

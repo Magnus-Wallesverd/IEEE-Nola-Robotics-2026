@@ -3,8 +3,6 @@
 #include "math.h"
 
 extern uint32_t _task1_end;
-uint32_t speed=0;
-uint32_t d1=0;
 uint32_t global_tick;
 uint32_t  task_flag = 0;
 TCB _stcb[SIZE];
@@ -122,7 +120,7 @@ void my_thread10(void *ctx){
 
 TCB* threadscheduler(void){
     next_tcb++;
-    if(next_tcb >= &_stcb[2]){
+    if(next_tcb >= &_stcb[3]){
         next_tcb = _stcb;
     }
     return next_tcb;
