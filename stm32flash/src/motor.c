@@ -23,7 +23,7 @@ void motorcontrol(void* args){
     int A=3;
     int B=4;
     while(1){
-	    pwm = A*(target-TIM4->CNT)+B*(speed);
+	    pwm = A*(target-twos16Bit(TIM4->CNT))+B*(speed);
         if(pwm <0){
             //toggle bit the rotate backward
         }
