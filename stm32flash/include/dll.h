@@ -14,20 +14,20 @@ typedef struct{
     void* prev;
     void* next;
     void* data;
-    void* head;
+    uint32_t head;
 }node_t;
 
 // finds empty block
 extern uint32_t bmp_search(uint32_t);
 
-void* init_head(void);
+void init_head(void);
 
 void add_next(void* head, void* ptr);
 void rm_next(void* head, void* ptr);
 void add_prev(void* head, void* ptr);
 void rm_prev(void* head, void* ptr);
 
-void* malloc(void* ptr);
-void free(uint32_t bmp);
+void* node_malloc(uint32_t bmp, void* ptr);
+void free(uint32_t i, uint32_t* bmp);
 
 #endif // DLL_H

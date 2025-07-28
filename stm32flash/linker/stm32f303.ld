@@ -94,6 +94,14 @@ SECTIONS
     _edata = .;
   } > RAM AT>FLASH
  
+  /* .node_heap (NOLOAD) : */
+  /* { */
+  /*   _node_heap_start = .; */
+  /*   KEEP(*(.node_heap)) */
+  /*   _node_heap_end = _node_heap_start + 0x400; */
+  /*   . = _node_heap_end; */
+  /* } > RAM */
+
   .ccmram :
   {
     _ccmram = .;

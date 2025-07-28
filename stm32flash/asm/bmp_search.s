@@ -9,11 +9,11 @@ bmp_search:
 loop:
     lsrs r0, r0, 0x1
     mrs  r1, APSR
-    lsrs r1,r1, 0x1D
-    AND  r1,r1, #0x1
+    lsrs r1, r1, 0x1D
+    AND  r1, r1, #0x1
     cmp  r1, 0
     itt ne
-    addne r2,r2,#0x1
+    addne r2, r2,#0x1
     bne loop
     mov r0, r2
     bx lr

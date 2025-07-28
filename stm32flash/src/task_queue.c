@@ -8,7 +8,6 @@ void* task_queue_array[TASK_QUEUE_SIZE];
 
 const func_t fn_table[FUNC_POOL_SIZE] = {
     lcd_print,
-    blink_led
 };
 
 void task_queue_init(void){
