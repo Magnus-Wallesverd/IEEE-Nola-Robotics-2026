@@ -18,10 +18,10 @@ void update_speed(void* args){
 void motorcontrol(void* args){
     (void)args;
     int target = 2000;
-    int t1 =0;
+    //int t1 =0;
     int pwm=0;
-    int A=3;
-    int B=4;
+    int A=1;
+    int B=-100;
     while(1){
 	    pwm = A*(target-twos16Bit(TIM4->CNT))+B*(speed);
         if(pwm <0){
@@ -30,8 +30,8 @@ void motorcontrol(void* args){
         else{
             //rotate forward.
         }
-        if(pwm> TIM1->ARR){
-            pwm = 0xFFFF;
+        if(abs(pwm)> TIM1->ARR){
+            pwm = TIM1->ARR;
          }
         else if(pwm < 0){
             pwm = 0;
