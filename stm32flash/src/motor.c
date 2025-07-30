@@ -4,38 +4,44 @@ short int speed =0;
 short int d1=0;
 void update_speed(void* args){
     (void)args;
-    uint32_t t0 = 0;
-    uint32_t t1 = get_global_tick();
-    while(1){
-        if((t1-t0) > MOTOR_DT){
-            speed = (twos16Bit(TIM4->CNT) - d1)*100;
-            d1= twos16Bit(TIM4->CNT);
-            t0=t1;
-        } else { yield(); }
+    uint32_t t1 = 0;
+    t1 = get_global_tick();
+    if(t1%8 == 1){
+        speed = (twos16Bit(TIM4->CNT) - d1);
+        d1= twos16Bit(TIM4->CNT);
     }
+    // speed = TIM4->CNT - d1;
+    // d1 = TIM4->CNT;
 }
 
 void motorcontrol(void* args){
     (void)args;
-    int target = 2000;
+    int target = -10000;
     //int t1 =0;
     int pwm=0;
-    int A=1;
-    int B=-100;
+    int A=5;
+    int B=-2;
+    int t1=0;
     while(1){
-	    pwm = A*(target-twos16Bit(TIM4->CNT))+B*(speed);
+	    pwm = (target-twos16Bit(TIM4->CNT))/A+B*(speed);
         if(pwm <0){
             //toggle bit the rotate backward
+            PinWrite(GPIOA, 2);
+            ResetPins(GPIOA, 1);        
         }
         else{
             //rotate forward.
+            PinWrite(GPIOA,1);
+            ResetPins(GPIOA,2);
         }
         if(abs(pwm)> TIM1->ARR){
             pwm = TIM1->ARR;
          }
-        else if(pwm < 0){
-            pwm = 0;
+        TIM1->CCR1 = abs(pwm);
+
+        if(get_global_tick() > t1){
+            t1 += 5000;
+            target += 5000;
         }
-        TIM1->CCR1 = pwm;
     } 
 }

@@ -120,7 +120,7 @@ void my_thread10(void *ctx){
 
 TCB* threadscheduler(void){
     next_tcb++;
-    if(next_tcb >= &_stcb[3]){
+    if(next_tcb >= &_stcb[2]){
         next_tcb = _stcb;
     }
     return next_tcb;
