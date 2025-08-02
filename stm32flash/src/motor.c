@@ -19,11 +19,16 @@ void motorcontrol(void* args){
     int target = -10000;
     //int t1 =0;
     int pwm=0;
+    int err=0;
+    int ierr=0;
     int A=5;
     int B=-2;
+    int C = 1;
     int t1=0;
     while(1){
-	    pwm = (target-twos16Bit(TIM4->CNT))/A+B*(speed);
+	err = target - twos16Bit(TIM4->CNT);
+	ierr += err;
+	pwm = (err)/A+B*(speed)+C*ierr;
         if(pwm <0){
             //toggle bit the rotate backward
             PinWrite(GPIOA, 2);
@@ -39,9 +44,5 @@ void motorcontrol(void* args){
          }
         TIM1->CCR1 = abs(pwm);
 
-        if(get_global_tick() > t1){
-            t1 += 5000;
-            target += 5000;
-        }
     } 
 }
