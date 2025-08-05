@@ -19,4 +19,21 @@ int twos16Bit(uint16_t num){
     }
 }
 
+int expo(int num,int pow){
+     for(int i =0; i < pow;i++){
+	 num *= num;
+     }
+     return num;
+	
+}
+int sin(int num){
+     int ans =0;
+     int det =1;
+     for(int i =0; i<10; i++){
+	 ans += 100*expo(num, i)/det ;
+	 det *= i;
+     }
+}
+
+
 
