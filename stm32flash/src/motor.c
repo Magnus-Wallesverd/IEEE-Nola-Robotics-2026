@@ -2,6 +2,7 @@
 #include <stdint.h>
 short int speed =0;
 short int d1=0;
+int target = 0;
 void update_speed(void* args){
     (void)args;
     uint32_t t1 = 0;
@@ -16,19 +17,20 @@ void update_speed(void* args){
 
 void motorcontrol(void* args){
     (void)args;
-    int target = -10000;
     //int t1 =0;
     int pwm=0;
     int err=0;
     int ierr=0;
     int A=5;
     int B=-2;
-    int C = 1;
+    int C = 1000;
     int t1=0;
-    while(1){
-	err = target - twos16Bit(TIM4->CNT);
-	ierr += err;
-	pwm = (err)/A+B*(speed)+C*ierr;
+    while(1){  
+        target = 3009;
+        t1 += 1;
+        err = target - twos16Bit(TIM4->CNT);
+        ierr += err/20;
+        pwm = (err)/A+B*(twos16Bit(speed))+ierr/C;
         if(pwm <0){
             //toggle bit the rotate backward
             PinWrite(GPIOA, 2);
