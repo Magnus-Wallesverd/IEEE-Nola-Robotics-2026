@@ -23,10 +23,10 @@ void motorcontrol(void* args){
     int ierr=0;
     int A=5;
     int B=-2;
-    int C = 1000;
+    int C = 2500;
     int t1=0;
     while(1){  
-        target = 3009;
+        target = 10000;
         t1 += 1;
         err = target - twos16Bit(TIM4->CNT);
         ierr += err/20;
