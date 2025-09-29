@@ -26,14 +26,7 @@ int expo(int num,int pow){
      return num;
 	
 }
-int sin(int num){
-     int ans =0;
-     int det =1;
-     for(int i =0; i<10; i++){
-	 ans += 100*expo(num, i)/det ;
-	 det *= i;
-     }
-}
+
 
 
 

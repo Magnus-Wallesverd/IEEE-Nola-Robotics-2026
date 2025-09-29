@@ -6,5 +6,4 @@
 int abs(int num);
 int twos16Bit(uint16_t num);
 int expo(int num, int pow);
-int sin(int num);
 #endif
