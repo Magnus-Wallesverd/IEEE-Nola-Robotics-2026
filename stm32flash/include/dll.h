@@ -14,7 +14,7 @@ typedef struct{
     void* prev;
     void* next;
     void* data;
-    uint32_t head;
+    uint32_t* head;
 }node_t;
 
 // finds empty block

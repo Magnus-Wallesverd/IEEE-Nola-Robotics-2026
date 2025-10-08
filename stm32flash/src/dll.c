@@ -7,7 +7,13 @@ uint32_t memory_bmp2 = 0;
 uint32_t* bmp1_ptr= &memory_bmp1;
 uint32_t* bmp2_ptr= &memory_bmp2;
 
+// create head node
 void init_head(void){
+    // search & return free node 
+    heap[bmp_search(memory_bmp1)];
+
+
+    
     return;
 }
 
