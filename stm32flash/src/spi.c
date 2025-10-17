@@ -57,8 +57,7 @@ void set_baud(SPI_TypeDef* SPIx, uint16_t division){
 
 void enable_ssm(SPI_TypeDef* SPIx, uint8_t mode){
     if(mode == 1){
-        // SPIx->CR1 |= (3<<8);
-        SPIx->CR2 |= (1 << 2);
+        SPIx->CR1 |= (3<<8);
     }
 }
 
@@ -110,16 +109,16 @@ void spi_init(SPI_TypeDef* SPIx, uint8_t ssm, uint16_t baud, uint8_t master, uin
         master_select(SPIx, master);
         cpol_select(SPIx, cpol);
         cpha_select(SPIx, cpha);
-        // spi_enable(SPIx);
+        spi_enable(SPIx);
    
 }
 
 void send_receive_byte(SPI_TypeDef* SPIx, uint8_t byte){
-    SPIx->CR1 |= (1 << 6);
+    GPIOA->ODR &= ~(1 << 4);
     while(!(SPIx->SR & SPI_TXE));
     SPIx->DR = byte;
     while(!(SPIx->SR & SPI_TXE));
-    SPIx->CR1 &= ~(1 << 6);
+    GPIOA->ODR |= (1 << 4);
 }
 
 void send_receive_wrapper(void* args){

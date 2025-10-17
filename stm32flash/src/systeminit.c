@@ -21,14 +21,15 @@ void systeminit(void){
     //TIM4 ENCODer SEtup
     RCC->AHBENR |= 0xA0000;                   // enable GPIO A&C  clock 
     
-    //SetPinPU(GPIOA, 0x10);
+    SetPinOutput(GPIOA, 0x10);
+    PinWrite(GPIOA, 0x10);
 
     // Set pins 11 & 12 to AF mode TIM4
     // Set pins 5-7 to AF mode spi
     SetPinAlternate(GPIOA,0x18E0);            
 
     AlternateFunctionSet(GPIOA,0x1800,10);      // Set pins PA11 & PA12 to AF10 for TIM4
-    AlternateFunctionSet(GPIOA,0xE0,4);      // Set pins PA5-7 to AF4 for spi
+    AlternateFunctionSet(GPIOA,0xE0,5);      // Set pins PA5-7 to AF4 for spi
     
     spi_init(SPI1,1,8,1,0,0);
     TIM4->ARR = 0xffff;
