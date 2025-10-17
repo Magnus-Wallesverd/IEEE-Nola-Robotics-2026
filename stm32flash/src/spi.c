@@ -2,6 +2,7 @@
 
 #include "spi.h"
 #include "rcc.h"
+#include "gpio.h"
 
 void spi_enable(SPI_TypeDef* SPIx){
     SPIx->CR1 |= (1<<6);
@@ -56,7 +57,8 @@ void set_baud(SPI_TypeDef* SPIx, uint16_t division){
 
 void enable_ssm(SPI_TypeDef* SPIx, uint8_t mode){
     if(mode == 1){
-        SPIx->CR1 |= (3<<8);
+        // SPIx->CR1 |= (3<<8);
+        SPIx->CR2 |= (1 << 2);
     }
 }
 
@@ -101,26 +103,26 @@ void spi_init(SPI_TypeDef* SPIx, uint8_t ssm, uint16_t baud, uint8_t master, uin
         case (uint32_t)SPI4:
             RCC->APB2ENR |= (1 << 15);
             break;
-
+    }
         enable_ssm(SPIx, ssm);
         fifo_threshold(SPIx);
         set_baud(SPIx, baud);
         master_select(SPIx, master);
         cpol_select(SPIx, cpol);
         cpha_select(SPIx, cpha);
-        spi_enable(SPIx);
-   }
+        // spi_enable(SPIx);
+   
 }
 
 void send_receive_byte(SPI_TypeDef* SPIx, uint8_t byte){
-    SPIx->CR1 &= ~SPI_SSI;
+    SPIx->CR1 |= (1 << 6);
     while(!(SPIx->SR & SPI_TXE));
     SPIx->DR = byte;
-    while(!(SPIx->SR & ~SPI_SSI));
-    SPIx->CR1 |= SPI_SSI;
+    while(!(SPIx->SR & SPI_TXE));
+    SPIx->CR1 &= ~(1 << 6);
 }
 
 void send_receive_wrapper(void* args){
     (void)args;
-    send_receive_byte(SPI1, A3);
+    send_receive_byte(SPI1, 0xA3);
 }
