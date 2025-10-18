@@ -3,7 +3,11 @@
 #include "spi.h"
 #include "rcc.h"
 #include "gpio.h"
-
+void spi_dma(SPI_TypeDef* SPIx){
+    RCC->AHBENR |= 1;
+    SPIx->CR2 |= 1;
+    SPIx->CR2 |= 2;
+}
 void spi_enable(SPI_TypeDef* SPIx){
     SPIx->CR1 |= (1<<6);
 }
@@ -109,11 +113,12 @@ void spi_init(SPI_TypeDef* SPIx, uint8_t ssm, uint16_t baud, uint8_t master, uin
         master_select(SPIx, master);
         cpol_select(SPIx, cpol);
         cpha_select(SPIx, cpha);
+        spi_dma(SPIx);
         spi_enable(SPIx);
    
 }
 
-void send_receive_byte(SPI_TypeDef* SPIx, uint8_t byte){
+void send_receive_byte(SPI_TypeDef* SPIx, uint16_t byte){
     GPIOA->ODR &= ~(1 << 4);
     while(!(SPIx->SR & SPI_TXE));
     SPIx->DR = byte;
@@ -123,5 +128,6 @@ void send_receive_byte(SPI_TypeDef* SPIx, uint8_t byte){
 
 void send_receive_wrapper(void* args){
     (void)args;
-    send_receive_byte(SPI1, 0xA3);
+    send_receive_byte(SPI1, 0xFEAD);
+
 }
