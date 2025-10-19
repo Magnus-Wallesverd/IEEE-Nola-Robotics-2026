@@ -16,10 +16,11 @@
 #include "dma.h"
 
 void spi_dma_init(SPI_TypeDef* SPIx){
-    RCC->AHBENR |= 1;
     SPIx->CR2 |= 1;
     SPIx->CR2 |= 2;
+    configure_spi(SPIx);
 }
+
 void spi_enable(SPI_TypeDef* SPIx){
     SPIx->CR1 |= (1<<6);
 }
@@ -103,6 +104,10 @@ void fifo_threshold(SPI_TypeDef* SPIx){
     SPIx->CR2 |= (1<<12);
 }
 
+void set_datasize(SPI_TypeDef* SPIx){
+    SPIx->CR2 |= (0xF<<8);
+}
+
 // init the spi
 void spi_init(SPI_TypeDef* SPIx, uint8_t ssm, uint16_t baud, uint8_t master, uint8_t cpol, uint8_t cpha){
     switch((uint32_t)SPIx){
@@ -121,6 +126,7 @@ void spi_init(SPI_TypeDef* SPIx, uint8_t ssm, uint16_t baud, uint8_t master, uin
     }
         enable_ssm(SPIx, ssm);
         fifo_threshold(SPIx);
+        set_datasize(SPIx);
         set_baud(SPIx, baud);
         master_select(SPIx, master);
         cpol_select(SPIx, cpol);
@@ -141,5 +147,9 @@ void send_receive_byte(SPI_TypeDef* SPIx, uint16_t byte){
 void send_receive_wrapper(void* args){
     (void)args;
     send_receive_byte(SPI1, 0xFEAD);
+}
 
+void dma_send_receive(SPI_TypeDef* SPIx){
+        /*DMA->CCR2  |= 1;            // enable only when ready*/
+        /*DMA->CCR3  |= 1;            // enable only when ready*/
 }
