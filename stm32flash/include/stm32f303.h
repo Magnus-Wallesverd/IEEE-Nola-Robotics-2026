@@ -20,5 +20,6 @@
 #include "syscfg.h"
 #include "lcd.h"
 #include "spi.h"
+#include "dma.h"
 
 #endif

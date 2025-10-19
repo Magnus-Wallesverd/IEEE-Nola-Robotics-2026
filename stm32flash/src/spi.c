@@ -1,9 +1,21 @@
 //TODO setup functions... cleaner
+//TODO DMA 
+/* DMA Channel config
+ * Set spi reg addr in DMA_CPAR
+ * set memory address in DMA_CMAR
+ * config total number of data to transfer DMA_CNDTR
+ * config param in DMA_CCR
+ * enable channel bit DMA_CCR
+ * mem2per dir = 1 MAR,MSIZE,MINC
+ * per2mem dir = 0 PAR,PSIZE,PINC
+ * */
 
 #include "spi.h"
 #include "rcc.h"
 #include "gpio.h"
-void spi_dma(SPI_TypeDef* SPIx){
+#include "dma.h"
+
+void spi_dma_init(SPI_TypeDef* SPIx){
     RCC->AHBENR |= 1;
     SPIx->CR2 |= 1;
     SPIx->CR2 |= 2;
