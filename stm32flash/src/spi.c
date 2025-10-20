@@ -15,6 +15,8 @@
 #include "gpio.h"
 #include "dma.h"
 
+
+
 void spi_dma_init(SPI_TypeDef* SPIx){
     SPIx->CR2 |= 1;
     SPIx->CR2 |= 2;
@@ -131,7 +133,7 @@ void spi_init(SPI_TypeDef* SPIx, uint8_t ssm, uint16_t baud, uint8_t master, uin
         master_select(SPIx, master);
         cpol_select(SPIx, cpol);
         cpha_select(SPIx, cpha);
-        spi_dma(SPIx);
+        spi_dma_init(SPIx);
         spi_enable(SPIx);
    
 }

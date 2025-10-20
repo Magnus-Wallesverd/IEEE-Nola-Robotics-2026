@@ -1,4 +1,6 @@
-#include "dma.h" #include "spi.h"
+#include "dma.h"
+#include "spi.h"
+#include "rcc.h"
 
 void enable_dma(void){
     RCC->AHBENR |= 1;
@@ -8,9 +10,9 @@ void configure_spi(SPI_TypeDef* SPIx){
     switch((uint32_t)SPIx){
         case (uint32_t)SPI1:
             DMA->CPAR2 |= (uint32_t)&SPI1->DR;
-            DMA->CMAR2 |= ; // make a buffer for this somewhere
+            // DMA->CMAR2 |= ; // make a buffer for this somewhere
             DMA->CPAR3 |= (uint32_t)&SPI1->DR;
-            DMA->CMAR3 |= ; // make a buffer for this somewhere
+       //     DMA->CMAR3 |= ; // make a buffer for this somewhere
             DMA->CNDTR2 |= 1;
             DMA->CNDTR3 |= 1;
             DMA->CCR2  |= 0x0A82;       // Rx
