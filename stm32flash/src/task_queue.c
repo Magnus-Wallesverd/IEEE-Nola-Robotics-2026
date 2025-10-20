@@ -8,9 +8,9 @@ void* task_queue_array[TASK_QUEUE_SIZE];
 
 // should start thinking of easier ways to get functions in here
 const func_t fn_table[FUNC_POOL_SIZE] = {
-    send_receive_wrapper,
-    send_receive_wrapper,
-    send_receive_wrapper
+    lcd_print
+    // send_receive_wrapper,
+    // send_receive_wrapper
 };
 
 void task_queue_init(void){
