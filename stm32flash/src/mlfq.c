@@ -50,8 +50,7 @@ void mlfq_init(void){
     }
 }
 
-void demote_thread(TCB* tcb){
-
+void demote_task(TCB* tcb){
     if(tcb->priority == HIGH){
         enqueue(mid_queue_ptr,dequeue(high_queue_ptr));
         tcb->priority = MID;

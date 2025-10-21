@@ -128,7 +128,7 @@ TCB* nts(void){
     current_tcb->queue_age++;
     current_tcb->total_age++;
     if(current_tcb->queue_age >= current_tcb->queue_time){
-        demote_thread(current_tcb);
+        demote_task(current_tcb);
     }
 
     next_tcb++;
