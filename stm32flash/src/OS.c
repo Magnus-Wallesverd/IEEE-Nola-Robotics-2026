@@ -7,9 +7,11 @@ uint32_t speed=0;
 uint32_t d1=0;
 uint32_t global_tick;
 uint32_t  task_flag = 0;
+
 TCB _stcb[SIZE];
 TCB *current_tcb;
 TCB *next_tcb;
+
 
 uint32_t get_global_tick(void){
     return global_tick;

@@ -148,10 +148,16 @@ void send_receive_byte(SPI_TypeDef* SPIx, uint16_t byte){
 
 void send_receive_wrapper(void* args){
     (void)args;
-    send_receive_byte(SPI1, 0xFEAD);
+    send_receive_byte(SPI1, 0xAAAA);
 }
 
-void dma_send_receive(SPI_TypeDef* SPIx){
-        /*DMA->CCR2  |= 1;            // enable only when ready*/
-        /*DMA->CCR3  |= 1;            // enable only when ready*/
+void send_receive_dma_wrapper(void* args){
+    (void)args;
+    send_receive_byte(SPI1, 0xAAAA);
+}
+
+void dma_send_receive(void){
+        DMA->CCR2  |= 1;            // enable only when ready*/
+        
+        DMA->CCR3  |= 1;            // enable only when ready*/
 }
