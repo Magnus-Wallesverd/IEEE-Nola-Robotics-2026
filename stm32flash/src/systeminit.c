@@ -44,4 +44,5 @@ void systeminit(void){
     TIM1->CR1 |= 0b10000001;                // Enable TIM1 counter
     //TIM1->SR  &= 0;     // clear UIF
     
+    I2C_Init(I2C1, 0xFFFF);
 }
