@@ -83,7 +83,7 @@ void lcd_print(void* args){
         while((t0-t1) > REFRESH_RATE){
             x=TIM4->CNT;
             move_cursor(0,6);
-            stringify(speed, buffer);
+            stringify(abs(speed), buffer);
             move_cursor(1,6);
             stringify(x,buffer);
             // __asm volatile("BKPT #0");
