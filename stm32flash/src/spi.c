@@ -143,7 +143,6 @@ void spi_init(SPI_TypeDef* SPIx, uint8_t ssm, uint16_t baud, uint8_t master, uin
 void send_receive_byte(SPI_TypeDef* SPIx, uint16_t twobyte){
     GPIOA->ODR &= ~(1 << 4);
     while(!(SPIx->SR & SPI_TXE));
-    SPIx->DR = twobyte;
     while(!(SPIx->SR & SPI_TXE));
     GPIOA->ODR |= (1 << 4);
 }
@@ -158,11 +157,10 @@ void send_receive_dma_wrapper(void* args){
 }
 
 void dma_send_receive(void){
-        DMA->CCR2  |= 1;
-        while(!(SPIx->SR & SPI_RXNE));
-        DMA->CCR3  |= 1;
-        
-        DMA->CCR2  |= 0;
-        DMA->CCR3  |= 0;
+    DMA->CCR2  |= 1;
+    DMA->CCR3  |= 1;
+    
+    DMA->CCR2  |= 0;
+    DMA->CCR3  |= 0;
         
 }

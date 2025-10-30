@@ -14,9 +14,9 @@ void configure_spi(SPI_TypeDef* SPIx){
     switch((uint32_t)SPIx){
         case (uint32_t)SPI1:
             DMA->CPAR2 |= (uint32_t)&SPI1->DR;
-            DMA->CMAR2 |= (uint32_t)tx_buffer; // make a buffer for this somewhere
+            DMA->CMAR2 |= (uint32_t)rx_buffer; // make a buffer for this somewhere
             DMA->CPAR3 |= (uint32_t)&SPI1->DR;
-            DMA->CMAR3 |= (uint32_t)rx_buffer; // make a buffer for this somewhere
+            DMA->CMAR3 |= (uint32_t)tx_buffer; // make a buffer for this somewhere
             DMA->CNDTR2 |= 4;
             DMA->CNDTR3 |= 4;
             DMA->CCR2  |= 0x0582;       // Rx
