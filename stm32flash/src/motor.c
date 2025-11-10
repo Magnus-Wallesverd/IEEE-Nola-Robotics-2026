@@ -8,7 +8,7 @@ void update_speed(void* args){
     uint32_t t1 = 0;
     t1 = get_global_tick();
     if(t1%8 == 1){
-        speed = (twos16Bit(TIM4->CNT) - d1);
+        speed = 10*(twos16Bit(TIM4->CNT) - d1);
         d1= twos16Bit(TIM4->CNT);
     }
     // speed = TIM4->CNT - d1;
