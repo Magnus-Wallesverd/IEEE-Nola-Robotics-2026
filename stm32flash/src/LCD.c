@@ -72,19 +72,23 @@ void lcd_init(void){
 void lcd_print(void* args){
     (void)args;
 
-    static char entry_1[] ={"g_tick"};
+    static char entry_1[] ={"i2c something"};
+    static char entry_2[] ={"i2c something"};
     char buffer[BUFFER_SIZE] = {0};
     move_cursor(0,0);
     print(entry_1);
-    
+    move_cursor(1,0);
+    print(entry_2);
+    int n = 0;
     uint32_t t0 = 0;
     uint32_t t1 = 0;
     while(1){
         t0 = get_global_tick();
         while((t0-t1) > REFRESH_RATE){
-            move_cursor(0,8);
-            stringify(get_global_tick(),buffer);
+            move_cursor(n,8);
+            stringify(*(get_i2c_buffer()+n),buffer);
             t1=t0;
+            n ^= 1;
         }
     }
 }

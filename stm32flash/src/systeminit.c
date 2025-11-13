@@ -14,14 +14,15 @@ void systeminit(void){
     
     // priority set
     SCB->SHPR3 |= 0xE0F00000;
-    
-    
-    RCC->APB1ENR |= (1 << 2);               // Enable TIM4
+     
+    RCC->APB1ENR |= (1 << 2) | (1 << 21);               // Enable TIM4
     RCC->APB2ENR |= (1 << 11);              // Enable TIM1
+
     
     //TIM4 ENCODer SEtup
-    RCC->AHBENR |= 0xA0000;                   // enable GPIO A&C  clock 
-    SetPinOutput(GPIOA, 0x20);                // OutputMode GPIOA
+    RCC->AHBENR |= 0xE0000;                   // enable GPIO A&C  clock 
+    SetPinOutput(GPIOA, (1 << 9)|(1<<10));            // OutputMode GPIOA
+    SetOutputType(GPIOA, (1<<10),1);   
     SetPinAlternate(GPIOA,0x1800);            // Set pins 11 & 12 to AF mode TIM4
     AlternateFunctionSet(GPIOA,0x1800,10);      // Set pins PA11 & PA12 to AF10 for TIM4
     TIM4->SMCR |=0b0011;                    // Encoder mode 1 - Counter counts up/down on TI1FP1 edge depending on TI2FP2  level. Consider trigger selection to sync counter.

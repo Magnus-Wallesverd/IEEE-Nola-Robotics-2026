@@ -1,6 +1,8 @@
 #ifndef LCD_H
 #define LCD_H
 
+#include <stdint.h>
+
 #define RS_PIN      0x400
 #define E_PIN       0x100
 #define RS_E_PINS   0x500
