@@ -9,6 +9,9 @@
 // #include 
 
 #define I2C_BUFFER_SIZE 2
+#define STANDARD_MODE 0
+#define FAST_MODE 1
+#define FAST_MODE_PLUS 2
 #define BNO055 0x29
 
 typedef struct {
