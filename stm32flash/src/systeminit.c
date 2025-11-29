@@ -21,10 +21,14 @@ void systeminit(void){
     
     //TIM4 ENCODer SEtup
     RCC->AHBENR |= 0xE0000;                   // enable GPIO A&C  clock 
-    SetPinOutput(GPIOA, (1 << 9)|(1<<10));            // OutputMode GPIOA
-    SetOutputType(GPIOA, (1<<10),1);   
+    // SetPinOutput(GPIOA, (1 << 9)|(1<<10));            // OutputMode GPIOA
+    // SetOutputType(GPIOA, 0b11 << 9,1);   
+
     SetPinAlternate(GPIOA,0x1800);            // Set pins 11 & 12 to AF mode TIM4
+    SetPinAlternate(GPIOB,0xC0);            // Set pins 6 & 7 to AF mode I2c
     AlternateFunctionSet(GPIOA,0x1800,10);      // Set pins PA11 & PA12 to AF10 for TIM4
+    AlternateFunctionSet(GPIOB,0xC0,4);      // set pins PB 6&7 to AF4
+    SetOutputType(GPIOB, 0xC0, 1);
     TIM4->SMCR |=0b0011;                    // Encoder mode 1 - Counter counts up/down on TI1FP1 edge depending on TI2FP2  level. Consider trigger selection to sync counter.
     TIM4->CCMR1 |= 0x101;                   // CC1 is input IC mapped on T1I, capture done every 2 events Note: CC1S bits are writable only when the channel is OFF (CC1E = 0 in TIMx_CCER). 
     TIM4->CCER |= 0x11;                      // Capture mode 1 & 2 enabled & sensitive to TIxFP1 rising edge(Encoder Mode) 
@@ -45,5 +49,5 @@ void systeminit(void){
     TIM1->CR1 |= 0b10000001;                // Enable TIM1 counter
     //TIM1->SR  &= 0;     // clear UIF
     
-    I2C_Init(I2C1, 0xFFFF);
+    I2C_Init(I2C1, 0, 1, 0x68);
 }
