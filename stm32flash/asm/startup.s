@@ -127,7 +127,12 @@ zero_bss:
   movlt r2, #0          /*  move 0 into r2 */
   strlt r2, [r0], #4    /*  store r2 = 0 into address pointed to by R0 increment register 0 address #4 bytes */
   blt zero_bss          /*  branch back to zero if N is set */
-
+  LDR.W R0, =0xE000ED88
+  LDR R1, [R0]
+  ORR R1,R1, #(0xF << 20)
+  STR R1, [R0];
+  DSB
+  ISB
   /* C initializers */
   bl tcbinit
   bl task_queue_init
