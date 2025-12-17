@@ -31,12 +31,15 @@ g_pfnVectors:
   .word 0
   .word PendSV_Handler + 1
   .word SysTick_Handler + 1
-  .word WWDG + 1 
   .word 0, 0, 0, 0, 0, 0, 0, 0
   .word 0, 0, 0, 0, 0, 0, 0, 0 
   .word 0, 0, 0, 0, 0, 0, 0, 0 
-  .word 0, 0 
-  /* .word TIM1_CC + 1*/
+  .word 0 
+  .word TIM1_UP_TIM16_IRQHandler + 1
+  .word 0, 0, 0, 0, 0, 0
+  .word 0, 0, 0
+  .word SPI1_IRQHandler + 1
+  .word SPI2_IRQHandler + 1
 
   /* Add peripheral ISRs as needed here */
 
@@ -155,5 +158,39 @@ MemManage_Handler:  b .
 BusFault_Handler:   b .
 UsageFault_Handler: b .
 DebugMon_Handler:   b .
-WWDG:               b .
-/* TIM1_CC:         b .*/
+
+.section .text.Default_Handler, "ax", %progbits
+.thumb_func
+
+Default_Handler:
+1: b 1b
+
+/* Weak aliases */
+
+.weak NMI_Handler
+.thumb_set NMI_Handler, Default_Handler
+
+.weak HardFault_Handler
+.thumb_set HardFault_Handler, Default_Handler
+
+.weak MemManage_Handler
+.thumb_set MemManage_Handler, Default_Handler
+
+.weak BusFault_Handler_Handler
+.thumb_set BusFault_Handler, Default_Handler
+
+.weak UsageFault_Handler
+.thumb_set UsageFault_Handler, Default_Handler
+
+.weak DebugMon_Handler
+.thumb_set DebugMon_Handler, Default_Handler
+
+.weak TIM1_UP_TIM16_IRQHandler
+.thumb_set TIM1_UP_TIM16_IRQHandler, Default_Handler
+
+.weak SPI1_IRQHandler
+.thumb_set SPI1_IRQHandler, Default_Handler
+
+.weak SPI2_IRQHandler
+.thumb_set SPI2_IRQHandler, Default_Handler
+
