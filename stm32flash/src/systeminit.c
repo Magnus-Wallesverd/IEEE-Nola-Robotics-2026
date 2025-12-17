@@ -20,6 +20,6 @@ void systeminit(void){
     
     SetPinOutput(GPIOA, 0x20);                // OutputMode GPIOA
     
-    intput_timer_init();
+    input_timer_init();
     output_timer_init();
 }

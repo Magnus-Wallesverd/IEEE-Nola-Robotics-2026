@@ -1,4 +1,6 @@
 #include "motors.h"
+#include "timx.h"
+#include "rcc.h"
 #include <stdint.h>
 
 Gen_TIM_TypeDef1* input_timers[] = {TIM2, TIM3, TIM4, TIM15};
