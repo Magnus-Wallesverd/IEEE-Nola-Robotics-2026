@@ -1,9 +1,23 @@
+//TODO implement 3 point backwards difference
+//
+//
+
 #include "motors.h"
 #include "timx.h"
 #include "rcc.h"
 #include <stdint.h>
 
 Gen_TIM_TypeDef1* input_timers[] = {TIM2, TIM3, TIM4, TIM15};
+
+int16_t prev2 = 0;
+int16_t prev3 = 0;
+int16_t prev4 = 0;
+int16_t prev15 = 0;
+
+int16_t meausure2 = 0;
+int16_t meausure3 = 0;
+int16_t meausure4 = 0;
+int16_t meausure15 = 0;
 
 void TIM1_UP_TIM16_IRQHandler(void){
     
@@ -41,8 +55,9 @@ void output_timer_init(void){
     TIM1->PSC   |= 0;           //
     TIM1->ARR    = 7999;        // top
     TIM1->CCR1  |= 4000;        // compare ch1
-    TIM1->CCMR1 |= 0x68;        // pwm 1 ch1
-    TIM1->CCER  |= 1;           // enable CC
+    TIM1->CCMR1 |= 0x6868;      // pwm 1 CH 1,2
+    TIM1->CCMR2 |= 0x6868;      // pwm 1 CH 3,4
+    TIM1->CCER  |= 0x1111;      // enable CC 1-4
     TIM1->BDTR  |= 1<<15;       // Main Output enable
     TIM1->CR1 |= 0b10000001;    // Enable TIM1 counter
     
@@ -55,10 +70,21 @@ void output_timer_init(void){
     TIM16->CCR1  |= 4000;
     TIM16->CCMR1 |= 0x68;
     TIM16->CCER  |= 1;
-
     TIM16->CR1 |= 0b10000001;
 }
 
-void update_speed(void){
+void measure_meausure(void){
+
+    meausure2  = (int16_t)((TIM2->CNT - prev2)/dt);
+    meausure3  = (int16_t)((TIM3->CNT - prev3)/dt);
+    meausure4  = (int16_t)((TIM4->CNT - prev4)/dt);
+    meausure15 = (int16_t)((TIM15->CNT - prev15)/dt);
+    
+}
+
+void set_speed(uint16_t RPM){
+
+    TIM1->CCR1 =;
+    TIM1->CCR2 =;
 
 }
