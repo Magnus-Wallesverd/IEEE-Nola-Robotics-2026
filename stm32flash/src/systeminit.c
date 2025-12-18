@@ -15,11 +15,15 @@ void systeminit(void){
     // priority set
     SCB->SHPR3 |= 0xE0F00000;
     
+    // enable timer 16 interrupt
+    NVIC->ISER0 |= (1 << 25);
+
     // enable gpio clocks
     RCC->AHBENR |= (0xE << 16); // enable GPIO A,B,C clock 
     
     SetPinOutput(GPIOA, 0x20);                // OutputMode GPIOA
-    
+
     input_timer_init();
     output_timer_init();
+    test_toggle();
 }

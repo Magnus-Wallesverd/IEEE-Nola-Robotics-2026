@@ -8,6 +8,10 @@ void input_timer_init(void);
 
 void output_timer_init(void);
 
-void update_speed(void);
+void measure_speed(void);
+
+void set_speed(uint16_t RPM);
+
+void test_toggle(void);
 
 #endif // !MOTORS_H
