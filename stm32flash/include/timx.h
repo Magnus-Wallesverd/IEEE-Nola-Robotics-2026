@@ -98,7 +98,7 @@ typedef struct{
 #define TIM3  ((Gen_TIM_TypeDef *) 0x40000400)
 #define TIM4  ((Gen_TIM_TypeDef *) 0x40000800)
 #define TIM15 ((Gen_TIM_TypeDef *) 0x40014000)
-//#define TIM16 ((Gen_TIM_TypeDef *) 0x40014400)
+#define TIM16 ((Gen_TIM_TypeDef *) 0x40014400)
 //#define TIM17 ((Gen_TIM_TypeDef *) 0x40014800)
 
 #define TIM6  ((Basic_TIM_TypeDef *) 0x40001000)

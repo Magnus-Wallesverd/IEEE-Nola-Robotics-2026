@@ -43,7 +43,14 @@ void systeminit(void){
     TIM4->CR1 |= 0b10000001;                // Enable TIM4 Counter 
     TIM1->CR1 |= 0b10000001;                // Enable TIM1 counter
     //TIM1->SR  &= 0;     // clear UIF
-    
+    TIM16->DIER |=1;
+    TIM16->CCMR1 |= 0x68;
+    TIM16->PSC  |=49; 
+    TIM16->ARR  |=7999; 
+    TIM16->CCR1 |=4000; 
+    TIM16->CCER |=1; 
+    TIM16->BDTR |=1 << 15;
+    TIM16->CR1  |= 0b10000001; 
     //Motor Directional  
 
 

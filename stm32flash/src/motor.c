@@ -23,13 +23,9 @@ void motorcontrol(void* args){
     double err=0;
     double ierr=0;
     double A=10;
-    double a1 = 0;
-    double b1 = 0;
-    double c1 =0;
     double B=10;
     double C = 1000;
     double errs=0;
-    double temp=0;
     int t3=0;
     uint32_t t2 =10000;
     target = 2000;
@@ -54,24 +50,11 @@ void motorcontrol(void* args){
             pwm = TIM1->ARR; 
          }
         TIM1->CCR1 = abs(pwm);
-	if(get_global_tick() > t2+1000){
-	    temp = A;
-	    A = abs( a1 + 0.5*(err+errs)/(A-a1));
-	    a1 = temp;
-	    temp = B;
-	    B = abs(b1 - (err-errs)/(B-b1));
-	    b1 = temp;
-	    temp = C;
-	    C = abs(c1 + 0.3*(err+errs)/(C-c1));
-	    c1 = temp;
-
-	    TIM1->CCR1 = 0; 
-	    pwm = 0;
-	    TIM4->CNT = 0;
-	    for(int k=0; k< 1000; k++){
-
-	    }
-	    t2 = get_global_tick() + 1000;
 	}
-    } 
+ }
+void motorgym(void* args){
+    int dpos[3] = {1 , 5, target};
+    int dvel[3] = {10, 20, 0};
+    int error[3] ={0,0,0};
+
 }
