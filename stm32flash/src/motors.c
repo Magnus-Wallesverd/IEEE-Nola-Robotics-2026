@@ -14,19 +14,22 @@ int16_t prev3 = 0;
 int16_t prev4 = 0;
 int16_t prev15 = 0;
 
-int16_t meausure2 = 0;
-int16_t meausure3 = 0;
-int16_t meausure4 = 0;
-int16_t meausure15 = 0;
+int16_t measure2 = 0;
+int16_t measure3 = 0;
+int16_t measure4 = 0;
+int16_t measure15 = 0;
+
+int16_t error2 = 0;
+int16_t error3 = 0;
+int16_t error4 = 0;
+int16_t error15= 0;
 
 uint8_t dt = 10;
-uint16_t RPM;
+uint16_t target = 100;
 uint8_t direction;
 
 void TIM1_UP_TIM16_IRQHandler(void){
-    measure_speed();
-    set_speed(RPM);
-    PinWrite(GPIOA, 0x20);
+    set_speed(target);
     TIM16->SR = 0;      // clear flags
 }
 
@@ -79,7 +82,7 @@ void output_timer_init(void){
     
     TIM16->DIER  |= 1;
     TIM16->CCMR1 |= 0x68;
-    TIM16->PSC   |= 9;
+    TIM16->PSC   |= 49;
     TIM16->ARR    = 7999;
     TIM16->CCR1  |= 4000;
     TIM16->CCER  |= 1;
@@ -87,27 +90,29 @@ void output_timer_init(void){
     TIM16->CR1   |= 0b10000001;
 }
 
-void measure_speed(void){
+void set_speed(uint16_t target){
 
-    meausure2  = (int16_t)((TIM2->CNT - prev2)/dt);
-    meausure3  = (int16_t)((TIM3->CNT - prev3)/dt);
-    meausure4  = (int16_t)((TIM4->CNT - prev4)/dt);
-    meausure15 = (int16_t)((TIM15->CNT - prev15)/dt);
+    measure2  = (int16_t)((TIM2->CNT - prev2)/dt);
+    measure3  = (int16_t)((TIM3->CNT - prev3)/dt);
+    measure4  = (int16_t)((TIM4->CNT - prev4)/dt);
+    measure15 = (int16_t)((TIM15->CNT - prev15)/dt);
     
+    error2 = target - measure2;
+    error3 = target - measure3;
+    error3 = target - measure4;
+    error15 = target - measure15;
+    
+    // TIM1->CCR1 |= error/10 
+
+    prev2  = measure2; 
+    prev3  = measure3;
+    prev3  = measure4;
+    prev15 = measure15;
 }
 
 void test_toggle(void){
-    for(int j = 0; j < 10; j++){
-        PinWrite(GPIOB, (1 << 10)|(1 << 11));
-        for(uint32_t i = 0; i < 0x1FFFF ; i++);
-        ResetPins(GPIOB, (1 << 10)|(1 << 11));
-        for(uint32_t k = 0; k < 0x1FFFF ; k++);
-    }
-}
-
-void set_speed(uint16_t RPM){
-
-    // TIM1->CCR1 =;
-    // TIM1->CCR2 =;
-
+    PinWrite(GPIOB, (1 << 10)|(1 << 11));
+    for(uint32_t i = 0; i < 0xFFFFF ; i++);
+    ResetPins(GPIOB, (1 << 10)|(1 << 11));
+    // for(uint32_t k = 0; k < 0x1FFFF ; k++);
 }

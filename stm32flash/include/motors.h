@@ -8,9 +8,7 @@ void input_timer_init(void);
 
 void output_timer_init(void);
 
-void measure_speed(void);
-
-void set_speed(uint16_t RPM);
+void set_speed(uint16_t target);
 
 void test_toggle(void);
 
