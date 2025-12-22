@@ -24,12 +24,14 @@ int16_t error3 = 0;
 int16_t error4 = 0;
 int16_t error15= 0;
 
-uint8_t dt = 10;
-uint16_t target = 100;
+uint16_t target = 150;
 uint8_t direction;
+
+uint8_t Kp = 48;
 
 void TIM1_UP_TIM16_IRQHandler(void){
     set_speed(target);
+    // target--;
     TIM16->SR = 0;      // clear flags
 }
 
@@ -92,27 +94,56 @@ void output_timer_init(void){
 
 void set_speed(uint16_t target){
 
-    measure2  = (int16_t)((TIM2->CNT - prev2)/dt);
-    measure3  = (int16_t)((TIM3->CNT - prev3)/dt);
-    measure4  = (int16_t)((TIM4->CNT - prev4)/dt);
-    measure15 = (int16_t)((TIM15->CNT - prev15)/dt);
+    int16_t curr2 = TIM2->CNT;
+    int16_t curr3 = TIM3->CNT;
+    // int16_t curr4 = TIM4->CNT;
+    // int16_t curr15 = TIM15->CNT;
+
+    measure2 = curr2 - prev2;
+    measure3 = curr3 - prev3;
+    // measure4  = curr4 - prev4;
+    // measure15 = curr15 - prev15;
+
+    prev2  = curr2; 
+    prev3  = curr3;
+    // prev3  = curr4;
+    // prev15 = curr15;
     
+    // if((uint32_t)measure2 > 100){
+    //     GPIOA->ODR = (1<<5);
+    // } else {
+    //     GPIOA->ODR &= ~(1<<5);
+    // }
+
     error2 = target - measure2;
     error3 = target - measure3;
-    error3 = target - measure4;
-    error15 = target - measure15;
+    // error3 = target - measure4;
+    // error15 = target - measure15;
     
-    // TIM1->CCR1 |= error/10 
+    if(error2 < 0){
+        TIM1->CCR2 = 0;
+    } else if(error2 > 115){
+        TIM1->CCR2 = 7000;
+    } else{
+        TIM1->CCR2 = Kp*error2;
+    }
 
-    prev2  = measure2; 
-    prev3  = measure3;
-    prev3  = measure4;
-    prev15 = measure15;
+    if(error3 < 0){
+        TIM1->CCR1 = 0;
+    } else if(error3 > 105){
+        TIM1->CCR1 = 5000;
+        GPIOA->ODR = (1 << 5);
+    }else{
+        TIM1->CCR1 = Kp*error3;
+        GPIOA->ODR &= ~(1 << 5);
+    }
+
 }
 
 void test_toggle(void){
     PinWrite(GPIOB, (1 << 10)|(1 << 11));
-    for(uint32_t i = 0; i < 0xFFFFF ; i++);
+    for(uint32_t i = 0; i < 0x9FFFFF ; i++);
     ResetPins(GPIOB, (1 << 10)|(1 << 11));
+    TIM1->CCR2 = 0;
     // for(uint32_t k = 0; k < 0x1FFFF ; k++);
 }
