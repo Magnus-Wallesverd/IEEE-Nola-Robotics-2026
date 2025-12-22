@@ -7,6 +7,19 @@
 #include "rcc.h"
 #include <stdint.h>
 
+/*
+ * ENA - PC0 
+ * ENB - PC1 
+ * IN1 - PB9
+ * IN2 - PB10
+ * IN3 - PB12
+ * IN4 - PB11
+ * ENCODER A - PA 6,7 
+ * ENCODER B - PA 0,1 
+ * */
+
+
+
 Gen_TIM_TypeDef1* input_timers[] = {TIM2, TIM3, TIM4, TIM15};
 
 int16_t prev2 = 0;
