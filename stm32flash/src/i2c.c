@@ -20,18 +20,19 @@ void master_receive(I2C_TypeDef* I2Cx, uint8_t nbytes, uint16_t slave_addr){
     I2Cx->CR2 |= (nbytes << 16)|(1 << 25)|(slave_addr << 1);
 }
 
-void I2C_Init(I2C_TypeDef* I2Cx, uint8_t mode, uint8_t nbytes, uint16_t slave_addr){
+void I2C_Init(I2C_TypeDef* I2Cx, uint8_t mode, uint8_t rw, uint8_t nbytes, uint16_t slave_addr){
     switch(mode){
         case 0:
             I2Cx->CR1 &= ~(1<<0);
             I2Cx->CR1 |= (1<<1);
             // I2Cx->TIMINGR = (1 << 28)|(0x4 << 20)|(0x2 << 16)|(0xF << 8)|0x13;
-            I2Cx->TIMINGR = 0x00303D5B;
-            I2Cx->CR1 |= (1<<0);
+            I2Cx->TIMINGR = 0x10420F13;
+            // I2Cx->TIMINGR = 0x00303D5B;
             // master_receive(I2Cx, nbytes, slave_addr);
-            I2Cx->CR2 = ~(1<<10)&((nbytes << 16)|(slave_addr << 1)|(1 << 13));
-            I2C_Write(I2Cx, 0x75);
-            I2C_Read(I2Cx);
+            I2Cx->CR2 = (nbytes << 16)|(rw << 10)|(slave_addr << 1);
+            I2Cx->CR1 |= (1<<0);
+            // I2C_Write(I2Cx, 0x75);
+            // I2C_Read(I2Cx);
         // case 1:
         // case 2:
     }

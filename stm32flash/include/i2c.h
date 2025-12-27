@@ -37,7 +37,7 @@ extern uint8_t buf[I2C_BUFFER_SIZE];
 // I2C HAL function prototypes
 
 // void I2C_Init(I2C_TypeDef *I2Cx, uint32_t timing);
-void I2C_Init(I2C_TypeDef *I2Cx, uint8_t mode, uint8_t nbytes, uint16_t slave_addr);
+void I2C_Init(I2C_TypeDef *I2Cx, uint8_t mode, uint8_t rw, uint8_t nbytes, uint16_t slave_addr);
 // void I2C_Write(I2C_TypeDef *I2Cx, uint8_t dev_addr, const uint8_t *data, uint16_t size);
 void I2C_Write(I2C_TypeDef *I2Cx, uint8_t reg);
 // void I2C_Read(I2C_TypeDef *I2Cx, uint8_t dev_addr, uint8_t *data, uint16_t size);

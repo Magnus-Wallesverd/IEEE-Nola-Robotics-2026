@@ -151,6 +151,8 @@ void AlternateFunctionSet(GPIO_TypeDef *port, uint32_t pins, uint32_t function){
     port->AFRL = GenerateBitMask(port->AFRL, (pins & 0xFF), 4, function);
 }
 
+void 
+
 // flicker led
 void blink_led(void* args){
     (void)args;
