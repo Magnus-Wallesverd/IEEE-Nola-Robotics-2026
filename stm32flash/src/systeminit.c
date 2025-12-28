@@ -7,7 +7,8 @@
 
 
 void systeminit(void){
-    
+    uint8_t data = 0;
+
     // systic interrupt init
     STK->CTRL |= 0x6;
     STK->LOAD |= 0x1F3F;
@@ -24,6 +25,8 @@ void systeminit(void){
     SetPinAlternate(GPIOB,0xC0);            // Set pins 6 & 7 to AF mode I2c
     AlternateFunctionSet(GPIOB,0xC0,4);      // set pins PB 6&7 to AF4
     SetOutputType(GPIOB, 0xC0, 1);
+    SetOutputSpeed(GPIOB,0xC0, 1);
     
-    I2C_Init(I2C1, 0, 0, 1, 0x28);
+    I2C_Init(I2C1, 0);
+    I2C_Write_Read(I2C1, 0x28, 1, 0, data);
 }

@@ -14,45 +14,49 @@ void I2C_Init(I2C_TypeDef *I2Cx, uint32_t timing) {
 }
 */
 
-
-
 void master_receive(I2C_TypeDef* I2Cx, uint8_t nbytes, uint16_t slave_addr){
     I2Cx->CR2 |= (nbytes << 16)|(1 << 25)|(slave_addr << 1);
 }
 
-void I2C_Init(I2C_TypeDef* I2Cx, uint8_t mode, uint8_t rw, uint8_t nbytes, uint16_t slave_addr){
+void I2C_Init(I2C_TypeDef* I2Cx, uint8_t mode){
     switch(mode){
         case 0:
             I2Cx->CR1 &= ~(1<<0);
             I2Cx->CR1 |= (1<<1);
-            // I2Cx->TIMINGR = (1 << 28)|(0x4 << 20)|(0x2 << 16)|(0xF << 8)|0x13;
             I2Cx->TIMINGR = 0x10420F13;
-            // I2Cx->TIMINGR = 0x00303D5B;
-            // master_receive(I2Cx, nbytes, slave_addr);
-            I2Cx->CR2 = (nbytes << 16)|(rw << 10)|(slave_addr << 1);
             I2Cx->CR1 |= (1<<0);
-            // I2C_Write(I2Cx, 0x75);
-            // I2C_Read(I2Cx);
         // case 1:
         // case 2:
     }
 }
 
-void I2C_Write(I2C_TypeDef* I2Cx, uint8_t reg){
+void I2C_Write(I2C_TypeDef* I2Cx, uint8_t slave_addr, uint8_t nbytes, uint8_t reg){
+    I2Cx->ICR = 0x3F38;
+    I2Cx->CR2 = (nbytes << 16)|(slave_addr << 1);
+    I2Cx->CR2 &= ~(1<<25);
+    I2Cx->CR2 &= ~(1 << 10);
+    I2Cx->CR2 |= (1<<13);   //start
     while (!(I2Cx->ISR & (1 << 1)));
     I2Cx->TXDR = reg;
     while (!(I2Cx->ISR & (1 << 6)));
 }
 
-void I2C_Read(I2C_TypeDef* I2Cx){
-    I2Cx->CR2 |= (1<<10);   //read
+void I2C_Read(I2C_TypeDef* I2Cx, uint8_t slave_addr, uint8_t nbytes, uint8_t data){
+    I2Cx->ICR = 0x3F38;
+    I2Cx->CR2 = (1 << 25)|(nbytes << 16)|(1 << 10)|(slave_addr << 1);
     I2Cx->CR2 |= (1<<13);   //start
-    while(I2Cx->ISR & (1<<2));
-    uint8_t data = I2Cx->RXDR;
+    while(!(I2Cx->ISR & (1<<2)));
+    data = I2Cx->RXDR;
+    while(!(I2Cx->ISR & (1<<5)));
 //     if(I2Cx->CR1 & 1){
 //         I2Cx->CR2 |= (1<<13);
 //         while(I2Cx->ISR & (1<<2));
 //     }
+}
+
+void I2C_Write_Read(I2C_TypeDef* I2Cx, uint8_t slave_addr, uint8_t nbytes, uint8_t reg, uint8_t data){
+    I2C_Write(I2Cx, slave_addr, nbytes, reg);
+    I2C_Read(I2Cx, slave_addr, nbytes, data);
 }
 
 // Send a start condition and address a device for writing
