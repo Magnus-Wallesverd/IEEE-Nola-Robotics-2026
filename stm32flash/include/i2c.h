@@ -12,7 +12,7 @@
 #define STANDARD_MODE 0
 #define FAST_MODE 1
 #define FAST_MODE_PLUS 2
-#define BNO055 0x29
+#define BNO055 0x28
 
 typedef struct {
     volatile uint32_t CR1;       // 0x00
@@ -40,16 +40,10 @@ void I2C_Init(I2C_TypeDef* I2Cx, uint8_t mode);
 
 void I2C_Write(I2C_TypeDef* I2Cx, uint8_t slave_addr, uint8_t nbytes, uint8_t reg);
 
-void I2C_Read(I2C_TypeDef* I2Cx, uint8_t slave_addr, uint8_t nbytes, uint8_t data);
+void I2C_Read(I2C_TypeDef* I2Cx, uint8_t slave_addr, uint8_t nbytes);
 
-void I2C_Write_Read(I2C_TypeDef* I2Cx, uint8_t slave_addr, uint8_t nbytes, uint8_t reg, uint8_t data);
+void I2C_Write_Read(I2C_TypeDef* I2Cx, uint8_t slave_addr, uint8_t nbytes, uint8_t reg);
 
-// void I2C_Write(I2C_TypeDef *I2Cx, uint8_t dev_addr, const uint8_t *data, uint16_t size);
-// void I2C_Read(I2C_TypeDef *I2Cx, uint8_t dev_addr, uint8_t *data, uint16_t size);
-// void I2C_WriteReg(I2C_TypeDef *I2Cx, uint8_t dev_addr, uint8_t reg_addr, uint8_t value);
-// void I2C_ReadReg(I2C_TypeDef *I2Cx, uint8_t dev_addr, uint8_t reg_addr, uint8_t *value);
-// void I2C_WriteReg_Wrapper(void* args);
-void manual_i2c(void* args);
 
 #endif // I2C_H
 

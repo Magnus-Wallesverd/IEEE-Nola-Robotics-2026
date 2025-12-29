@@ -7,7 +7,7 @@
 
 
 void systeminit(void){
-    uint8_t data = 0;
+    uint8_t buf[I2C_BUFFER_SIZE];
 
     // systic interrupt init
     STK->CTRL |= 0x6;
@@ -28,5 +28,5 @@ void systeminit(void){
     SetOutputSpeed(GPIOB,0xC0, 1);
     
     I2C_Init(I2C1, 0);
-    I2C_Write_Read(I2C1, 0x28, 1, 0, data);
+    I2C_Write_Read(I2C1, BNO055, 1, 0);
 }
