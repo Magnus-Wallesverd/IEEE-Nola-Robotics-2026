@@ -188,6 +188,12 @@ Default_Handler:
 .weak TIM1_UP_TIM16_IRQHandler
 .thumb_set TIM1_UP_TIM16_IRQHandler, Default_Handler
 
+.weak I2C1_EV_IRQHandler
+.thumb_set I2C1_EV_IRQHandler, Default_Handler
+
+.weak I2C1_ER_IRQHandler
+.thumb_set I2C1_ER_IRQHandler, Default_Handler
+
 .weak SPI1_IRQHandler
 .thumb_set SPI1_IRQHandler, Default_Handler
 
