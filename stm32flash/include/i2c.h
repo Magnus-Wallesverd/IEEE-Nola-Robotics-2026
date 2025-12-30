@@ -14,6 +14,22 @@
 #define FAST_MODE_PLUS 2
 #define BNO055 0x28
 
+#define READ    1<<10
+#define START   1<<13
+#define NBYTES 1
+
+#define TXIE    1<<1 
+#define RXIE    1<<2 
+#define STOPIE  1<<5
+#define TCIE    1<<6
+
+#define TXIS    1<<1 
+#define RXNE    1<<2 
+#define STOPF   1<<5
+#define TC      1<<6
+
+#define STOPCF   1<<5
+
 typedef struct {
     volatile uint32_t CR1;       // 0x00
     volatile uint32_t CR2;       // 0x04
@@ -44,6 +60,7 @@ void I2C_Read(I2C_TypeDef* I2Cx, uint8_t slave_addr, uint8_t nbytes);
 
 void I2C_Write_Read(I2C_TypeDef* I2Cx, uint8_t slave_addr, uint8_t nbytes, uint8_t reg);
 
+void Sensor_Read(I2C_TypeDef* I2Cx);
 
 #endif // I2C_H
 

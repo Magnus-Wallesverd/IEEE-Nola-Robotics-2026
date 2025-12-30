@@ -16,7 +16,7 @@ void systeminit(void){
     // priority set
     SCB->SHPR3 |= 0xE0F00000;
      
-    RCC->APB1ENR |= (1 << 21);               // Enable TIM4
+    RCC->APB1ENR |= (1 << 21);
     // RCC->APB1ENR |= (1 << 2) | (1 << 21);               // Enable TIM4
     // RCC->APB2ENR |= (1 << 11);              // Enable TIM1
     
@@ -28,5 +28,6 @@ void systeminit(void){
     SetOutputSpeed(GPIOB,0xC0, 1);
     
     I2C_Init(I2C1, 0);
-    I2C_Write_Read(I2C1, BNO055, 1, 0);
+    Sensor_Read(I2C1);
+    // I2C_Write_Read(I2C1, BNO055, 1, 0);
 }
