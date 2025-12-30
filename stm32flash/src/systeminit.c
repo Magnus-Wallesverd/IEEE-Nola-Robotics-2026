@@ -22,6 +22,8 @@ void systeminit(void){
     
     RCC->AHBENR |= 0xE0000;                   // enable GPIO ABC  clock 
 
+    NVIC->ISER0 |= 1<<31;
+
     SetPinAlternate(GPIOB,0xC0);            // Set pins 6 & 7 to AF mode I2c
     AlternateFunctionSet(GPIOB,0xC0,4);      // set pins PB 6&7 to AF4
     SetOutputType(GPIOB, 0xC0, 1);
