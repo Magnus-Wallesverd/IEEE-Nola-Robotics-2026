@@ -8,6 +8,8 @@
 #include "gpio.h"
 #include <stdint.h>
 
+int rx_i = 0;
+
 void I2C1_EV_IRQHandler(void){
 
     if(I2C1->ISR & TXIS){
@@ -22,12 +24,13 @@ void I2C1_EV_IRQHandler(void){
     }
     
     if(I2C1->ISR & RXNE){
-        buf[0] = I2C1->RXDR;
+        buf[rx_i++] = I2C1->RXDR;
         return;
     }
 
     if(I2C1->ISR & STOPF){
         I2C1->ICR |=STOPCF;
+        rx_i = 0;
         return;
     }
 }
@@ -71,7 +74,7 @@ void I2C_Write_Read(I2C_TypeDef* I2Cx, uint8_t slave_addr, uint8_t nbytes, uint8
 }
 
 void Sensor_Read(I2C_TypeDef* I2Cx){
-    I2Cx->CR2 = (NBYTES << 16)|(BNO055 << 1);
+    I2Cx->CR2 = (1 << 16)|(BNO055 << 1);
     I2Cx->CR2 &= ~(1<<25);
     I2Cx->CR2 &= ~(1 << 10);
     I2Cx->CR2 |= START;   //start

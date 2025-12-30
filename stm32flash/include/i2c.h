@@ -8,7 +8,7 @@
 #include <stdint.h>
 // #include 
 
-#define I2C_BUFFER_SIZE 2
+#define I2C_BUFFER_SIZE 4
 #define STANDARD_MODE 0
 #define FAST_MODE 1
 #define FAST_MODE_PLUS 2
@@ -16,7 +16,7 @@
 
 #define READ    1<<10
 #define START   1<<13
-#define NBYTES 1
+#define NBYTES  4
 
 #define TXIE    1<<1 
 #define RXIE    1<<2 
@@ -28,7 +28,7 @@
 #define STOPF   1<<5
 #define TC      1<<6
 
-#define STOPCF   1<<5
+#define STOPCF  1<<5
 
 typedef struct {
     volatile uint32_t CR1;       // 0x00
