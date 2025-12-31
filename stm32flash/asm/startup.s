@@ -43,7 +43,7 @@ g_pfnVectors:
   .word 0, 0, 0, 0, 0, 0 
   .word 0 
   .word TIM1_UP_TIM16_IRQHandler + 1
-  .word 0, 0, 0, 0, 0,
+  .word 0, 0, 0, 0, 0
   .word I2C1_EV_IRQHandler + 1
   .word I2C1_ER_IRQHandler + 1
   .word I2C2_EV_IRQHandler + 1

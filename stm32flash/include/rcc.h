@@ -8,6 +8,21 @@
 
 #include <stdint.h>
 
+#define DMA1_EN (1<<0)
+#define DMA2_EN (1<<1)
+
+#define GPIOA_EN (1<<17)
+#define GPIOB_EN (1<<18)
+#define GPIOC_EN (1<<19)
+#define GPIOD_EN (1<<20)
+
+#define TIM1_EN  (1<<11)
+#define TIM8_EN  (1<<13)
+#define TIM15_EN (1<<16)
+#define TIM16_EN (1<<17)
+#define TIM17_EN (1<<18)
+#define TIM20_EN (1<<20)
+
 typedef struct{
     volatile uint32_t CR;       //0x00
     volatile uint32_t CFGR;     //0x04
