@@ -1,4 +1,5 @@
-#include "dma.h" #include "spi.h"
+#include "dma.h" 
+#include "spi.h"
 
 void enable_dma(void){
     RCC->AHBENR |= 1;
@@ -24,5 +25,3 @@ void configure_spi(SPI_TypeDef* SPIx){
             break;
     }
 }
-
-void dma
