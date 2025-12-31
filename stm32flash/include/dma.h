@@ -50,4 +50,6 @@ typedef struct{
 #define DMA ((DMA_TypeDef *) 0x40020000)
 #define DMA2 ((DMA2_TypeDef *) 0x40020400)
  
+void DMA_Init(void);
+
 #endif
