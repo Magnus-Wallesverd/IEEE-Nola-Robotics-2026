@@ -52,5 +52,4 @@ void systeminit(void){
     TIM4->CR1 |= 0b10000001;                // Enable TIM4 Counter 
     TIM1->CR1 |= 0b10000001;                // Enable TIM1 counter
     //TIM1->SR  &= 0;     // clear UIF
-    
 }

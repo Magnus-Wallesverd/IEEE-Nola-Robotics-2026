@@ -5,6 +5,9 @@
 
 #include <stdint.h>
 
+#define RX_BUFFER_SIZE 4
+#define TX_BUFFER_SIZE 4
+
 typedef struct{
     volatile uint32_t CR1;      // 0x00
     volatile uint32_t CR2;      // 0x04

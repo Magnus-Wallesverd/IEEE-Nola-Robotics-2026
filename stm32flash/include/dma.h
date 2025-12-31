@@ -1,6 +1,8 @@
 #ifndef DMA_H
 #define DMA_H
 
+#include "spi.h"
+
 #include <stdint.h>
 
 typedef struct{
