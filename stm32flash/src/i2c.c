@@ -35,7 +35,7 @@ void I2C1_EV_IRQHandler(void){
     }
 }
 
-void I2C_Init(I2C_TypeDef* I2Cx, uint8_t mode){
+void I2C_Init(I2C_TypeDef* I2Cx, uint8_t mode,){
     switch(mode){
         case 0:
             I2Cx->CR1 &= ~(1<<0);
