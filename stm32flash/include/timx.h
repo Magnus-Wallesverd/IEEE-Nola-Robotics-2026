@@ -88,6 +88,7 @@ typedef struct{
 } Gen_TIM_TypeDef2;
 
 // Basic Timers
+    ResetPins(GPIOB, (1 << 10)|(1 << 11));
 typedef struct{
    volatile uint32_t CR1;      //0x00
    volatile uint32_t CR2;      //0x04

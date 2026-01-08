@@ -1,23 +1,33 @@
 //TODO implement 3 point backwards difference
 //
-//
 
 #include "motors.h"
 #include "timx.h"
 #include "rcc.h"
 #include <stdint.h>
 
-/*
+/* *
  * ENA - PC0 
- * ENB - PC1 
+ * ENB - PC1
  * IN1 - PB9
  * IN2 - PB10
  * IN3 - PB12
  * IN4 - PB11
+ *
+ * ENA - PC2
+ * ENB - PC3
+ * IN1 - PC5
+ * IN2 - PC6
+ * IN3 - PC8
+ * IN4 - PC9
+ *
  * ENCODER A - PA 6,7 
- * ENCODER B - PA 0,1 
+ * ENCODER B - PA 0,1
+ *
+ * ENCODER A - PA 11,12 
+ * ENCODER B - PA 2,3
+ *
  * */
-
 
 
 Gen_TIM_TypeDef1* input_timers[] = {TIM2, TIM3, TIM4, TIM15};
@@ -37,10 +47,10 @@ int16_t error3 = 0;
 int16_t error4 = 0;
 int16_t error15= 0;
 
-uint16_t target = 150;
+uint16_t target = 70;
 uint8_t direction;
 
-uint8_t Kp = 48;
+uint8_t Kp = 1;
 
 void TIM1_UP_TIM16_IRQHandler(void){
     set_speed(target);
@@ -79,6 +89,9 @@ void output_timer_init(void){
     //GPIO Control pins PB 9,10,11,12
     SetPinOutput(GPIOB, 0x1E00);
 
+    //GPIO Control pins PC 5,6,8,9
+    SetPinOutput(GPIOC, 0x360);
+
     TIM1->CCMR1 |= 0x6868;      // pwm 1 CH 1,2
     TIM1->CCMR2 |= 0x6868;      // pwm 1 CH 3,4
     TIM1->PSC   |= 0;           //
@@ -109,54 +122,39 @@ void set_speed(uint16_t target){
 
     int16_t curr2 = TIM2->CNT;
     int16_t curr3 = TIM3->CNT;
-    // int16_t curr4 = TIM4->CNT;
-    // int16_t curr15 = TIM15->CNT;
+    int16_t curr4 = TIM4->CNT;
+    int16_t curr15 = TIM15->CNT;
 
     measure2 = curr2 - prev2;
     measure3 = curr3 - prev3;
-    // measure4  = curr4 - prev4;
-    // measure15 = curr15 - prev15;
+    measure4  = curr4 - prev4;
+    measure15 = curr15 - prev15;
 
     prev2  = curr2; 
     prev3  = curr3;
-    // prev3  = curr4;
-    // prev15 = curr15;
+    prev4  = curr4;
+    prev15 = curr15;
     
-    // if((uint32_t)measure2 > 100){
-    //     GPIOA->ODR = (1<<5);
-    // } else {
-    //     GPIOA->ODR &= ~(1<<5);
-    // }
-
     error2 = target - measure2;
     error3 = target - measure3;
-    // error3 = target - measure4;
-    // error15 = target - measure15;
+    error4 = target - measure4;
+    error15 = target - measure15;
     
-    if(error2 < 0){
-        TIM1->CCR2 = 0;
-    } else if(error2 > 115){
-        TIM1->CCR2 = 7000;
-    } else{
-        TIM1->CCR2 = Kp*error2;
-    }
-
-    if(error3 < 0){
-        TIM1->CCR1 = 0;
-    } else if(error3 > 105){
-        TIM1->CCR1 = 5000;
-        GPIOA->ODR = (1 << 5);
-    }else{
-        TIM1->CCR1 = Kp*error3;
-        GPIOA->ODR &= ~(1 << 5);
-    }
+    TIM1->CCR1 += Kp*error2* !(measure2 < -18000 ||measure2 > 18000);
+    TIM1->CCR2 += Kp*error3* !(measure3 < -18000 ||measure3 > 18000);
+    TIM1->CCR3 += Kp*error4* !(measure4 < -18000 ||measure4 > 18000);
+    TIM1->CCR4 += Kp*error15* !(measure15 < -18000 ||measure15 > 18000);
 
 }
 
 void test_toggle(void){
     PinWrite(GPIOB, (1 << 10)|(1 << 11));
-    for(uint32_t i = 0; i < 0x9FFFFF ; i++);
+    PinWrite(GPIOC, (1 << 5)|(1 << 8));
+    // for(uint32_t i = 0; i < 0xFFFFFF ; i++);
+    for(;;);
     ResetPins(GPIOB, (1 << 10)|(1 << 11));
-    TIM1->CCR2 = 0;
+    ResetPins(GPIOC, (1 << 5)|(1 << 8));
+    // TIM1->CCR1 = 0;
+    // TIM1->CCR2 = 0;
     // for(uint32_t k = 0; k < 0x1FFFF ; k++);
 }
