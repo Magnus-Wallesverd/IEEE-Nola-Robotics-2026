@@ -47,7 +47,7 @@ int16_t error3 = 0;
 int16_t error4 = 0;
 int16_t error8= 0;
 
-uint16_t target = 100;
+uint16_t target = 30;
 uint8_t direction;
 
 uint8_t Kp = 1;
@@ -62,7 +62,7 @@ void input_timer_init(void){
     RCC->APB1ENR |= 0x7;        // Enable TIM 2, 3, 4
     RCC->APB2ENR |= (1 << 13);  // Enable TIM 8
     
-    SetPinAlternate(GPIOA, 0x180F);
+    SetPinAlternate(GPIOA, 0x18C3);
     SetPinAlternate(GPIOC, 0xC0);
     AlternateFunctionSet(GPIOA, 0x03, 1);     //TIM2
     AlternateFunctionSet(GPIOA, 0xC0, 2);     //TIM3
@@ -104,10 +104,10 @@ void output_timer_init(void){
     TIM1->CCMR2 |= 0x6868;      // pwm 1 CH 3,4
     TIM1->PSC   |= 0;           //
     TIM1->ARR    = 7999;        // top
-    TIM1->CCR1  |= 4000;        // compare ch1
-    TIM1->CCR2  |= 4000;        // compare ch1
-    TIM1->CCR3  |= 4000;        // compare ch1
-    TIM1->CCR4  |= 4000;        // compare ch1
+    TIM1->CCR1  = 0;        // compare ch1
+    TIM1->CCR2  = 0;        // compare ch1
+    TIM1->CCR3  = 0;        // compare ch1
+    TIM1->CCR4  = 0;        // compare ch1
     TIM1->CCER  |= 0x1111;      // enable CC 1-4
     TIM1->BDTR  |= 1<<15;       // Main Output enable
     TIM1->CR1 |= 0b10000001;    // Enable TIM1 counter
@@ -118,7 +118,7 @@ void output_timer_init(void){
     
     TIM16->DIER  |= 1;
     TIM16->CCMR1 |= 0x68;
-    TIM16->PSC   |= 49;
+    TIM16->PSC   |= 24;
     TIM16->ARR    = 7999;
     TIM16->CCR1  |= 4000;
     TIM16->CCER  |= 1;
@@ -148,18 +148,18 @@ void set_speed(uint16_t target){
     error4 = target - measure4;
     error8 = target - measure8;
     
-    TIM1->CCR1 += Kp*error2* !(measure2 < -18000 ||measure2 > 18000);
-    TIM1->CCR2 += Kp*error3* !(measure3 < -18000 ||measure3 > 18000);
-    TIM1->CCR3 += Kp*error4* !(measure4 < -18000 ||measure4 > 18000);
-    TIM1->CCR4 += Kp*error8* !(measure8 < -18000 ||measure8 > 18000);
+    TIM1->CCR1 += (Kp*error3)* !(measure3 < -200 ||measure3 > 400);
+    TIM1->CCR2 += (Kp*error2)* !(measure2 < -200 ||measure2 > 400);
+    TIM1->CCR3 += Kp*error4* !(measure4 < -200 ||measure4 > 200);
+    TIM1->CCR4 += Kp*error8* !(measure8 < -200 ||measure8 > 200);
 
 }
 
 void test_toggle(void){
     PinWrite(GPIOB, (1 << 1)|(1 << 10)|(1 << 11));
     PinWrite(GPIOC, (1 << 8));
-    for(uint32_t i = 0; i < 0x7FFFFF ; i++);
-    // for(;;);
+    // for(uint32_t i = 0; i < 0xFFFFFF ; i++);
+    for(;;);
     ResetPins(GPIOB, (1 << 1)|(1 << 10)|(1 << 11));
     ResetPins(GPIOC, (1 << 8));
     // TIM1->CCR1 = 0;
