@@ -18,8 +18,8 @@
  * ENB - PC3
  * IN1 - PB1
  * IN2 - PB2
- * IN3 - PC8
- * IN4 - PC9
+ * IN3 - PC4
+ * IN4 - PC5
  *
  * ENA - PA 6,7 
  * ENB - PA 0,1
@@ -98,7 +98,7 @@ void output_timer_init(void){
     SetPinOutput(GPIOB, 0x1E06);
 
     //GPIO Control pins PC 8,9
-    SetPinOutput(GPIOC, 0x300);
+    SetPinOutput(GPIOC, 0x30);
 
     TIM1->CCMR1 |= 0x6868;      // pwm 1 CH 1,2
     TIM1->CCMR2 |= 0x6868;      // pwm 1 CH 3,4
@@ -157,11 +157,11 @@ void set_speed(uint16_t target){
 
 void test_toggle(void){
     PinWrite(GPIOB, (1 << 1)|(1 << 10)|(1 << 11));
-    PinWrite(GPIOC, (1 << 8));
+    PinWrite(GPIOC, (1 << 4));
     // for(uint32_t i = 0; i < 0xFFFFFF ; i++);
     for(;;);
     ResetPins(GPIOB, (1 << 1)|(1 << 10)|(1 << 11));
-    ResetPins(GPIOC, (1 << 8));
+    ResetPins(GPIOC, (1 << 4));
     // TIM1->CCR1 = 0;
     // TIM1->CCR2 = 0;
     // for(uint32_t k = 0; k < 0x1FFFF ; k++);
