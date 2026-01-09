@@ -9,6 +9,7 @@ void input_timer_init(void);
 void output_timer_init(void);
 
 void set_speed(uint16_t target);
+void motorgym(uint16_t target);
 
 void test_toggle(void);
 

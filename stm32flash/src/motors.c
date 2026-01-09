@@ -32,6 +32,13 @@
 
 Gen_TIM_TypeDef1* input_timers[] = {TIM2, TIM3, TIM4};
 
+uint16_t target = 30;
+uint16_t dpos[3] = {1 , 5, 30};
+uint16_t dvel[3] = {10, 20, 0};
+uint16_t error[3] ={0,0,0};
+uint16_t error1[3]={0,0,0};
+uint16_t pars[3] = {0,0,0};
+int16_t counter =0;
 int16_t prev2 = 0;
 int16_t prev3 = 0;
 int16_t prev4 = 0;
@@ -47,13 +54,34 @@ int16_t error3 = 0;
 int16_t error4 = 0;
 int16_t error8= 0;
 
-uint16_t target = 30;
 uint8_t direction;
 
 uint8_t Kp = 1;
 
 void TIM1_UP_TIM16_IRQHandler(void){
-    set_speed(target);
+    //set_speed(target);
+    motorgym(target);
+    if(counter == 4){
+        error[0] = dpos[0]- TIM4->CNT;
+        error1[0] = dvel[0] - measure3;
+    }
+    else if(counter == 8){
+        
+        error[1] = dpos[1]- TIM4->CNT;
+        error1[1] = dvel[1] - measure3;
+    }
+    else if(counter == 12){
+        
+        error[2] = dpos[2]- TIM4->CNT;
+        error1[2] = dvel[2] - measure3;
+        pars[0] = 3*(error[0]+error[1]+error[2]);
+        pars[1] = 3*(error1[0]+ error1[1] + error1[2]);
+        TIM1->CCR1 = 0;
+        for(int i=0; i <0x9000; i++);
+    }
+
+
+    counter++;
     // target--;
     TIM16->SR = 0;      // clear flags
 }
@@ -98,7 +126,7 @@ void output_timer_init(void){
     SetPinOutput(GPIOB, 0x1E06);
 
     //GPIO Control pins PC 8,9
-    SetPinOutput(GPIOC, 0x300);
+    SetPinOutput(GPIOC, 0x30);
 
     TIM1->CCMR1 |= 0x6868;      // pwm 1 CH 1,2
     TIM1->CCMR2 |= 0x6868;      // pwm 1 CH 3,4
@@ -150,18 +178,29 @@ void set_speed(uint16_t target){
     
     TIM1->CCR1 += (Kp*error3)* !(measure3 < -200 ||measure3 > 400);
     TIM1->CCR2 += (Kp*error2)* !(measure2 < -200 ||measure2 > 400);
-    TIM1->CCR3 += Kp*error4* !(measure4 < -200 ||measure4 > 200);
-    TIM1->CCR4 += Kp*error8* !(measure8 < -200 ||measure8 > 200);
+    TIM1->CCR3 += Kp*error4* !(measure4 < -200 || measure4 > 200);
+    TIM1->CCR4 += Kp*error8* !(measure8 < -200 || measure8 > 200);
+
+}
+
+void motorgym(uint16_t target){
+    int16_t err=0;
+    int16_t curr3 = TIM3->CNT;
+    measure3 = curr3 - prev3;
+    prev3 = curr3;
+    int16_t errs = target - measure3;
+	err = target- TIM4->CNT;
+	TIM1->CCR1 = err*pars[0] + errs*pars[1];
 
 }
 
 void test_toggle(void){
     PinWrite(GPIOB, (1 << 1)|(1 << 10)|(1 << 11));
-    PinWrite(GPIOC, (1 << 8));
+    PinWrite(GPIOC, (1 << 4));
     // for(uint32_t i = 0; i < 0xFFFFFF ; i++);
     for(;;);
     ResetPins(GPIOB, (1 << 1)|(1 << 10)|(1 << 11));
-    ResetPins(GPIOC, (1 << 8));
+    ResetPins(GPIOC, (1 << 4));
     // TIM1->CCR1 = 0;
     // TIM1->CCR2 = 0;
     // for(uint32_t k = 0; k < 0x1FFFF ; k++);
