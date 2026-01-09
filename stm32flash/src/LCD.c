@@ -57,13 +57,13 @@ static void lcd_ddram_cmd(uint32_t addr){
 void lcd_init(void){
     
     // port setup
-    SetPinOutput(GPIOC, 0xF3C0); // PC 15-10,5,4 for data pins
-    SetPinOutput(GPIOA, 0x0700); // PA 10-8 for RS, RW, E pins
+    SetPinOutput(GPIOC, DATA_PINS); // PC 15-10,5,4 for data pins
+    SetPinOutput(GPIOA, RS_RW_E_PINS); // PA 10-8 for RS, RW, E pins
                                  
     SetOutputType(GPIOC, RW_PIN, 1);
 
     SetPinPD(GPIOA, RS_E_PINS); 
-    SetPinPD(GPIOC, 0xF3C0);
+    SetPinPD(GPIOC, DATA_PINS);
     SetPinPU(GPIOA, RW_PIN);
     
     // initialization
