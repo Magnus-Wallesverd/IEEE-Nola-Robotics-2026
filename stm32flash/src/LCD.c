@@ -40,11 +40,11 @@ static void stringify(uint32_t num, char buffer[]){
 
 static void print(char buffer[]){
     for(int i = 0; buffer[i] != '\0'; i++){
-        PinWrite(GPIOA, RS_E_PINS)
+        PinWrite(GPIOA, RS_E_PINS);
         PinWrite(GPIOC, buffer[i]<<8);
         for(volatile int i = 0; i < 6; i++);
         ResetPins(GPIOA, E_PIN);
-        ResetPins(GPIOA, RS_PIN)
+        ResetPins(GPIOA, RS_PIN);
         ResetPins(GPIOC, buffer[i]<<8);
         for(volatile int i = 0; i < 6; i++);
     }
@@ -81,8 +81,8 @@ void lcd_init(void){
 void lcd_print(void* args){
     (void)args;
 
-    static char entry_1[] ={"i2c something"};
-    static char entry_2[] ={"i2c something"};
+    static char entry_1[] ={"test"};
+    static char entry_2[] ={"test"};
     char buffer[BUFFER_SIZE] = {0};
     move_cursor(0,0);
     print(entry_1);

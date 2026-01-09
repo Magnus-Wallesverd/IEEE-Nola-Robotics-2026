@@ -28,9 +28,9 @@ void systeminit(void){
     // enable timer 16 interrupt
     NVIC->ISER0 |= (1 << 25);
 
+    input_timer_init();
+    output_timer_init();
     /*I2C_Init(I2C1, 0);*/
     /*Sensor_Read(I2C1);*/
-    /*input_timer_init();*/
-    /*output_timer_init();*/
     /*test_toggle();*/
 }

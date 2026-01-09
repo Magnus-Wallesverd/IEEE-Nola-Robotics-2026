@@ -10,6 +10,6 @@ void output_timer_init(void);
 
 void set_speed(uint16_t target);
 
-void test_toggle(void);
+void test_toggle(void* args);
 
 #endif // !MOTORS_H

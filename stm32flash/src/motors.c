@@ -47,7 +47,7 @@ int16_t error3 = 0;
 int16_t error4 = 0;
 int16_t error8= 0;
 
-uint16_t target = 30;
+uint16_t target = 0;
 uint8_t direction;
 
 uint8_t Kp = 1;
@@ -97,7 +97,7 @@ void output_timer_init(void){
     //GPIO Control pins PB 1,2,9,10,11,12
     SetPinOutput(GPIOB, 0x1E06);
 
-    //GPIO Control pins PC 8,9
+    //GPIO Control pins PC 4,5
     SetPinOutput(GPIOC, 0x30);
 
     TIM1->CCMR1 |= 0x6868;      // pwm 1 CH 1,2
@@ -155,13 +155,14 @@ void set_speed(uint16_t target){
 
 }
 
-void test_toggle(void){
+void test_toggle(void* args){
+    (void) args;
     PinWrite(GPIOB, (1 << 1)|(1 << 10)|(1 << 11));
-    PinWrite(GPIOC, (1 << 4));
+    PinWrite(GPIOC, (1 << 5));
     // for(uint32_t i = 0; i < 0xFFFFFF ; i++);
     for(;;);
     ResetPins(GPIOB, (1 << 1)|(1 << 10)|(1 << 11));
-    ResetPins(GPIOC, (1 << 4));
+    ResetPins(GPIOC, (1 << 5));
     // TIM1->CCR1 = 0;
     // TIM1->CCR2 = 0;
     // for(uint32_t k = 0; k < 0x1FFFF ; k++);
