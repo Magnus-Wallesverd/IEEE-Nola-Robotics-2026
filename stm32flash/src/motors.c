@@ -16,36 +16,36 @@
  *
  * ENA - PC2
  * ENB - PC3
- * IN1 - PC5
- * IN2 - PC6
+ * IN1 - PB1
+ * IN2 - PB2
  * IN3 - PC8
  * IN4 - PC9
  *
- * ENCODER A - PA 6,7 
- * ENCODER B - PA 0,1
+ * ENA - PA 6,7 
+ * ENB - PA 0,1
  *
- * ENCODER A - PA 11,12 
- * ENCODER B - PA 2,3
+ * ENA - PA 11,12 
+ * ENB - PC 6,7
  *
  * */
 
 
-Gen_TIM_TypeDef1* input_timers[] = {TIM2, TIM3, TIM4, TIM15};
+Gen_TIM_TypeDef1* input_timers[] = {TIM2, TIM3, TIM4};
 
 int16_t prev2 = 0;
 int16_t prev3 = 0;
 int16_t prev4 = 0;
-int16_t prev15 = 0;
+int16_t prev8 = 0;
 
 int16_t measure2 = 0;
 int16_t measure3 = 0;
 int16_t measure4 = 0;
-int16_t measure15 = 0;
+int16_t measure8 = 0;
 
 int16_t error2 = 0;
 int16_t error3 = 0;
 int16_t error4 = 0;
-int16_t error15= 0;
+int16_t error8= 0;
 
 uint16_t target = 70;
 uint8_t direction;
@@ -60,22 +60,30 @@ void TIM1_UP_TIM16_IRQHandler(void){
 
 void input_timer_init(void){
     RCC->APB1ENR |= 0x7;        // Enable TIM 2, 3, 4
-    RCC->APB2ENR |= (1 << 16);  // Enable TIM 15
+    RCC->APB2ENR |= (1 << 13);  // Enable TIM 8
     
-    SetPinAlternate(GPIOA, 0x18CF);
+    SetPinAlternate(GPIOA, 0x180F);
+    SetPinAlternate(GPIOC, 0xC0);
     AlternateFunctionSet(GPIOA, 0x03, 1);     //TIM2
     AlternateFunctionSet(GPIOA, 0xC0, 2);     //TIM3
     AlternateFunctionSet(GPIOA, 0x1800, 10);  //TIM4
-    AlternateFunctionSet(GPIOA, 0x0C, 9);     //TIM15
+    AlternateFunctionSet(GPIOC, 0xC0, 4);     //TIM8
 
-    // define number of input timers as 4
-    for(int i = 0; i < 4; i++){
+    // define number of input timers as 3
+    for(int i = 0; i < 3; i++){
         input_timers[i]->SMCR |= 0x3;  // Encoder mode 3
         input_timers[i]->CCMR1 |= 0x101; // CC1 is input IC -> T1I
         input_timers[i]->CCER |= 0x11;   // Capture mode 1 & 2 enabled   
         /*input_timers[i]->DIER |= 0x6;*/
         input_timers[i]->CR1 |= 0b10000001; // enable timer
     }
+
+    TIM8->SMCR |= 0x3;
+    TIM8->CCMR1 |= 0x101;
+    TIM8->CCER |= 0x11;
+    TIM8->BDTR  |= 1<<15;       // Main Output enable
+    TIM8->CR1 |= 0b10000001;
+
 }
 
 void output_timer_init(void){
@@ -86,11 +94,11 @@ void output_timer_init(void){
     SetPinAlternate(GPIOC, 0xF);            
     AlternateFunctionSet(GPIOC, 0xF, 2);    // PC0-3 -> AF2   
 
-    //GPIO Control pins PB 9,10,11,12
-    SetPinOutput(GPIOB, 0x1E00);
+    //GPIO Control pins PB 1,2,9,10,11,12
+    SetPinOutput(GPIOB, 0x1E06);
 
-    //GPIO Control pins PC 5,6,8,9
-    SetPinOutput(GPIOC, 0x360);
+    //GPIO Control pins PC 8,9
+    SetPinOutput(GPIOC, 0x300);
 
     TIM1->CCMR1 |= 0x6868;      // pwm 1 CH 1,2
     TIM1->CCMR2 |= 0x6868;      // pwm 1 CH 3,4
@@ -123,37 +131,37 @@ void set_speed(uint16_t target){
     int16_t curr2 = TIM2->CNT;
     int16_t curr3 = TIM3->CNT;
     int16_t curr4 = TIM4->CNT;
-    int16_t curr15 = TIM15->CNT;
+    int16_t curr8 = TIM8->CNT;
 
     measure2 = curr2 - prev2;
     measure3 = curr3 - prev3;
     measure4  = curr4 - prev4;
-    measure15 = curr15 - prev15;
+    measure8 = curr8 - prev8;
 
     prev2  = curr2; 
     prev3  = curr3;
     prev4  = curr4;
-    prev15 = curr15;
+    prev8 = curr8;
     
     error2 = target - measure2;
     error3 = target - measure3;
     error4 = target - measure4;
-    error15 = target - measure15;
+    error8 = target - measure8;
     
     TIM1->CCR1 += Kp*error2* !(measure2 < -18000 ||measure2 > 18000);
     TIM1->CCR2 += Kp*error3* !(measure3 < -18000 ||measure3 > 18000);
     TIM1->CCR3 += Kp*error4* !(measure4 < -18000 ||measure4 > 18000);
-    TIM1->CCR4 += Kp*error15* !(measure15 < -18000 ||measure15 > 18000);
+    TIM1->CCR4 += Kp*error8* !(measure8 < -18000 ||measure8 > 18000);
 
 }
 
 void test_toggle(void){
-    PinWrite(GPIOB, (1 << 10)|(1 << 11));
-    PinWrite(GPIOC, (1 << 5)|(1 << 8));
+    PinWrite(GPIOB, (1 << 1)|(1 << 10)|(1 << 11));
+    PinWrite(GPIOC, (1 << 8));
     // for(uint32_t i = 0; i < 0xFFFFFF ; i++);
     for(;;);
-    ResetPins(GPIOB, (1 << 10)|(1 << 11));
-    ResetPins(GPIOC, (1 << 5)|(1 << 8));
+    ResetPins(GPIOB, (1 << 1)|(1 << 10)|(1 << 11));
+    ResetPins(GPIOC, (1 << 8));
     // TIM1->CCR1 = 0;
     // TIM1->CCR2 = 0;
     // for(uint32_t k = 0; k < 0x1FFFF ; k++);
