@@ -1,19 +1,21 @@
 #include "stm32f303.h"
 
 static void setup(uint32_t PINS){
-
-    PinWrite(GPIOC, PINS);
+    PinWrite(GPIOA, PINS & RS_RW_E_PINS);
+    PinWrite(GPIOC, (PINS<<8)&0xFF00);
     for(volatile int i = 0; i < 6; i++);
-    ResetPins(GPIOC, E_PIN);
-    ResetPins(GPIOC, 0xFF);
+    ResetPins(GPIOA, E_PIN);
+    ResetPins(GPIOC, DATA_PINS);
     for(volatile int i = 0; i < 6; i++);
 }
 
 static void putchar(char buffer){
-        PinWrite(GPIOC, RS_E_PINS + buffer);
+        PinWrite(GPIOA, RS_E_PINS);
+        PinWrite(GPIOC, buffer<<8);
         for(volatile int i = 0; i < 6; i++);
-        ResetPins(GPIOC, E_PIN);
-        ResetPins(GPIOC, RS_PIN + buffer);
+        ResetPins(GPIOA, E_PIN);
+        ResetPins(GPIOA, RS_PIN);
+        ResetPins(GPIOC, buffer<<8);
         for(volatile int i = 0; i < 6; i++)i;
 }
 
@@ -38,29 +40,32 @@ static void stringify(uint32_t num, char buffer[]){
 
 static void print(char buffer[]){
     for(int i = 0; buffer[i] != '\0'; i++){
-        PinWrite(GPIOC, RS_E_PINS + buffer[i]);
+        PinWrite(GPIOA, RS_E_PINS)
+        PinWrite(GPIOC, buffer[i]<<8);
         for(volatile int i = 0; i < 6; i++);
-        ResetPins(GPIOC, E_PIN);
-        ResetPins(GPIOC, RS_PIN + buffer[i]);
+        ResetPins(GPIOA, E_PIN);
+        ResetPins(GPIOA, RS_PIN)
+        ResetPins(GPIOC, buffer[i]<<8);
         for(volatile int i = 0; i < 6; i++);
     }
 }
 
 static void lcd_ddram_cmd(uint32_t addr){
-    PinWrite(GPIOC, (E_PIN|addr));
+    PinWrite(GPIOA, E_PIN);
+    PinWrite(GPIOC, addr<<8);
     for(volatile int i = 0; i < 6; i++);
-    ResetPins(GPIOC, E_PIN);
-    ResetPins(GPIOC, addr);
+    ResetPins(GPIOA, E_PIN);
+    ResetPins(GPIOC, addr<<8);
     for(volatile int i = 0; i < 6; i++);
 }
 
 void lcd_init(void){
     
     // port setup
-    SetPinOutput(GPIOC, DATA_PINS); // PC 15-10,5,4 for data pins
-    SetPinOutput(GPIOA, RS_RW_E_PINS); // PA 10-8 for RS, RW, E pins
+    SetPinOutput(GPIOC, DATA_PINS);     //PC15-8 for D7-0
+    SetPinOutput(GPIOA, RS_RW_E_PINS);  //PA10-8 for RS,RW,E
                                  
-    SetOutputType(GPIOC, RW_PIN, 1);
+    SetOutputType(GPIOA, RW_PIN, 1);
 
     SetPinPD(GPIOA, RS_E_PINS); 
     SetPinPD(GPIOC, DATA_PINS);
