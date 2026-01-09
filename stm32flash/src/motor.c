@@ -1,6 +1,6 @@
 #include "stm32f303.h"
 #include <stdint.h>
-double speed =0;
+int speed =0;
 short int d1=0;
 int target = 0;
 int targetspeed=0;
@@ -20,12 +20,12 @@ void motorcontrol(void* args){
     (void)args;
     //int t1 =0;
     int pwm=0;
-    double err=0;
-    double ierr=0;
-    double A=10;
-    double B=10;
-    double C = 1000;
-    double errs=0;
+    int err=0;
+    int ierr=0;
+    int A=10;
+    int B=10;
+    int C = 1000;
+    int errs=0;
     int t3=0;
     uint32_t t2 =10000;
     target = 2000;
@@ -56,5 +56,31 @@ void motorgym(void* args){
     int dpos[3] = {1 , 5, target};
     int dvel[3] = {10, 20, 0};
     int error[3] ={0,0,0};
+    int pars[3] = {0,0,0};
+    int err=0;
+    int errs =0;
+    int pwm =0;
+    while(1){
+	err = target- twos16bit(TIM4->CNT);
+	errs = target - speed ;
+	pwm = err*pars[0] + errs*pars[1];
+	if(pwm <0){
+	    PinWrite(GPIOA, 2);
+	    ResetPins(GPIOA, 1);
+	}
+	else{
+	    PinWrite(GPIOA, 1);
+	    ResetPins(GPIOA, 2);
+	}
+	
+        if(abs(pwm)> TIM1->ARR){
+            pwm = TIM1->ARR; 
+         }
+	TIM1->CCR1 = abs(pwm);
+
+
+    }
+
+
 
 }
