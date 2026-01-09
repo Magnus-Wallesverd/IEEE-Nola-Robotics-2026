@@ -4,6 +4,7 @@
 #include <stdint.h>
 
 #define RS_PIN      0x400
+#define RW_PIN      0x200
 #define E_PIN       0x100
 #define RS_E_PINS   0x500
 #define FUNC_SET    0x38
@@ -17,6 +18,7 @@
 #define BUFFER_SIZE 12
 #define NUM_BASE    0x30
 #define REFRESH_RATE 200
+
 
 void lcd_init(void);
 void lcd_print(void* args);

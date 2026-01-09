@@ -14,7 +14,7 @@ static void putchar(char buffer){
         for(volatile int i = 0; i < 6; i++);
         ResetPins(GPIOC, E_PIN);
         ResetPins(GPIOC, RS_PIN + buffer);
-        for(volatile int i = 0; i < 6; i++);
+        for(volatile int i = 0; i < 6; i++)i;
 }
 
 // hex to char array
@@ -57,10 +57,14 @@ static void lcd_ddram_cmd(uint32_t addr){
 void lcd_init(void){
     
     // port setup
-    SetPinOutput(GPIOC, 0x7FF);
-    SetOutputType(GPIOC,1<<9,1);
-    SetPinPD(GPIOC, 0X5FF);
-    SetPinPU(GPIOC,1<<9);
+    SetPinOutput(GPIOC, 0xF3C0); // PC 15-10,5,4 for data pins
+    SetPinOutput(GPIOA, 0x0700); // PA 10-8 for RS, RW, E pins
+                                 
+    SetOutputType(GPIOC, RW_PIN, 1);
+
+    SetPinPD(GPIOA, RS_E_PINS); 
+    SetPinPD(GPIOC, 0xF3C0);
+    SetPinPU(GPIOA, RW_PIN);
     
     // initialization
     setup((E_PIN|FUNC_SET));
