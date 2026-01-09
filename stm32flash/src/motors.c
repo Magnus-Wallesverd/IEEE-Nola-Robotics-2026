@@ -47,7 +47,7 @@ int16_t error3 = 0;
 int16_t error4 = 0;
 int16_t error8= 0;
 
-uint16_t target = 70;
+uint16_t target = 100;
 uint8_t direction;
 
 uint8_t Kp = 1;
@@ -135,13 +135,13 @@ void set_speed(uint16_t target){
 
     measure2 = curr2 - prev2;
     measure3 = curr3 - prev3;
-    measure4  = curr4 - prev4;
+    measure4 = curr4 - prev4;
     measure8 = curr8 - prev8;
 
     prev2  = curr2; 
     prev3  = curr3;
     prev4  = curr4;
-    prev8 = curr8;
+    prev8  = curr8;
     
     error2 = target - measure2;
     error3 = target - measure3;
@@ -158,8 +158,8 @@ void set_speed(uint16_t target){
 void test_toggle(void){
     PinWrite(GPIOB, (1 << 1)|(1 << 10)|(1 << 11));
     PinWrite(GPIOC, (1 << 8));
-    // for(uint32_t i = 0; i < 0xFFFFFF ; i++);
-    for(;;);
+    for(uint32_t i = 0; i < 0x7FFFFF ; i++);
+    // for(;;);
     ResetPins(GPIOB, (1 << 1)|(1 << 10)|(1 << 11));
     ResetPins(GPIOC, (1 << 8));
     // TIM1->CCR1 = 0;
