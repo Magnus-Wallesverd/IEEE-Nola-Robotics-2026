@@ -1,8 +1,8 @@
 #include "stm32f303.h"
 
 static void setup(uint32_t PINS){
-
-    PinWrite(GPIOC, PINS<<8);
+    PinWrite(GPIOA, PINS & RS_RW_E_PINS);
+    PinWrite(GPIOC, (PINS<<8)&0xFF00);
     for(volatile int i = 0; i < 6; i++);
     ResetPins(GPIOA, E_PIN);
     ResetPins(GPIOC, DATA_PINS);
