@@ -22,14 +22,15 @@ void systeminit(void){
     
     RCC->AHBENR |= 0xE0000;                   // enable GPIO ABC  clock 
 
+    // enable i2c interrupt
     NVIC->ISER0 |= 1<<31;
 
-    SetPinAlternate(GPIOB,0xC0);            // Set pins 6 & 7 to AF mode I2c
-    AlternateFunctionSet(GPIOB,0xC0,4);      // set pins PB 6&7 to AF4
-    SetOutputType(GPIOB, 0xC0, 1);
-    SetOutputSpeed(GPIOB,0xC0, 1);
-    
-    I2C_Init(I2C1, 0);
-    Sensor_Read(I2C1);
-    // I2C_Write_Read(I2C1, BNO055, 1, 0);
+    // enable timer 16 interrupt
+    NVIC->ISER0 |= (1 << 25);
+
+    /*I2C_Init(I2C1, 0);*/
+    /*Sensor_Read(I2C1);*/
+    /*input_timer_init();*/
+    /*output_timer_init();*/
+    /*test_toggle();*/
 }

@@ -20,5 +20,6 @@
 #include "syscfg.h"
 #include "lcd.h"
 #include "i2c.h"
+#include "motors.h"
 
 #endif

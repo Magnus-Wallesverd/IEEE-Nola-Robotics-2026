@@ -36,8 +36,14 @@ void I2C1_EV_IRQHandler(void){
 }
 
 void I2C_Init(I2C_TypeDef* I2Cx, uint8_t mode){
+
     switch(mode){
         case 0:
+            SetPinAlternate(GPIOB,0xC0);            // Set pins 6 & 7 to AF mode I2c
+            AlternateFunctionSet(GPIOB,0xC0,4);      // set pins PB 6&7 to AF4
+            SetOutputType(GPIOB, 0xC0, 1);
+            SetOutputSpeed(GPIOB,0xC0, 1);
+
             I2Cx->CR1 &= ~(1<<0);
             I2Cx->CR1 |= TXIE|RXIE|TCIE|STOPIE;
             I2Cx->TIMINGR = 0x10420F13;
