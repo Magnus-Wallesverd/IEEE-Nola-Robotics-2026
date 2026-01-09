@@ -22,7 +22,7 @@ used pins:
 
 PA: 4 5 
 
-[8 9 10] rs,e,w pins 
+[8 9 10] rs,e,rw pins 
 0
 1
 2

@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 
-#define DATA_PINS     0xFC30
+#define DATA_PINS     0xFF00
 #define RS_PIN        0x400
 #define RW_PIN        0x200
 #define E_PIN         0x100
