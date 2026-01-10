@@ -5,6 +5,7 @@
 
 #include "gpio.h"
 
+#define OFFSET          8
 #define DATA_PINS       0xFF00
 #define RS_PIN          PA10
 #define RW_PIN          PA9
@@ -28,7 +29,10 @@ enum lcd_mode{
     BIT_MODE_8
 };
 
-void lcd_init(GPIO_TypeDef* dp, GPIO_TypeDef* cp, uint8_t pins, uint8_t bit_mode, uint8_t offset);
+// void lcd_init(GPIO_TypeDef* dp, GPIO_TypeDef* cp, uint8_t pins, uint8_t bit_mode, uint8_t offset);
+
+void lcd_init(void);
+
 void lcd_print(void* args);
 
 // move cursor (cartesian) 

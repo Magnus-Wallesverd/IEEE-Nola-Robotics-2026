@@ -9,10 +9,10 @@
 /* *
  * ENA - PC0 
  * ENB - PC1
- * IN1 - PB9
- * IN2 - PB10
- * IN3 - PB12
- * IN4 - PB11
+ * IN1 - ?
+ * IN2 - ?
+ * IN3 - ?
+ * IN4 - ?
  *
  * ENA - PC2
  * ENB - PC3
@@ -95,7 +95,7 @@ void output_timer_init(void){
     AlternateFunctionSet(GPIOC, 0xF, 2);    // PC0-3 -> AF2   
 
     //GPIO Control pins PB 1,2,9,10,11,12
-    SetPinOutput(GPIOB, 0x1E06);
+    SetPinOutput(GPIOB, 0x6);
 
     //GPIO Control pins PC 4,5
     SetPinOutput(GPIOC, 0x30);
@@ -111,10 +111,6 @@ void output_timer_init(void){
     TIM1->CCER  |= 0x1111;      // enable CC 1-4
     TIM1->BDTR  |= 1<<15;       // Main Output enable
     TIM1->CR1 |= 0b10000001;    // Enable TIM1 counter
-    
-    //TIM16
-    SetPinAlternate(GPIOB, 1<<8);
-    AlternateFunctionSet(GPIOB, 1 << 8, 1);  // PB8 -> AF1
     
     TIM16->DIER  |= 1;
     TIM16->CCMR1 |= 0x68;
@@ -157,11 +153,11 @@ void set_speed(uint16_t target){
 
 void test_toggle(void* args){
     (void) args;
-    PinWrite(GPIOB, (1 << 1)|(1 << 10)|(1 << 11));
+    PinWrite(GPIOB, (1 << 1));
     PinWrite(GPIOC, (1 << 5));
     // for(uint32_t i = 0; i < 0xFFFFFF ; i++);
     for(;;);
-    ResetPins(GPIOB, (1 << 1)|(1 << 10)|(1 << 11));
+    ResetPins(GPIOB, (1 << 1));
     ResetPins(GPIOC, (1 << 5));
     // TIM1->CCR1 = 0;
     // TIM1->CCR2 = 0;
