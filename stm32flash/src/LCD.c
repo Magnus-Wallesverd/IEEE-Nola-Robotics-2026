@@ -1,19 +1,56 @@
 #include "stm32f303.h"
 
-static void setup(uint32_t PINS){
+static void setup_4_bit(GPIO_TypeDef* dp,GPIO_TypeDef* cp, uint32_t data){
 
-    PinWrite(GPIOC, PINS);
+    PinWrite(dp, data);
+    PinWrite(cp, E_PIN);
     for(volatile int i = 0; i < 6; i++);
-    ResetPins(GPIOC, E_PIN);
-    ResetPins(GPIOC, 0xFF);
+    ResetPins(cp, E_PIN);
+    ResetPins(dp, 0xFF);
     for(volatile int i = 0; i < 6; i++);
 }
 
+static void setup_8_bit(GPIO_TypeDef* dp,GPIO_TypeDef* cp, uint32_t data){
+
+    PinWrite(dp, data);
+    PinWrite(cp, E_PIN);
+    for(volatile int i = 0; i < 6; i++);
+    ResetPins(cp, E_PIN);
+    ResetPins(dp, 0xFF);
+    for(volatile int i = 0; i < 6; i++);
+}
+
+void lcd_init(GPIO_TypeDef* dp, GPIO_TypeDef* cp, uint8_t pins, uint8_t bit_mode, uint8_t offset){
+    switch(bit_mode){
+        case BIT_MODE_4:
+            SetPinOutput(dp, pins << offset);
+            SetOutputType(cp, RW_PIN, 1);
+            SetPinPD(dp, pins << offset);
+            SetPinPU(cp,RW_PIN);
+            setup_4_bit(dp, cp, pins << offset);
+            break;
+
+        case BIT_MODE_8:
+            // port init
+            SetPinOutput(dp, pins << offset);
+            SetOutputType(cp,RW_PIN,1);
+            SetPinPD(dp, pins << offset);
+            SetPinPU(cp,RW_PIN);
+            
+            // initialization
+            setup_8_bit(dp, cp, FUNC_SET << offset);
+            setup_8_bit(dp, cp, DISP_SET << offset);
+            setup_8_bit(dp, cp, CLR_LCD << offset);
+            for(volatile int i = 0; i < 1818; i++);
+            break;
+    }
+}
+
 static void putchar(char buffer){
-        PinWrite(GPIOC, RS_E_PINS + buffer);
+        PinWrite(GPIOC, ((RS_E_PINS) + buffer));
         for(volatile int i = 0; i < 6; i++);
         ResetPins(GPIOC, E_PIN);
-        ResetPins(GPIOC, RS_PIN + buffer);
+        ResetPins(GPIOC, (RS_PIN) + buffer);
         for(volatile int i = 0; i < 6; i++);
 }
 
@@ -38,10 +75,10 @@ static void stringify(uint32_t num, char buffer[]){
 
 static void print(char buffer[]){
     for(int i = 0; buffer[i] != '\0'; i++){
-        PinWrite(GPIOC, RS_E_PINS + buffer[i]);
+        PinWrite(GPIOC, (RS_E_PINS) + buffer[i]);
         for(volatile int i = 0; i < 6; i++);
         ResetPins(GPIOC, E_PIN);
-        ResetPins(GPIOC, RS_PIN + buffer[i]);
+        ResetPins(GPIOC, (RS_PIN) + buffer[i]);
         for(volatile int i = 0; i < 6; i++);
     }
 }
@@ -54,20 +91,6 @@ static void lcd_ddram_cmd(uint32_t addr){
     for(volatile int i = 0; i < 6; i++);
 }
 
-void lcd_init(void){
-    
-    // port setup
-    SetPinOutput(GPIOC, 0x7FF);
-    SetOutputType(GPIOC,1<<9,1);
-    SetPinPD(GPIOC, 0X5FF);
-    SetPinPU(GPIOC,1<<9);
-    
-    // initialization
-    setup((E_PIN|FUNC_SET));
-    setup((E_PIN|DISP_SET));
-    setup((E_PIN|CLR_LCD));
-    for(volatile int i = 0; i < 1818; i++);
-}
 
 void lcd_print(void* args){
     (void)args;
