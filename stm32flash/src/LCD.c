@@ -40,11 +40,11 @@ static void stringify(uint32_t num, char buffer[]){
 
 static void print(char buffer[]){
     for(int i = 0; buffer[i] != '\0'; i++){
-        PinWrite(GPIOA, RS_E_PINS)
+        PinWrite(GPIOA, RS_E_PINS);
         PinWrite(GPIOC, buffer[i]<<8);
         for(volatile int i = 0; i < 6; i++);
         ResetPins(GPIOA, E_PIN);
-        ResetPins(GPIOA, RS_PIN)
+        ResetPins(GPIOA, RS_PIN);
         ResetPins(GPIOC, buffer[i]<<8);
         for(volatile int i = 0; i < 6; i++);
     }
