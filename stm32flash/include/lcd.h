@@ -4,6 +4,7 @@
 #include <stdint.h>
 
 #include "gpio.h"
+#include "motors.h"
 
 #define OFFSET          8
 #define DATA_PINS       0xFF00
@@ -28,6 +29,8 @@ enum lcd_mode{
     BIT_MODE_4 = 0,
     BIT_MODE_8
 };
+
+extern int16_t error2;
 
 // void lcd_init(GPIO_TypeDef* dp, GPIO_TypeDef* cp, uint8_t pins, uint8_t bit_mode, uint8_t offset);
 

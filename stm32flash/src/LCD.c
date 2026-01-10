@@ -82,9 +82,11 @@ void lcd_init(void){
 
 void lcd_print(void* args){
     (void)args;
-
-    char buffer[BUFFER_SIZE] = {0};
-    move_cursor(0,0);
+    char entry_1[] = {"error2: "};
+    char buffer_1[BUFFER_SIZE] = {0};
+    char buffer_2[BUFFER_SIZE] = {0};
+    move_cursor(1,0);
+    print(entry_1);
     int n = 0;
     uint32_t t0 = 0;
     uint32_t t1 = 0;
@@ -92,10 +94,12 @@ void lcd_print(void* args){
         t0 = get_global_tick();
         while((t0-t1) > REFRESH_RATE){
             move_cursor(0,n*4);
-            stringify(*(get_i2c_buffer()+n),buffer);
-            t1=t0;
+            stringify(*(get_i2c_buffer()+n),buffer_1);
+            move_cursor(1, 8);
+            stringify(error2, buffer_2);
             n++;
             n%=4;
+            t1=t0;
         }
     }
 }

@@ -28,10 +28,9 @@ void systeminit(void){
     NVIC->ISER0 |= (1 << 25);
  
     
-    // input_timer_init();
-    // output_timer_init();
     I2C_Init(I2C1, 0);
-    Sensor_Read(I2C1);
-    for(int i = 0; i <0x7FFF; i++);
+    input_timer_init();
+    output_timer_init();
+    for(int i = 0; i <0xFFF; i++);
     /*test_toggle();*/
 }

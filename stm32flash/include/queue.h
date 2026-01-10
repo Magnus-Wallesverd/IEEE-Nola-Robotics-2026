@@ -4,10 +4,10 @@
 #include "stm32f303.h"
 #include <stdint.h>
 
-#define TASK_QUEUE_SIZE 2 
-#define FUNC_POOL_SIZE 2
-#define MSG_POOL_SIZE 2
-#define MSG_QUEUE_SIZE 2 
+#define TASK_QUEUE_SIZE 3 
+#define FUNC_POOL_SIZE 3
+#define MSG_POOL_SIZE 3
+#define MSG_QUEUE_SIZE 3 
 
 
 typedef void (*func_t)(void* args);
