@@ -44,6 +44,27 @@ typedef struct {
     volatile uint32_t TXDR;      // 0x28
 } I2C_TypeDef;
 
+typedef struct{
+    uint8_t nbytes;
+    uint8_t addr; 
+} i2c_transfer_data_t;
+
+typedef struct{
+    uint8_t msb_x;
+    uint8_t lsb_x;
+    uint8_t msb_y;
+    uint8_t lsb_y;
+    uint8_t msb_z;
+    uint8_t lsb_z;
+    i2c_transfer_data_t info;
+} X_Y_Z_Typedef;
+
+typedef struct{
+    uint8_t msb;
+    uint8_t lsb;
+    i2c_transfer_data_t info;
+} Heading_Typedef;
+
 // Peripheral base addresses (APB1)
 #define I2C1 ((I2C_TypeDef *)0x40005400)
 #define I2C2 ((I2C_TypeDef *)0x40005800)
