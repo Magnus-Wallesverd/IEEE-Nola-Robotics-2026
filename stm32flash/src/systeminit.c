@@ -7,7 +7,6 @@
 
 
 void systeminit(void){
-    uint8_t buf[I2C_BUFFER_SIZE];
 
     // systic interrupt init
     STK->CTRL |= 0x6;
@@ -31,7 +30,8 @@ void systeminit(void){
     
     // input_timer_init();
     // output_timer_init();
-    /*I2C_Init(I2C1, 0);*/
-    /*Sensor_Read(I2C1);*/
+    I2C_Init(I2C1, 0);
+    Sensor_Read(I2C1);
+    for(int i = 0; i <0x7FFF; i++);
     /*test_toggle();*/
 }

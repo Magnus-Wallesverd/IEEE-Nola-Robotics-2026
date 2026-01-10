@@ -85,3 +85,8 @@ void Sensor_Read(I2C_TypeDef* I2Cx){
     I2Cx->CR2 &= ~(1 << 10);
     I2Cx->CR2 |= START;   //start
 }
+
+void Sensor_Read_Wrapper(void* args){
+    (void) args;
+    Sensor_Read(I2C1);
+}

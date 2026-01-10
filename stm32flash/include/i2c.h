@@ -62,5 +62,7 @@ void I2C_Write_Read(I2C_TypeDef* I2Cx, uint8_t slave_addr, uint8_t nbytes, uint8
 
 void Sensor_Read(I2C_TypeDef* I2Cx);
 
+void Sensor_Read_Wrapper(void* args);
+
 #endif // I2C_H
 

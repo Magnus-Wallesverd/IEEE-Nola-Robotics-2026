@@ -35,6 +35,7 @@ static void stringify(uint32_t num, char buffer[]){
     for(uint8_t i = 0;i<BUFFER_SIZE; i++){
         if(buffer[i]!=0){
             putchar(buffer[i]);
+            buffer[i] = 0;
         }
     }
 }
@@ -82,23 +83,19 @@ void lcd_init(void){
 void lcd_print(void* args){
     (void)args;
 
-    static char entry_1[] ={"test"};
-    static char entry_2[] ={"test"};
     char buffer[BUFFER_SIZE] = {0};
     move_cursor(0,0);
-    print(entry_1);
-    move_cursor(1,0);
-    print(entry_2);
     int n = 0;
     uint32_t t0 = 0;
     uint32_t t1 = 0;
     while(1){
         t0 = get_global_tick();
         while((t0-t1) > REFRESH_RATE){
-            move_cursor(n,8);
+            move_cursor(0,n*4);
             stringify(*(get_i2c_buffer()+n),buffer);
             t1=t0;
-            n ^= 1;
+            n++;
+            n%=4;
         }
     }
 }
