@@ -14,8 +14,8 @@ typedef struct {
     uint32_t *sp;
     uint32_t total_age;
     uint32_t queue_age;
-    uint8_t  pid;
     uint8_t  state;
+    uint8_t  pid;
     uint8_t  priority;
     uint8_t  queue_time;
 }TCB;
