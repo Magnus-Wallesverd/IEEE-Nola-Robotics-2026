@@ -1,6 +1,7 @@
 #ifndef LCD_H
 #define LCD_H
 
+<<<<<<< HEAD
 #include <stdint.h>
 
 #include "gpio.h"
@@ -24,6 +25,25 @@
 #define BUFFER_SIZE     12
 #define NUM_BASE        0x30
 #define REFRESH_RATE    200
+=======
+#include "gpio.h"
+
+#define RS_PIN      PA10
+#define RW_PIN      PA9
+#define E_PIN       PA8
+#define RS_E_PINS   PA8|PA10
+#define FUNC_SET    0x38
+#define DISP_SET    0x0F
+#define CLR_LCD     0x01
+#define LINE1       0x80
+#define LINE2       0xC0
+#define LINE3       0x80
+#define LINE4       0xC0
+#define MAX_WIDTH   19
+#define BUFFER_SIZE 12
+#define NUM_BASE    0x30
+#define REFRESH_RATE 200
+>>>>>>> feature/i2c
 
 enum lcd_mode{
     BIT_MODE_4 = 0,
