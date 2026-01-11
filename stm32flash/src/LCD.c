@@ -46,12 +46,18 @@ void lcd_init(GPIO_TypeDef* dp, GPIO_TypeDef* cp, uint8_t pins, uint8_t bit_mode
     }
 }
 
+void byte2LCD(char pins, char ctrl_pins){
+    PinWrite(GPIOC, ctrl_pins|E_PIN|pins);
+    for(volatile int i = 0; i < 6; i++);
+	LCD_CP ^= E_PIN;
+}
+
 static void putchar(char buffer){
-        PinWrite(GPIOC, ((RS_E_PINS) + buffer));
-        for(volatile int i = 0; i < 6; i++);
-        ResetPins(GPIOC, E_PIN);
-        ResetPins(GPIOC, (RS_PIN) + buffer);
-        for(volatile int i = 0; i < 6; i++);
+    PinWrite(GPIOC, ((RS_E_PINS) + buffer));
+    for(volatile int i = 0; i < 6; i++);
+    ResetPins(GPIOC, E_PIN);
+    ResetPins(GPIOC, (RS_PIN) + buffer);
+    for(volatile int i = 0; i < 6; i++);
 }
 
 // hex to char array
