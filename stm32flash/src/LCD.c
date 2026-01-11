@@ -1,5 +1,10 @@
 #include "stm32f303.h"
 
+int twos_complement(int val){
+	val = ~val + 1;
+	return val;
+}
+
 static void setup(uint32_t PINS){
     PinWrite(GPIOA, E_PIN);
     PinWrite(GPIOB, (PINS<<OFFSET)&0xFF00);
@@ -9,27 +14,39 @@ static void setup(uint32_t PINS){
     for(volatile int i = 0; i < 6; i++);
 }
 
+void byte2LCD(char data, char ctrl_pins){
+    PinWrite(GPIOA, ctrl_pins|E_PIN);
+    PinWrite(GPIOB, data<<OFFSET);
+    for(volatile int i = 0; i < 6; i++);
+    ResetPins(GPIOA, E_PIN);
+    ResetPins(GPIOA, ctrl_pins);
+    ResetPins(GPIOB, buffer<<OFFSET);
+}
 
 static void putchar(char buffer){
-        PinWrite(GPIOA, RS_E_PINS);
-        PinWrite(GPIOB, buffer<<OFFSET);
-        for(volatile int i = 0; i < 6; i++);
-        ResetPins(GPIOA, E_PIN);
-        ResetPins(GPIOA, RS_PIN);
-        ResetPins(GPIOB, buffer<<OFFSET);
-        for(volatile int i = 0; i < 6; i++)i;
+    PinWrite(GPIOA, RS_E_PINS);
+    PinWrite(GPIOB, buffer<<OFFSET);
+    for(volatile int i = 0; i < 6; i++);
+    ResetPins(GPIOA, E_PIN);
+    ResetPins(GPIOA, RS_PIN);
+    ResetPins(GPIOB, buffer<<OFFSET);
+    for(volatile int i = 0; i < 6; i++)i;
 }
 
 // hex to char array
 static void stringify(uint32_t num, char buffer[]){
     char temp = 0;
-    char i = 0;
-    
-    while(num != 0){
+    if(num>>31){
+		byte2LCD('-', RS_PIN);
+		num = twos_complement(num);
+	} else {
+		byte2LCD(' ', RS_PIN);
+	}
+
+    for(int i = 0;i<BUFFER_SIZE;i++){
         temp = num % 10;
         num /= 10;
         buffer[BUFFER_SIZE-1-i] = temp + NUM_BASE;
-        i++;
     }
 
     for(uint8_t i = 0;i<BUFFER_SIZE; i++){
@@ -37,6 +54,29 @@ static void stringify(uint32_t num, char buffer[]){
         buffer[i] = 0;
     }
 }
+
+// hex to char array
+static void signed_stringify(uint32_t num, char buffer[]){
+    char temp = 0;
+    if(num>>31){
+		byte2LCD('-', RS_PIN);
+		num = twos_complement(num);
+	} else {
+		byte2LCD(' ', RS_PIN);
+	}
+
+    for(int i = 0;i<BUFFER_SIZE;i++){
+        temp = num % 10;
+        num /= 10;
+        buffer[BUFFER_SIZE-1-i] = temp + NUM_BASE;
+    }
+
+    for(uint8_t i = 0;i<BUFFER_SIZE; i++){
+        putchar(buffer[i]);
+        buffer[i] = 0;
+    }
+}
+
 
 static void print(char buffer[]){
     for(int i = 0; buffer[i] != '\0'; i++){
@@ -93,8 +133,8 @@ void lcd_print(void* args){
         while((t0-t1) > REFRESH_RATE){
             move_cursor(0,n*4);
             stringify(*(get_i2c_buffer()+(n++)%4),buffer_1);
-            move_cursor(1, 8);
-            stringify(error2, buffer_2);
+            move_cursor(1, 7);
+            signed_stringify(error2, buffer_2);
             t1=t0;
         }
     }
