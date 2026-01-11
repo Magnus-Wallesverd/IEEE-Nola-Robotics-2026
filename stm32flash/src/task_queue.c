@@ -8,8 +8,9 @@ void* task_queue_array[TASK_QUEUE_SIZE];
 
 // should start thinking of easier ways to get functions in here
 const func_t fn_table[FUNC_POOL_SIZE] = {
-    lcd_print,
-    blink_led
+    // I2C_WriteReg_Wrapper,
+    // lcd_print,
+    // manual_i2c
 };
 
 void task_queue_init(void){

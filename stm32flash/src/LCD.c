@@ -1,12 +1,11 @@
 #include "stm32f303.h"
 
-static void setup_4_bit(GPIO_TypeDef* dp,GPIO_TypeDef* cp, uint32_t data){
-
-    PinWrite(dp, data);
-    PinWrite(cp, E_PIN);
+static void setup(uint32_t PINS){
+    PinWrite(GPIOA, PINS & RS_RW_E_PINS);
+    PinWrite(GPIOC, (PINS<<8)&0xFF00);
     for(volatile int i = 0; i < 6; i++);
-    ResetPins(cp, E_PIN);
-    ResetPins(dp, 0xFF);
+    ResetPins(GPIOA, E_PIN);
+    ResetPins(GPIOC, DATA_PINS);
     for(volatile int i = 0; i < 6; i++);
 }
 
@@ -53,11 +52,13 @@ void byte2LCD(char pins, char ctrl_pins){
 }
 
 static void putchar(char buffer){
-    PinWrite(GPIOC, ((RS_E_PINS) + buffer));
+    PinWrite(GPIOA, RS_E_PINS);
+    PinWrite(GPIOB, buffer<<8);
     for(volatile int i = 0; i < 6; i++);
-    ResetPins(GPIOC, E_PIN);
-    ResetPins(GPIOC, (RS_PIN) + buffer);
-    for(volatile int i = 0; i < 6; i++);
+    ResetPins(GPIOA, E_PIN);
+    ResetPins(GPIOA, RS_PIN);
+    ResetPins(GPIOB, buffer<<8);
+    for(volatile int i = 0; i < 6; i++)i;
 }
 
 // hex to char array
@@ -79,39 +80,64 @@ static void stringify(uint32_t num, char buffer[]){
 
 static void print(char buffer[]){
     for(int i = 0; buffer[i] != '\0'; i++){
-        PinWrite(GPIOC, (RS_E_PINS) + buffer[i]);
+        PinWrite(GPIOA, RS_E_PINS);
+        PinWrite(GPIOC, buffer[i]<<8);
         for(volatile int i = 0; i < 6; i++);
-        ResetPins(GPIOC, E_PIN);
-        ResetPins(GPIOC, (RS_PIN) + buffer[i]);
+        ResetPins(GPIOA, E_PIN);
+        ResetPins(GPIOA, RS_PIN);
+        ResetPins(GPIOC, buffer[i]<<8);
         for(volatile int i = 0; i < 6; i++);
     }
 }
 
 static void lcd_ddram_cmd(uint32_t addr){
-    PinWrite(GPIOC, (E_PIN|addr));
+    PinWrite(GPIOA, E_PIN);
+    PinWrite(GPIOC, addr<<8);
     for(volatile int i = 0; i < 6; i++);
-    ResetPins(GPIOC, E_PIN);
-    ResetPins(GPIOC, addr);
+    ResetPins(GPIOA, E_PIN);
+    ResetPins(GPIOC, addr<<8);
     for(volatile int i = 0; i < 6; i++);
 }
 
+void lcd_init(void){
+    
+    // port setup
+    SetPinOutput(GPIOC, DATA_PINS);     //PC15-8 for D7-0
+    SetPinOutput(GPIOA, RS_RW_E_PINS);  //PA10-8 for RS,RW,E
+                                 
+    SetOutputType(GPIOA, RW_PIN, 1);
+
+    SetPinPD(GPIOA, RS_E_PINS); 
+    SetPinPD(GPIOC, DATA_PINS);
+    SetPinPU(GPIOA, RW_PIN);
+    
+    // initialization
+    setup((E_PIN|FUNC_SET));
+    setup((E_PIN|DISP_SET));
+    setup((E_PIN|CLR_LCD));
+    for(volatile int i = 0; i < 1818; i++);
+}
 
 void lcd_print(void* args){
     (void)args;
 
-    static char entry_1[] ={"g_tick"};
+    static char entry_1[] ={"i2c something"};
+    static char entry_2[] ={"i2c something"};
     char buffer[BUFFER_SIZE] = {0};
     move_cursor(0,0);
     print(entry_1);
-    
+    move_cursor(1,0);
+    print(entry_2);
+    int n = 0;
     uint32_t t0 = 0;
     uint32_t t1 = 0;
     while(1){
         t0 = get_global_tick();
         while((t0-t1) > REFRESH_RATE){
-            move_cursor(0,8);
-            stringify(get_global_tick(),buffer);
+            move_cursor(n,8);
+            stringify(*(get_i2c_buffer()+n),buffer);
             t1=t0;
+            n ^= 1;
         }
     }
 }
