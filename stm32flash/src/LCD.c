@@ -67,9 +67,7 @@ static void stringify(uint32_t num, char buffer[]){
     }
 
     for(uint8_t i = 0;i<BUFFER_SIZE; i++){
-        if(buffer[i]!=0){
-            putchar(buffer[i]);
-        }
+        putchar(buffer[i]);
     }
 }
 
