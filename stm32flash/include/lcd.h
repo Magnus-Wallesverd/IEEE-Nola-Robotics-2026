@@ -1,28 +1,30 @@
 #ifndef LCD_H
 #define LCD_H
 
-#include <stdint.h>
+#include "gpio.h"
 
-#define DATA_PINS     0xFF00
-#define RS_PIN        0x400
-#define RW_PIN        0x200
-#define E_PIN         0x100
-#define RS_E_PINS     0x500
-#define RS_RW_E_PINS  0x700 
-#define FUNC_SET      0x38
-#define DISP_SET      0x0F
-#define CLR_LCD       0x01
-#define LINE1         0x80
-#define LINE2         0xC0
-#define LINE3         0x80
-#define LINE4         0xC0
-#define MAX_WIDTH     19
-#define BUFFER_SIZE   12
-#define NUM_BASE      0x30
-#define REFRESH_RATE  200
+#define RS_PIN      PA10
+#define RW_PIN      PA9
+#define E_PIN       PA8
+#define RS_E_PINS   PA8|PA10
+#define FUNC_SET    0x38
+#define DISP_SET    0x0F
+#define CLR_LCD     0x01
+#define LINE1       0x80
+#define LINE2       0xC0
+#define LINE3       0x80
+#define LINE4       0xC0
+#define MAX_WIDTH   19
+#define BUFFER_SIZE 12
+#define NUM_BASE    0x30
+#define REFRESH_RATE 200
 
+enum lcd_mode{
+    BIT_MODE_4 = 0,
+    BIT_MODE_8
+};
 
-void lcd_init(void);
+void lcd_init(GPIO_TypeDef* dp, GPIO_TypeDef* cp, uint8_t pins, uint8_t bit_mode, uint8_t offset);
 void lcd_print(void* args);
 
 // move cursor (cartesian) 

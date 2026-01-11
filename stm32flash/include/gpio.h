@@ -1,19 +1,58 @@
-// defining the register ports
-// addresses are offset in bytes in the manual
-/*
- * TODO abstract all register if necessary
- *      Remaining Registers
- *      OSPEEDR, LCKRR
- */
-
-
 #ifndef GPIO_H
 #define GPIO_H
 
 #include <stdint.h>
 
-// implementing a struct based system where 32bit variables are declared
-// then a pointer will just fill up the whole block with struct variables
+#define PA0  1<<0
+#define PA1  1<<1
+#define PA2  1<<2
+#define PA3  1<<3
+#define PA4  1<<4
+#define PA5  1<<5
+#define PA6  1<<6
+#define PA7  1<<7
+#define PA8  1<<8
+#define PA9  1<<9
+#define PA10 1<<10
+#define PA11 1<<11
+#define PA12 1<<12
+#define PA13 1<<13
+#define PA14 1<<14
+#define PA15 1<<15
+
+#define PB0  1<<0
+#define PB1  1<<1
+#define PB2  1<<2
+#define PB3  1<<3
+#define PB4  1<<4
+#define PB5  1<<5
+#define PB6  1<<6
+#define PB7  1<<7
+#define PB8  1<<8
+#define PB9  1<<9
+#define PB10 1<<10
+#define PB11 1<<11
+#define PB12 1<<12
+#define PB13 1<<13
+#define PB14 1<<14
+#define PB15 1<<15
+
+#define PC0  1<<0
+#define PC1  1<<1
+#define PC2  1<<2
+#define PC3  1<<3
+#define PC4  1<<4
+#define PC5  1<<5
+#define PC6  1<<6
+#define PC7  1<<7
+#define PC8  1<<8
+#define PC9  1<<9
+#define PC10 1<<10
+#define PC11 1<<11
+#define PC12 1<<12
+#define PC13 1<<13
+#define PC14 1<<14
+#define PC15 1<<15
 
 typedef struct{
 volatile uint32_t MODER;    //x00 
