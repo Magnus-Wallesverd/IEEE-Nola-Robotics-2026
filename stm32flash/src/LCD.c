@@ -94,11 +94,9 @@ void lcd_print(void* args){
         t0 = get_global_tick();
         while((t0-t1) > REFRESH_RATE){
             move_cursor(0,n*4);
-            stringify(*(get_i2c_buffer()+n),buffer_1);
+            stringify(*(get_i2c_buffer()+(n++)%4),buffer_1);
             move_cursor(1, 8);
             stringify(error2, buffer_2);
-            n++;
-            n%=4;
             t1=t0;
         }
     }
