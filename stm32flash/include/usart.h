@@ -24,7 +24,7 @@
 #define TXE     (1<<7)
 
 #define RATE 115200
-#define BRR FCLK/RATE
+#define USART_BRR FCLK/RATE
 #define USART_BUF_SIZE 8
 
 #define CR1_SETUP RTOIE|TXEIE|TCIE|RXNIE
@@ -44,10 +44,10 @@ typedef struct{
 } USART_Typedef;                    
 
 typedef struct{
-    USART_typedef* USARTx;
+    USART_Typedef* USARTx;
     uint8_t* tx_buffer_p;
     uint8_t* rx_buffer_p;
-} usart_t
+} usart_t;
 
 #define USART1 ((USART_Typedef *) 0x40013800)
 #define USART2 ((USART_Typedef *) 0x40004400)
