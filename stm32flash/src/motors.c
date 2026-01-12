@@ -1,4 +1,5 @@
-//TODO implement 3 point backwards difference
+// TODO hook motors and clamp the CCR integrator
+// TODO implement 3 point backwards difference
 //
 
 #include "motors.h"
@@ -9,17 +10,17 @@
 /* *
  * ENA - PC0 
  * ENB - PC1
- * IN1 - PB9
- * IN2 - PB10
- * IN3 - PB12
- * IN4 - PB11
+ * IN1 - ?
+ * IN2 - ?
+ * IN3 - PC8
+ * IN4 - PC9
  *
  * ENA - PC2
  * ENB - PC3
  * IN1 - PB1
  * IN2 - PB2
- * IN3 - PC8
- * IN4 - PC9
+ * IN3 - PC4
+ * IN4 - PC5
  *
  * ENA - PA 6,7 
  * ENB - PA 0,1
@@ -111,16 +112,16 @@ void output_timer_init(void){
     SetPinAlternate(GPIOC, 0xF);            
     AlternateFunctionSet(GPIOC, 0xF, 2);    // PC0-3 -> AF2   
 
-    //GPIO Control pins PB 1,2,9,10,11,12
-    SetPinOutput(GPIOB, 0x1E06);
+    //GPIO Control pins PB 1,2
+    SetPinOutput(GPIOB, 0x6);
 
-    //GPIO Control pins PC 8,9
-    SetPinOutput(GPIOC, 0x30);
+    //GPIO Control pins PC 4,5,8,9
+    SetPinOutput(GPIOC, IN3|IN4);
 
     TIM1->CCMR1 |= 0x6868;      // pwm 1 CH 1,2
     TIM1->CCMR2 |= 0x6868;      // pwm 1 CH 3,4
     TIM1->PSC   |= 0;           //
-    TIM1->ARR    = 7999;        // top
+    TIM1->ARR   = 7999;        // top
     TIM1->CCR1  = 0;        // compare ch1
     TIM1->CCR2  = 0;        // compare ch1
     TIM1->CCR3  = 0;        // compare ch1
@@ -128,10 +129,6 @@ void output_timer_init(void){
     TIM1->CCER  |= 0x1111;      // enable CC 1-4
     TIM1->BDTR  |= 1<<15;       // Main Output enable
     TIM1->CR1 |= 0b10000001;    // Enable TIM1 counter
-    
-    //TIM16
-    SetPinAlternate(GPIOB, 1<<8);
-    AlternateFunctionSet(GPIOB, 1 << 8, 1);  // PB8 -> AF1
     
     TIM16->DIER  |= 1;
     TIM16->CCMR1 |= 0x68;
@@ -165,10 +162,10 @@ void set_speed(uint16_t target){
     error4 = target - measure4;
     error8 = target - measure8;
     
-    TIM1->CCR1 += (Kp*error3)* !(measure3 < -200 ||measure3 > 400);
-    TIM1->CCR2 += (Kp*error2)* !(measure2 < -200 ||measure2 > 400);
-    TIM1->CCR3 += Kp*error4* !(measure4 < -200 || measure4 > 200);
-    TIM1->CCR4 += Kp*error8* !(measure8 < -200 || measure8 > 200);
+    TIM1->CCR1 += (Kp*error2)* !(measure2 < -200 ||measure2 > 400);
+    //TIM1->CCR2 += (Kp*error3)* !(measure3 < -200 ||measure3 > 400);
+    //TIM1->CCR3 += Kp*error4* !(measure4 < -200 ||measure4 > 200);
+    //TIM1->CCR4 += Kp*error8* !(measure8 < -200 ||measure8 > 200);
 
 }
 
@@ -202,13 +199,13 @@ void motorgym(uint16_t target){
 
 }
 
-void test_toggle(void){
-    PinWrite(GPIOB, (1 << 1)|(1 << 10)|(1 << 11));
-    PinWrite(GPIOC, (1 << 4));
+void test_toggle(void* args){
+    // PinWrite(GPIOB, (1 << 1));
+    PinWrite(GPIOC, IN3);
     // for(uint32_t i = 0; i < 0xFFFFFF ; i++);
     for(;;);
-    ResetPins(GPIOB, (1 << 1)|(1 << 10)|(1 << 11));
-    ResetPins(GPIOC, (1 << 4));
+    // ResetPins(GPIOB, (1 << 1));
+    ResetPins(GPIOC, IN3);
     // TIM1->CCR1 = 0;
     // TIM1->CCR2 = 0;
     // for(uint32_t k = 0; k < 0x1FFFF ; k++);

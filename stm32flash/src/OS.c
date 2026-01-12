@@ -10,9 +10,15 @@ uint32_t  task_flag = 0;
 TCB _stcb[SIZE];
 TCB *current_tcb;
 TCB *next_tcb;
+uint8_t buf[I2C_BUFFER_SIZE];
+
 
 uint32_t get_global_tick(void){
     return global_tick;
+}
+
+uint8_t* get_i2c_buffer(void) {
+    return buf;
 }
 
 void tcbinit(void){
