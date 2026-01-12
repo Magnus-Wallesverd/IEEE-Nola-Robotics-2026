@@ -60,24 +60,13 @@ uint8_t Kp = 1;
 
 void TIM1_UP_TIM16_IRQHandler(void){
     //set_speed(target);
-    motorgym(target);
-    if(counter == 4){
-        error[0] = dpos[0]- TIM4->CNT;
-        error1[0] = dvel[0] - measure3;
+    if(counter >= 22){
+	counter = 0;
+
     }
-    else if(counter == 8){
-        
-        error[1] = dpos[1]- TIM4->CNT;
-        error1[1] = dvel[1] - measure3;
-    }
-    else if(counter == 12){
-        
-        error[2] = dpos[2]- TIM4->CNT;
-        error1[2] = dvel[2] - measure3;
-        pars[0] = 3*(error[0]+error[1]+error[2]);
-        pars[1] = 3*(error1[0]+ error1[1] + error1[2]);
-        TIM1->CCR1 = 0;
-        for(int i=0; i <0x9000; i++);
+    else if(counter <= 12){
+	motorgym(target);
+
     }
 
 
@@ -189,8 +178,27 @@ void motorgym(uint16_t target){
     measure3 = curr3 - prev3;
     prev3 = curr3;
     int16_t errs = target - measure3;
-	err = target- TIM4->CNT;
-	TIM1->CCR1 = err*pars[0] + errs*pars[1];
+    err = target- TIM4->CNT;
+    TIM1->CCR1 = err*pars[0] + errs*pars[1];
+    
+    if(counter == 4){
+        error[0] = dpos[0]- TIM4->CNT;
+        error1[0] = dvel[0] - measure3;
+    }
+    else if(counter == 8){
+        
+        error[1] = dpos[1]- TIM4->CNT;
+        error1[1] = dvel[1] - measure3;
+    }
+    else if(counter == 12){
+        
+        error[2] = dpos[2]- TIM4->CNT;
+        error1[2] = dvel[2] - measure3;
+        pars[0] = 3*(error[0]+error[1]+error[2]);
+        pars[1] = 3*(error1[0]+ error1[1] + error1[2]);
+        TIM1->CCR1 = 0;
+        for(int i=0; i <0x9000; i++);
+    }
 
 }
 
