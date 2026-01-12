@@ -14,13 +14,13 @@ static void setup(uint32_t PINS){
     for(volatile int i = 0; i < 6; i++);
 }
 
-void byte2LCD(char data, char ctrl_pins){
+void byte2LCD(char data, uint16_t ctrl_pins){
     PinWrite(GPIOA, ctrl_pins|E_PIN);
     PinWrite(GPIOB, data<<OFFSET);
     for(volatile int i = 0; i < 6; i++);
     ResetPins(GPIOA, E_PIN);
     ResetPins(GPIOA, ctrl_pins);
-    ResetPins(GPIOB, buffer<<OFFSET);
+    ResetPins(GPIOB, data<<OFFSET);
 }
 
 static void putchar(char buffer){
@@ -131,8 +131,8 @@ void lcd_print(void* args){
     while(1){
         t0 = get_global_tick();
         while((t0-t1) > REFRESH_RATE){
-            move_cursor(0,n*4);
-            stringify(*(get_i2c_buffer()+(n++)%4),buffer_1);
+            // move_cursor(0,n*4);
+            // stringify(*(get_i2c_buffer()+(n++)%4),buffer_1);
             move_cursor(1, 7);
             signed_stringify(error2, buffer_2);
             t1=t0;

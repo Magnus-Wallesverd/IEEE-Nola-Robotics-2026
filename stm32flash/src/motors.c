@@ -1,4 +1,5 @@
-//TODO implement 3 point backwards difference
+// TODO hook motors and clamp the CCR integrator
+// TODO implement 3 point backwards difference
 //
 
 #include "motors.h"
@@ -47,7 +48,7 @@ int16_t error3 = 0;
 int16_t error4 = 0;
 int16_t error8= 0;
 
-uint16_t target = 0;
+uint16_t target = 110;
 uint8_t direction;
 
 uint8_t Kp = 1;
@@ -144,10 +145,10 @@ void set_speed(uint16_t target){
     error4 = target - measure4;
     error8 = target - measure8;
     
-    TIM1->CCR1 += (Kp*error3)* !(measure3 < -200 ||measure3 > 400);
-    TIM1->CCR2 += (Kp*error2)* !(measure2 < -200 ||measure2 > 400);
-    TIM1->CCR3 += Kp*error4* !(measure4 < -200 ||measure4 > 200);
-    TIM1->CCR4 += Kp*error8* !(measure8 < -200 ||measure8 > 200);
+    TIM1->CCR1 += (Kp*error2)* !(measure2 < -200 ||measure2 > 400);
+    //TIM1->CCR2 += (Kp*error3)* !(measure3 < -200 ||measure3 > 400);
+    //TIM1->CCR3 += Kp*error4* !(measure4 < -200 ||measure4 > 200);
+    //TIM1->CCR4 += Kp*error8* !(measure8 < -200 ||measure8 > 200);
 
 }
 
