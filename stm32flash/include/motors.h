@@ -5,7 +5,7 @@
 #include "gpio.h"
 
 #define IN3 PC8
-#define IN4 PC8
+#define IN4 PC9
 
 void input_timer_init(void);
 

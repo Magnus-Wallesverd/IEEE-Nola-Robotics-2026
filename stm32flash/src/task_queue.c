@@ -10,7 +10,7 @@ void* task_queue_array[TASK_QUEUE_SIZE];
 const func_t fn_table[FUNC_POOL_SIZE] = {
     // Sensor_Read_Wrapper,
     lcd_print,
-    test_toggle
+    //test_toggle
 };
 
 void task_queue_init(void){

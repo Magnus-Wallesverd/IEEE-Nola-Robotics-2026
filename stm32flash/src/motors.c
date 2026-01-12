@@ -33,12 +33,13 @@
 
 Gen_TIM_TypeDef1* input_timers[] = {TIM2, TIM3, TIM4};
 
-uint16_t target = 30;
-uint16_t dpos[3] = {1 , 5, 30};
-uint16_t dvel[3] = {10, 20, 0};
+uint16_t target = 3000;
+uint16_t dpos[3] = {300 , 1000, 2000};
+uint16_t dvel[3] = {100, 50, 0};
 uint16_t error[3] ={0,0,0};
 uint16_t error1[3]={0,0,0};
-uint16_t pars[3] = {0,0,0};
+uint16_t pars[3] = {10,2,0};
+uint16_t ppars[3] = {0,0,0};
 int16_t counter =0;
 int16_t prev2 = 0;
 int16_t prev3 = 0;
@@ -61,14 +62,17 @@ uint8_t Kp = 1;
 
 void TIM1_UP_TIM16_IRQHandler(void){
     //set_speed(target);
-    if(counter >= 22){
-	counter = 0;
+    if(counter >= 202){
+    //TIM1->CCR1 = 0;
+	//counter = 0;
+    //motorgym(target);
 
     }
-    else if(counter <= 12){
-	motorgym(target);
+    else if(counter <= 70){
+	///motorgym(target);
 
     }
+    motorgym(target);
 
 
     counter++;
@@ -140,6 +144,11 @@ void output_timer_init(void){
     TIM16->CR1   |= 0b10000001;
 }
 
+int twos(int val){
+
+	val = ~val + 1;
+	return val;
+}
 void set_speed(uint16_t target){
 
     int16_t curr2 = TIM2->CNT;
@@ -169,37 +178,51 @@ void set_speed(uint16_t target){
 
 }
 
+
 void motorgym(uint16_t target){
-    int16_t err=0;
-    int16_t curr3 = TIM3->CNT;
-    measure3 = curr3 - prev3;
-    prev3 = curr3;
-    int16_t errs = target - measure3;
-    err = target- TIM4->CNT;
-    TIM1->CCR1 = err*pars[0] + errs*pars[1];
+    int16_t curr2=0;
+    int16_t pwm =0;
+    curr2 = TIM2->CNT;
+    measure2 = curr2 - prev2;
+    prev2 = curr2;
+    int16_t errs = target - measure2;
+    error2 = target - curr2;
+    pwm = error2*pars[0] + errs*pars[1];
+
+    if(pwm <0){
+        PinWrite(GPIOC, IN4);
+        ResetPins(GPIOC, IN3);
+        
+    }
+    else{
+        PinWrite(GPIOC, IN3);
+        ResetPins(GPIOC, IN4);
+
+    }
+    TIM1->CCR1 = pwm;
     
-    if(counter == 4){
-        error[0] = dpos[0]- TIM4->CNT;
-        error1[0] = dvel[0] - measure3;
+    if(counter == 10){
+        error[0] = dpos[0]- TIM2->CNT;
+        error1[0] = dvel[0] - measure2;
     }
-    else if(counter == 8){
+    else if(counter == 30){
         
-        error[1] = dpos[1]- TIM4->CNT;
-        error1[1] = dvel[1] - measure3;
+        error[1] = dpos[1]- TIM2->CNT;
+        error1[1] = dvel[1] - measure2;
     }
-    else if(counter == 12){
+    else if(counter == 70){
         
-        error[2] = dpos[2]- TIM4->CNT;
-        error1[2] = dvel[2] - measure3;
-        pars[0] = 3*(error[0]+error[1]+error[2]);
-        pars[1] = 3*(error1[0]+ error1[1] + error1[2]);
+        error[2] = dpos[2]- TIM2->CNT;
+        error1[2] = dvel[2] - measure2;
+        //pars[0] = 3*(error[0]+error[1]+error[2]);
+        //pars[1] = 3*(error1[0]+ error1[1] + error1[2]);
         TIM1->CCR1 = 0;
-        for(int i=0; i <0x9000; i++);
     }
 
 }
 
 void test_toggle(void* args){
+    (void) args;
     // PinWrite(GPIOB, (1 << 1));
     PinWrite(GPIOC, IN3);
     // for(uint32_t i = 0; i < 0xFFFFFF ; i++);
