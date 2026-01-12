@@ -29,6 +29,7 @@ void systeminit(void){
     SetOutputType(GPIOB, 0xC0, 1);
     SetOutputSpeed(GPIOB,0xC0, 1);
     
+    usart_init(USART1, GPIOC,PA4|PA5,9600);
     I2C_Init(I2C1, 0);
     Sensor_Read(I2C1);
     // I2C_Write_Read(I2C1, BNO055, 1, 0);
