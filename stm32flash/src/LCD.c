@@ -121,11 +121,10 @@ void lcd_init(void){
 void lcd_print(void* args){
     (void)args;
     char entry_1[] = {"error2: "};
-    char buffer_1[BUFFER_SIZE] = {0};
+    // char buffer_1[BUFFER_SIZE] = {0};
     char buffer_2[BUFFER_SIZE] = {0};
     move_cursor(1,0);
     print(entry_1);
-    int n = 0;
     uint32_t t0 = 0;
     uint32_t t1 = 0;
     while(1){

@@ -28,10 +28,9 @@ void systeminit(void){
     NVIC->ISER0 |= (1 << 25);
  
     
-    usart_init(USART1, GPIOC,PA4|PA5,9600);
-    I2C_Init(I2C1, 0);
-    input_timer_init();
-    output_timer_init();
-    for(int i = 0; i <0xFFF; i++);
-    /*test_toggle();*/
+    usart_init(USART1, GPIOC,PC4|PC5,9600);
+    load_tx();
+    for(;;){
+        usart_begin();
+    }
 }

@@ -4,30 +4,31 @@
 #include <stdint.h>
 #include "gpio.h"
 #include "rcc.h"
+#include "backend.h"
 
 #define UE      (1<<0)
 #define RE      (1<<2)
 #define TE      (1<<3)
-#define IDLEIE  (1<<4)
-#define RXNIE   (1<<5)
-#define TCIE    (1<<6)
-#define TXEIE   (1<<7)
-#define RTOIE   (1<<26)
+#define USART_IDLEIE  (1<<4)
+#define USART_RXNEIE   (1<<5)
+#define USART_TCIE    (1<<6)
+#define USART_TXEIE   (1<<7)
+#define USART_RTOIE   (1<<26)
 
 #define EIE     (1<<0)
 
 #define RTOEN   (1<<23)
 
-#define IDLE    (1<<4)
-#define RXNE    (1<<5)
-#define TC      (1<<6)
-#define TXE     (1<<7)
+#define USART_IDLE    (1<<4)
+#define USART_RXNE    (1<<5)
+#define USART_TC      (1<<6)
+#define USART_TXE     (1<<7)
 
 #define RATE 115200
 #define USART_BRR FCLK/RATE
 #define USART_BUF_SIZE 8
 
-#define CR1_SETUP RTOIE|TXEIE|TCIE|RXNIE
+#define CR1_SETUP UE|TE|RE
 
 typedef struct{
     volatile uint32_t CR1;    //0x00
@@ -55,7 +56,7 @@ typedef struct{
 #define UART4  ((USART_Typedef *) 0x40004C00)
 #define UART5  ((USART_Typedef *) 0x40005000)
 
-void usart_init(USART_Typedef* USARTx, GPIOx port, uint32_t pins, uint16_t baud);
-
+void usart_init(USART_Typedef* USARTx, GPIO_TypeDef* port, uint32_t pins, uint16_t baud);
+void load_tx(void);
 void usart_begin(void);
 #endif // !USART_H
