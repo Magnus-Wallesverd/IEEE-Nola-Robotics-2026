@@ -76,11 +76,9 @@ void usart_init(USART_Typedef* USARTx, GPIO_TypeDef* port, uint32_t pins, uint16
 }
 
 void load_tx(void){
-    data[0] = 0xA;
-    data[4] = 0xA;
-    // for(int i = 0; i <USART_BUF_SIZE; i++){
-    //     data[i] = 1;
-    // }
+    for(int i = 0; i <USART_BUF_SIZE; i++){
+        data[i] = 1;
+    }
     usart.tx_buffer_p = data; 
 }
 

@@ -24,7 +24,7 @@
 #define USART_TC      (1<<6)
 #define USART_TXE     (1<<7)
 
-#define RATE 115200
+#define RATE 9600
 #define USART_BRR FCLK/RATE
 #define USART_BUF_SIZE 8
 

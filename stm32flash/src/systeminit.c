@@ -29,8 +29,8 @@ void systeminit(void){
  
     
     usart_init(USART1, GPIOC,PC4|PC5,9600);
-    load_tx();
     for(;;){
+        load_tx();
         usart_begin();
     }
 }
