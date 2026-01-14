@@ -120,22 +120,24 @@ void lcd_init(void){
 
 void lcd_print(void* args){
     (void)args;
-    char entry_1[] = {"error2: "};
+    char entry_1[] = {"UART: "};
     // char buffer_1[BUFFER_SIZE] = {0};
     char buffer_2[BUFFER_SIZE] = {0};
     move_cursor(1,0);
     print(entry_1);
     uint32_t t0 = 0;
     uint32_t t1 = 0;
+    int i = 0;
     while(1){
-        t0 = get_global_tick();
-        while((t0-t1) > REFRESH_RATE){
-            // move_cursor(0,n*4);
-            // stringify(*(get_i2c_buffer()+(n++)%4),buffer_1);
-            move_cursor(1, 7);
-            signed_stringify(error2, buffer_2);
-            t1=t0;
+        move_cursor(1, 7);
+        while(i < 8){
+            t0 = get_global_tick();
+            while((t0-t1) > REFRESH_RATE){
+                putchar(get_usart_t()->tx_buffer_p[i++%8]);
+                t1=t0;
+            }
         }
+        i=0;
     }
 }
 

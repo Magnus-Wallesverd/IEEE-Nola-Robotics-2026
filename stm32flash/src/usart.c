@@ -76,16 +76,19 @@ void usart_init(USART_Typedef* USARTx, GPIO_TypeDef* port, uint32_t pins, uint16
 }
 
 void load_tx(void){
-    for(int i = 0; i <USART_BUF_SIZE; i++){
-        data[i] = 1;
+    char db[] = "@$!%^&*+"; 
+    for(int i = 0; i < USART_BUF_SIZE; i++){
+        data[i] = db[i];
     }
     usart.tx_buffer_p = data; 
 }
 
-void usart_begin(void){
+void usart_begin(void* args){
+    (void) args;
     usart.USARTx->CR1 |= USART_RXNEIE;
     usart.USARTx->CR1 |= USART_TXEIE;
 }
 
-
-
+usart_t* get_usart_t(void){
+    return &usart;
+}

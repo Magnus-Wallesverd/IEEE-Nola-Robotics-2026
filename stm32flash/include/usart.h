@@ -58,5 +58,7 @@ typedef struct{
 
 void usart_init(USART_Typedef* USARTx, GPIO_TypeDef* port, uint32_t pins, uint16_t baud);
 void load_tx(void);
-void usart_begin(void);
+void usart_begin(void* args);
+usart_t* get_usart_t(void);
+
 #endif // !USART_H
