@@ -76,7 +76,7 @@ void usart_init(USART_Typedef* USARTx, GPIO_TypeDef* port, uint32_t pins, uint16
 }
 
 void load_tx(void){
-    char db[] = "@$!%^&*+"; 
+    char db[] = "test    "; 
     for(int i = 0; i < USART_BUF_SIZE; i++){
         data[i] = db[i];
     }

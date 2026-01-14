@@ -133,7 +133,7 @@ void lcd_print(void* args){
         while(i < 8){
             t0 = get_global_tick();
             while((t0-t1) > REFRESH_RATE){
-                putchar(get_usart_t()->tx_buffer_p[i++%8]);
+                putchar(get_usart_t()->rx_buffer_p[i++%8]);
                 t1=t0;
             }
         }
