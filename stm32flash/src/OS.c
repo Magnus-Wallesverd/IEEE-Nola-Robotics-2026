@@ -104,7 +104,6 @@ void my_thread10(void *ctx){
 }
 
 TCB* threadscheduler(void){
-    while(ready_q.count == 0);
     next_tcb = (TCB*)dequeue(&ready_q);
     next_tcb->state = RUNNING;
     return next_tcb;
