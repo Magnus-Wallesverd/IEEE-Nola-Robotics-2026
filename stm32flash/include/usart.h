@@ -24,7 +24,7 @@
 #define USART_TC      (1<<6)
 #define USART_TXE     (1<<7)
 
-#define RATE 9600
+#define RATE 115200
 #define USART_BRR FCLK/RATE
 #define USART_BUF_SIZE 8
 
@@ -56,7 +56,7 @@ typedef struct{
 #define UART4  ((USART_Typedef *) 0x40004C00)
 #define UART5  ((USART_Typedef *) 0x40005000)
 
-void usart_init(USART_Typedef* USARTx, GPIO_TypeDef* port, uint32_t pins, uint16_t baud);
+void usart_init(USART_Typedef* USARTx, GPIO_TypeDef* port, uint32_t pins, uint32_t baud);
 void load_tx(void);
 void usart_begin(void* args);
 usart_t* get_usart_t(void);

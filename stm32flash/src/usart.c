@@ -36,7 +36,7 @@ void USART1_IRQHandler(void){
 
 
 // init usart clocks, the physical gpio, set baud
-void usart_init(USART_Typedef* USARTx, GPIO_TypeDef* port, uint32_t pins, uint16_t baud){
+void usart_init(USART_Typedef* USARTx, GPIO_TypeDef* port, uint32_t pins, uint32_t baud){
     switch((uint32_t)USARTx){
         case (uint32_t)USART1:
             RCC->APB2ENR |= USART1_EN;
@@ -73,10 +73,12 @@ void usart_init(USART_Typedef* USARTx, GPIO_TypeDef* port, uint32_t pins, uint16
 
     USARTx->CR1 |= CR1_SETUP;
     USARTx->BRR = FCLK/baud;
+
+    USARTx->CR3 |= (1<<12);
 }
 
 void load_tx(void){
-    char db[] = "test    "; 
+    char db[] = "01234567"; 
     for(int i = 0; i < USART_BUF_SIZE; i++){
         data[i] = db[i];
     }
@@ -86,7 +88,7 @@ void load_tx(void){
 void usart_begin(void* args){
     (void) args;
     usart.USARTx->CR1 |= USART_RXNEIE;
-    usart.USARTx->CR1 |= USART_TXEIE;
+    // usart.USARTx->CR1 |= USART_TXEIE;
 }
 
 usart_t* get_usart_t(void){
