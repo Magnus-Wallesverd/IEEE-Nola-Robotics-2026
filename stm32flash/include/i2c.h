@@ -14,9 +14,10 @@
 #define FAST_MODE_PLUS 2
 #define BNO055 0x28
 
+#define WRITE   ~(1<<10)
 #define READ    1<<10
 #define START   1<<13
-#define NBYTES  4
+#define NBYTES  2
 
 #define TXIE    1<<1 
 #define RXIE    1<<2 
@@ -75,7 +76,7 @@ extern uint8_t buf[I2C_BUFFER_SIZE];
 
 void I2C_Init(I2C_TypeDef* I2Cx, uint8_t mode);
 
-void I2C_Write(I2C_TypeDef* I2Cx, uint8_t slave_addr, uint8_t nbytes, uint8_t reg);
+void I2C_Write(I2C_TypeDef* I2Cx, uint8_t nbytes);
 
 void I2C_Read(I2C_TypeDef* I2Cx, uint8_t slave_addr, uint8_t nbytes);
 
@@ -85,5 +86,6 @@ void Sensor_Read(I2C_TypeDef* I2Cx);
 
 void Sensor_Read_Wrapper(void* args);
 
+void Sensor_Write_Wrapper(void* args);
 #endif // I2C_H
 

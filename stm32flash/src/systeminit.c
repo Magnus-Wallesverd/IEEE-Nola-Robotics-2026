@@ -21,14 +21,15 @@ void systeminit(void){
     
     RCC->AHBENR |= 0xE0000;                   // enable GPIO ABC  clock 
 
-    // enable i2c interrupt
-    NVIC->ISER0 |= 1<<31;
 
     // enable timer 16 interrupt
     NVIC->ISER0 |= (1 << 25);
  
+    // enable i2c interrupt
+    NVIC->ISER0 |= 1<<31;
     
     I2C_Init(I2C1, 0);
+    
     input_timer_init();
     output_timer_init();
     for(int i = 0; i <0xFFF; i++);

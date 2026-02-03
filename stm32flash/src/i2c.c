@@ -9,11 +9,18 @@
 #include <stdint.h>
 
 int rx_i = 0;
+int bno[] = {0x3d, 0x9, 0xC};
+int bno_flag = 0;
+int tx_i = 0;
 
 void I2C1_EV_IRQHandler(void){
 
     if(I2C1->ISR & TXIS){
-        I2C1->TXDR = 0;
+        if(bno_flag){
+            I2C1->TXDR = bno[2];
+        } else {
+            I2C1->TXDR = bno[tx_i++];
+        }
         return;
     }
 
@@ -31,6 +38,7 @@ void I2C1_EV_IRQHandler(void){
     if(I2C1->ISR & STOPF){
         I2C1->ICR |=STOPCF;
         rx_i = 0;
+        tx_i = 0;
         return;
     }
 }
@@ -45,23 +53,29 @@ void I2C_Init(I2C_TypeDef* I2Cx, uint8_t mode){
             SetOutputSpeed(GPIOB,0xC0, 1);
 
             I2Cx->CR1 &= ~(1<<0);
-            I2Cx->CR1 |= TXIE|RXIE|TCIE|STOPIE;
             I2Cx->TIMINGR = 0x10420F13;
             I2Cx->ICR = 0x3F38;
+            I2Cx->CR1 |= TXIE|RXIE|TCIE|STOPIE;
             I2Cx->CR1 |= (1<<0);
+            
         // case 1:
         // case 2:
     }
 }
 
-void I2C_Write(I2C_TypeDef* I2Cx, uint8_t slave_addr, uint8_t nbytes, uint8_t reg){
-    I2Cx->ICR = 0x3F38;
-    I2Cx->CR2 = (nbytes << 16)|(slave_addr << 1);
+void I2C_Write(I2C_TypeDef* I2Cx, uint8_t nbytes){
+    int reg[] = {0x3D,0x07};
+    I2Cx->CR2 = (1 << 25)|(nbytes << 16)|WRITE|(BNO055 << 1);
     I2Cx->CR2 &= ~(1<<25);
     I2Cx->CR2 &= ~(1 << 10);
     I2Cx->CR2 |= START;
     while (!(I2Cx->ISR & (1 << 1)));
-    I2Cx->TXDR = reg;
+    I2Cx->TXDR = reg[0];
+    while (!(I2Cx->ISR & (1 << 6)));
+    I2Cx->CR2 = (1 << 25)|(nbytes << 16)|WRITE|(BNO055 << 1);
+    I2Cx->CR2 |= START;
+    while (!(I2Cx->ISR & (1 << 1)));
+    I2Cx->TXDR = reg[1];
     while (!(I2Cx->ISR & (1 << 6)));
 }
 
@@ -74,10 +88,10 @@ void I2C_Read(I2C_TypeDef* I2Cx, uint8_t slave_addr, uint8_t nbytes){
     while(!(I2Cx->ISR & (1<<5)));
 }
 
-void I2C_Write_Read(I2C_TypeDef* I2Cx, uint8_t slave_addr, uint8_t nbytes, uint8_t reg){
-    I2C_Write(I2Cx, slave_addr, nbytes, reg);
-    I2C_Read(I2Cx, slave_addr, nbytes);
-}
+// void I2C_Write_Read(I2C_TypeDef* I2Cx, uint8_t slave_addr, uint8_t nbytes, uint8_t reg){
+//     // I2C_Write(I2Cx, slave_addr, nbytes, reg);
+//     I2C_Read(I2Cx, slave_addr, nbytes);
+// }
 
 void Sensor_Read(I2C_TypeDef* I2Cx){
     I2Cx->CR2 = (1 << 16)|(BNO055 << 1);
@@ -86,7 +100,23 @@ void Sensor_Read(I2C_TypeDef* I2Cx){
     I2Cx->CR2 |= START;   //start
 }
 
+void Sensor_Write(I2C_TypeDef* I2Cx){
+    I2Cx->CR2 = (2 << 16)|(BNO055 << 1);
+    I2Cx->CR2 &= ~(1<<25);
+    I2Cx->CR2 &= ~(1 << 10);
+    I2Cx->CR2 |= START;   //start
+}
+
 void Sensor_Read_Wrapper(void* args){
     (void) args;
-    Sensor_Read(I2C1);
+    bno_flag = 1;
+    while(1){
+        Sensor_Read(I2C1);
+        for(int i = 0; i < 0x7FFF;i++);
+    }
+}
+
+void Sensor_Write_Wrapper(void* args){
+    (void) args;
+    Sensor_Write(I2C1);
 }

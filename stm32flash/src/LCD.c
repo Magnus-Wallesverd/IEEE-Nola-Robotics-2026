@@ -125,16 +125,15 @@ void lcd_print(void* args){
     char buffer_2[BUFFER_SIZE] = {0};
     move_cursor(1,0);
     print(entry_1);
-    int n = 0;
     uint32_t t0 = 0;
     uint32_t t1 = 0;
     while(1){
         t0 = get_global_tick();
         while((t0-t1) > REFRESH_RATE){
-            // move_cursor(0,n*4);
-            // stringify(*(get_i2c_buffer()+(n++)%4),buffer_1);
+            move_cursor(0,0);
+            signed_stringify((*(get_i2c_buffer()+1)<<8) + *(get_i2c_buffer()),buffer_1);
             move_cursor(1, 7);
-            signed_stringify(error2, buffer_2);
+            stringify(get_global_tick(), buffer_2);
             t1=t0;
         }
     }
