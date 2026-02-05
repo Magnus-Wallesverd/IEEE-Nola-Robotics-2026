@@ -7,14 +7,22 @@
 #include "rcc.h"
 #include "gpio.h"
 #include <stdint.h>
-
+#include "timx.h"
 int rx_i = 0;
-int bno[] = {0x3d, 0x9, 0xC};
+int bno[] = {0x3d, 0xC, 0x1A};
 int bno_flag = 0;
 int tx_i = 0;
-
+int ovf17 =0;
+uint8_t flag = 0;
+void TIM1_TRG_TIM17_IRQHandler(void){
+    ovf17++;
+    TIM17->SR = 0;
+    flag = 1;
+}
 void I2C1_EV_IRQHandler(void){
-
+    if (!flag){
+        return;
+    }
     if(I2C1->ISR & TXIS){
         if(bno_flag){
             I2C1->TXDR = bno[2];
@@ -39,6 +47,7 @@ void I2C1_EV_IRQHandler(void){
         I2C1->ICR |=STOPCF;
         rx_i = 0;
         tx_i = 0;
+        flag = 0;
         return;
     }
 }
@@ -61,6 +70,25 @@ void I2C_Init(I2C_TypeDef* I2Cx, uint8_t mode){
         // case 1:
         // case 2:
     }
+}
+
+void sensor_clock_init(void* args){
+    (void) args;
+
+    RCC->APB2ENR |= 1 <<18;    // Enable TIM 17
+
+    //TIM1 PWM
+
+    //GPIO Control pins PB 1,2
+    
+    TIM17->DIER  |= 1;
+    TIM17->CCMR1 |= 0x68;
+    TIM17->PSC   |= 99;
+    TIM17->ARR    = 7999;
+    TIM17->CCR1  |= 4000;
+    TIM17->CCER  |= 1;
+    TIM17->BDTR  |= 1<<15;       // Main Output enable
+    TIM17->CR1   |= 0b10000001;
 }
 
 void I2C_Write(I2C_TypeDef* I2Cx, uint8_t nbytes){

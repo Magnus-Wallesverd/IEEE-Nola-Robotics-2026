@@ -1,6 +1,5 @@
 // TODO hook motors and clamp the CCR integrator
 // TODO implement 3 point backwards difference
-//
 
 #include "motors.h"
 #include "timx.h"

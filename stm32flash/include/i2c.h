@@ -87,5 +87,6 @@ void Sensor_Read(I2C_TypeDef* I2Cx);
 void Sensor_Read_Wrapper(void* args);
 
 void Sensor_Write_Wrapper(void* args);
+void sensor_clock_init(void* args);
 #endif // I2C_H
 

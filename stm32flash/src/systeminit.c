@@ -22,8 +22,8 @@ void systeminit(void){
     RCC->AHBENR |= 0xE0000;                   // enable GPIO ABC  clock 
 
 
-    // enable timer 16 interrupt
-    NVIC->ISER0 |= (1 << 25);
+    // enable timer 16 and 17 interrupt
+    NVIC->ISER0 |= (1 << 25) | 1 << 26;
  
     // enable i2c interrupt
     NVIC->ISER0 |= 1<<31;
@@ -32,6 +32,7 @@ void systeminit(void){
     
     input_timer_init();
     output_timer_init();
+    sensor_clock_init( 0);
     for(int i = 0; i <0xFFF; i++);
     /*test_toggle();*/
 }
