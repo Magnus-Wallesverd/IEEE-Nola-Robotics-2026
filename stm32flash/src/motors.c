@@ -47,7 +47,7 @@ int16_t error3 = 0;
 int16_t error4 = 0;
 int16_t error8= 0;
 
-uint16_t target = 80;
+uint16_t target = 100;
 uint8_t direction;
 
 uint8_t Kp = 1;
@@ -121,7 +121,7 @@ void output_timer_init(void){
     TIM16->CR1   |= 0b10000001;
 }
 
-void steps(int32_t target){
+void steps(int16_t target){
     int A = 1;
     int B = 0;
     int pwm = 0;
@@ -168,9 +168,9 @@ void set_speed(uint16_t target){
     error8 = target - measure8;
     
     TIM1->CCR1 += (Kp*error2)* !(measure2 < -200 ||measure2 > 400);
-    TIM1->CCR2 += (Kp*error3)* !(measure3 < -200 ||measure3 > 400);
+    TIM1->CCR2 += (Kp*error8)* !(measure8 < -200 ||measure8 > 400);
     TIM1->CCR3 += Kp*error4* !(measure4 < -200 ||measure4 > 200);
-    TIM1->CCR4 += Kp*error8* !(measure8 < -200 ||measure8 > 200);
+    TIM1->CCR4 += Kp*error3* !(measure3 < -200 ||measure3 > 200);
 
 }
 
@@ -179,7 +179,7 @@ void test_toggle(void* args){
 
     PinWrite(GPIOB, PB3|PB5);
     PinWrite(GPIOC, PC8|PC11);
-    for(uint32_t i = 0; i < 0x8FFFF ; i++);
-    ResetPins(GPIOB, PB3|PB5);
-    ResetPins(GPIOC, PC8|PC11);
+    for(uint32_t i = 0; i < 0xAFFFF ; i++);
+    //ResetPins(GPIOB, PB3|PB5);
+    //ResetPins(GPIOC, PC8|PC11);
 }

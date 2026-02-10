@@ -21,4 +21,6 @@ void set_speed(uint16_t target);
 
 void test_toggle(void* args);
 
+void steps(int16_t target);
+
 #endif // !MOTORS_H

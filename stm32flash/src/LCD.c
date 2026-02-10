@@ -137,7 +137,7 @@ void lcd_print(void* args){
         while((t0-t1) > REFRESH_RATE){
             // signed_stringify((*(get_i2c_buffer()+1)<<8) + *(get_i2c_buffer()),buffer_1);
             move_cursor(0, 7);
-            stringify(TIM2->CNT&0xFFFF, buffer_1);
+            stringify(buf[0], buffer_1);
             move_cursor(1, 7);
             stringify(TIM3->CNT, buffer_2);
             move_cursor(2, 7);
@@ -153,7 +153,24 @@ void move_cursor(uint32_t x,uint32_t y){
     uint32_t temp;
     if(y>MAX_WIDTH){
         return;
-    }
+    }BNO055
+Data sheet Page 52
+BST-BNO055-DS000-12 | Revi si on 1. 2 | November 2014 Bosch Sensortec
+© Bosch Sensortec GmbH reserves al l ri ghts even i n the event of i ndustri al property ri ghts. We reserve al l ri ghts of di sposal su ch as copyi ng and
+passi ng on to thi rd parti es. BOSCH and the symbol are regi stered trademarks of Robert Bosch GmbH, Germany.
+Note: Speci fi cati ons wi thi n thi s document are subj ect to change wi thout noti ce.
+Register
+Address
+Register
+Name
+Default
+Value bit7 bit6 bit5 bit4 bit3 bit2 bit1 bit0
+1D EUL_Roll_MSB 0x00 Roll Dat a <15:8>
+1C EUL_Roll_LSB 0x00 Roll Dat a <7:0>
+1B EUL_Heading_M
+SB 0x00 Heading Dat a <15:8>
+1A EUL_Heading_L
+SB 0x00 
     switch(x){
         case 0:
             temp = (LINE1 | y);
