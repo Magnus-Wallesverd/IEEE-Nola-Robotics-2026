@@ -8,11 +8,11 @@
 
 #define OFFSET          8
 #define DATA_PINS       0xFF00
-#define RS_PIN          PA10
-#define RW_PIN          PA9
+#define RS_PIN          PA9
+#define RW_PIN          PA10
 #define E_PIN           PA8
-#define RS_E_PINS       PA8|PA10
-#define RS_RW_E_PINS    0x700 
+#define RS_E_PINS       E_PIN|RS_PIN
+#define RS_RW_E_PINS    E_PIN|RS_PIN|RW_PIN
 #define FUNC_SET        0x38
 #define DISP_SET        0x0F
 #define CLR_LCD         0x01

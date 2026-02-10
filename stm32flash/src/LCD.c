@@ -36,12 +36,6 @@ static void putchar(char buffer){
 // hex to char array
 static void stringify(uint32_t num, char buffer[]){
     char temp = 0;
-    if(num>>31){
-		byte2LCD('-', RS_PIN);
-		num = twos_complement(num);
-	} else {
-		byte2LCD(' ', RS_PIN);
-	}
 
     for(int i = 0;i<BUFFER_SIZE;i++){
         temp = num % 10;
@@ -120,20 +114,36 @@ void lcd_init(void){
 
 void lcd_print(void* args){
     (void)args;
-    char entry_1[] = {"error2: "};
+    char entry_1[] = {"TIM2"};
+    char entry_2[] = {"TIM3"};
+    char entry_3[] = {"TIM4"};
+    char entry_4[] = {"TIM8"};
     char buffer_1[BUFFER_SIZE] = {0};
     char buffer_2[BUFFER_SIZE] = {0};
-    move_cursor(1,0);
+    char buffer_3[BUFFER_SIZE] = {0};
+    char buffer_4[BUFFER_SIZE] = {0};
     print(entry_1);
+    move_cursor(1, 0);
+    print(entry_2);
+    move_cursor(2,0);
+    print(entry_3);
+    move_cursor(3,0);
+    print(entry_4);
+    move_cursor(4,0);
     uint32_t t0 = 0;
     uint32_t t1 = 0;
     while(1){
         t0 = get_global_tick();
         while((t0-t1) > REFRESH_RATE){
-            move_cursor(0,0);
-            signed_stringify((*(get_i2c_buffer()+1)<<8) + *(get_i2c_buffer()),buffer_1);
+            // signed_stringify((*(get_i2c_buffer()+1)<<8) + *(get_i2c_buffer()),buffer_1);
+            move_cursor(0, 7);
+            stringify(TIM2->CNT&0xFFFF, buffer_1);
             move_cursor(1, 7);
-            stringify(get_global_tick(), buffer_2);
+            stringify(TIM3->CNT, buffer_2);
+            move_cursor(2, 7);
+            stringify(TIM4->CNT, buffer_3);
+            move_cursor(3, 7);
+            stringify(TIM8->CNT, buffer_4);
             t1=t0;
         }
     }

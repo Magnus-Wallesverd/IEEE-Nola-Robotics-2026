@@ -72,8 +72,7 @@ void I2C_Init(I2C_TypeDef* I2Cx, uint8_t mode){
     }
 }
 
-void sensor_clock_init(void* args){
-    (void) args;
+void sensor_clock_init(){
 
     RCC->APB2ENR |= 1 <<18;    // Enable TIM 17
 

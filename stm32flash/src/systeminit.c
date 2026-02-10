@@ -32,7 +32,6 @@ void systeminit(void){
     
     input_timer_init();
     output_timer_init();
-    sensor_clock_init( 0);
+    sensor_clock_init();
     for(int i = 0; i <0xFFF; i++);
-    /*test_toggle();*/
 }

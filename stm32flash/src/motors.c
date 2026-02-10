@@ -9,8 +9,8 @@
 /* *
  * ENA - PC0 
  * ENB - PC1
- * IN1 - ?
- * IN2 - ?
+ * IN1 - PC10
+ * IN2 - PC11
  * IN3 - PC8
  * IN4 - PC9
  *
@@ -21,11 +21,11 @@
  * IN3 - PC4
  * IN4 - PC5
  *
- * ENA - PA 6,7 
- * ENB - PA 0,1
+ * ENCODERA - PA 6,7 
+ * ENCODERB - PA 0,1
  *
- * ENA - PA 11,12 
- * ENB - PC 6,7
+ * ENCODERA - PA 11,12 
+ * ENCODERB - PC 6,7
  *
  * */
 
@@ -47,7 +47,7 @@ int16_t error3 = 0;
 int16_t error4 = 0;
 int16_t error8= 0;
 
-uint16_t target = 110;
+uint16_t target = 80;
 uint8_t direction;
 
 uint8_t Kp = 1;
@@ -64,9 +64,9 @@ void input_timer_init(void){
     
     SetPinAlternate(GPIOA, 0x18C3);
     SetPinAlternate(GPIOC, 0xC0);
-    AlternateFunctionSet(GPIOA, 0x03, 1);     //TIM2
-    AlternateFunctionSet(GPIOA, 0xC0, 2);     //TIM3
-    AlternateFunctionSet(GPIOA, 0x1800, 10);  //TIM4
+    AlternateFunctionSet(GPIOA, 0x03, 1);     //TIM2 PA 1&0
+    AlternateFunctionSet(GPIOA, 0xC0, 2);     //TIM3 PA 6&7
+    AlternateFunctionSet(GPIOA, 0x1800, 10);  //TIM4 PA
     AlternateFunctionSet(GPIOC, 0xC0, 4);     //TIM8
 
     // define number of input timers as 3
@@ -94,11 +94,10 @@ void output_timer_init(void){
     SetPinAlternate(GPIOC, 0xF);            
     AlternateFunctionSet(GPIOC, 0xF, 2);    // PC0-3 -> AF2   
 
-    //GPIO Control pins PB 1,2
-    SetPinOutput(GPIOB, 0x6);
-
-    //GPIO Control pins PC 4,5,8,9
-    SetPinOutput(GPIOC, IN3|IN4);
+    //GPIO Control pins PC 8-15
+    SetPinOutput(GPIOC, PC8|PC9|PC10|PC11|PC12);
+    SetPinOutput(GPIOB, PB3|PB5);
+    SetPinOutput(GPIOA, PA10);
 
     TIM1->CCMR1 |= 0x6868;      // pwm 1 CH 1,2
     TIM1->CCMR2 |= 0x6868;      // pwm 1 CH 3,4
@@ -120,6 +119,30 @@ void output_timer_init(void){
     TIM16->CCER  |= 1;
     TIM16->BDTR  |= 1<<15;       // Main Output enable
     TIM16->CR1   |= 0b10000001;
+}
+
+void steps(int32_t target){
+    int A = 1;
+    int B = 0;
+    int pwm = 0;
+    int error = target - TIM4->CNT;
+    pwm = error*A + B*measure2;
+    if(pwm <0){
+        PinWrite(GPIOA, 1);
+        ResetPins(GPIOA, 2);
+        pwm *= -1;
+    }
+    else{
+        PinWrite(GPIOA, 2);
+        ResetPins(GPIOA, 1);
+    }
+    if(pwm > TIM4->ARR){
+        pwm = TIM4->ARR;
+    }
+    TIM4->CCR1 = pwm;
+
+
+
 }
 
 void set_speed(uint16_t target){
@@ -145,21 +168,18 @@ void set_speed(uint16_t target){
     error8 = target - measure8;
     
     TIM1->CCR1 += (Kp*error2)* !(measure2 < -200 ||measure2 > 400);
-    //TIM1->CCR2 += (Kp*error3)* !(measure3 < -200 ||measure3 > 400);
-    //TIM1->CCR3 += Kp*error4* !(measure4 < -200 ||measure4 > 200);
-    //TIM1->CCR4 += Kp*error8* !(measure8 < -200 ||measure8 > 200);
+    TIM1->CCR2 += (Kp*error3)* !(measure3 < -200 ||measure3 > 400);
+    TIM1->CCR3 += Kp*error4* !(measure4 < -200 ||measure4 > 200);
+    TIM1->CCR4 += Kp*error8* !(measure8 < -200 ||measure8 > 200);
 
 }
 
 void test_toggle(void* args){
     (void) args;
-    // PinWrite(GPIOB, (1 << 1));
-    PinWrite(GPIOC, IN3);
-    // for(uint32_t i = 0; i < 0xFFFFFF ; i++);
-    for(;;);
-    // ResetPins(GPIOB, (1 << 1));
-    ResetPins(GPIOC, IN3);
-    // TIM1->CCR1 = 0;
-    // TIM1->CCR2 = 0;
-    // for(uint32_t k = 0; k < 0x1FFFF ; k++);
+
+    PinWrite(GPIOB, PB3|PB5);
+    PinWrite(GPIOC, PC8|PC11);
+    for(uint32_t i = 0; i < 0x8FFFF ; i++);
+    ResetPins(GPIOB, PB3|PB5);
+    ResetPins(GPIOC, PC8|PC11);
 }
