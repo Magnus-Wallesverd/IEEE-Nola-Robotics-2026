@@ -4,7 +4,7 @@
 #include "stm32f303.h"
 #include <stdint.h>
 
-#define SIZE 10
+#define TCB_ARRAY_SIZE 10
 #define STACK_SIZE 1024
 #define TASK_BLOCK (1024/sizeof(uint32_t))
 
@@ -29,7 +29,7 @@ enum states{
     IDLE
 };
 
-extern TCB _stcb[SIZE];
+extern TCB _stcb[TCB_ARRAY_SIZE];
 
 __attribute__((section(".thread1"), used, naked))  void  my_thread1(void *ctx);
 __attribute__((section(".thread2"), used, naked))  void  my_thread2(void *ctx);

@@ -18,6 +18,7 @@
 #define READ    1<<10
 #define START   1<<13
 #define NBYTES  2
+#define INIT_NBYTES  2
 
 #define TXIE    1<<1 
 #define RXIE    1<<2 
@@ -26,8 +27,11 @@
 
 #define TXIS    1<<1 
 #define RXNE    1<<2 
+#define NACKF   1<<4  
 #define STOPF   1<<5
 #define TC      1<<6
+#define TCR     1<<7
+#define BUSY    1<<15
 
 #define STOPCF  1<<5
 
@@ -70,7 +74,7 @@ typedef struct{
 #define I2C1 ((I2C_TypeDef *)0x40005400)
 #define I2C2 ((I2C_TypeDef *)0x40005800)
 
-extern uint8_t buf[I2C_BUFFER_SIZE];
+extern int bno_flag;
 
 // I2C HAL function prototypes
 
@@ -87,6 +91,9 @@ void Sensor_Read(I2C_TypeDef* I2Cx);
 void Sensor_Read_Wrapper(void* args);
 
 void Sensor_Write_Wrapper(void* args);
+ 
 void sensor_clock_init();
+
+uint8_t* get_i2c_buffer();
 #endif // I2C_H
 

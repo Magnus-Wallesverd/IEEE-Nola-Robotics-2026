@@ -4,6 +4,7 @@
 #include "motors.h"
 #include "timx.h"
 #include "rcc.h"
+#include "lock.h"
 #include <stdint.h>
 
 /* *
@@ -37,6 +38,8 @@ int16_t prev3 = 0;
 int16_t prev4 = 0;
 int16_t prev8 = 0;
 
+int16_t pwm=0;
+
 int16_t measure2 = 0;
 int16_t measure3 = 0;
 int16_t measure4 = 0;
@@ -53,9 +56,9 @@ uint8_t direction;
 uint8_t Kp = 1;
 
 void TIM1_UP_TIM16_IRQHandler(void){
-    set_speed(target);
-    // target--;
+    flag_register = 1;
     TIM16->SR = 0;      // clear flags
+    yield_isr();
 }
 
 void input_timer_init(void){
@@ -74,7 +77,6 @@ void input_timer_init(void){
         input_timers[i]->SMCR |= 0x3;  // Encoder mode 3
         input_timers[i]->CCMR1 |= 0x101; // CC1 is input IC -> T1I
         input_timers[i]->CCER |= 0x11;   // Capture mode 1 & 2 enabled   
-        /*input_timers[i]->DIER |= 0x6;*/
         input_timers[i]->CR1 |= 0b10000001; // enable timer
     }
 
@@ -94,7 +96,7 @@ void output_timer_init(void){
     SetPinAlternate(GPIOC, 0xF);            
     AlternateFunctionSet(GPIOC, 0xF, 2);    // PC0-3 -> AF2   
 
-    //GPIO Control pins PC 8-15
+    //GPIO Control pins PC 8-12 PB 
     SetPinOutput(GPIOC, PC8|PC9|PC10|PC11|PC12);
     SetPinOutput(GPIOB, PB3|PB5);
     SetPinOutput(GPIOA, PA10);
@@ -122,24 +124,29 @@ void output_timer_init(void){
 }
 
 void steps(int16_t target){
-    int A = 1;
-    int B = 0;
-    int pwm = 0;
-    int error = target - TIM4->CNT;
-    pwm = error*A + B*measure2;
-    if(pwm <0){
-        PinWrite(GPIOA, 1);
-        ResetPins(GPIOA, 2);
-        pwm *= -1;
+    int16_t curr4 = (TIM4->CNT);
+    int16_t A = 1;
+    int16_t B = 1;
+    pwm = 0;
+    measure4 = curr4 - prev4;
+    prev4 = curr4;
+    int16_t error = target - curr4;
+    pwm = error*A + B*measure4;
+    if(pwm<0){
+        ResetPins(GPIOB, PB3|PB5);
+        ResetPins(GPIOC, PC10|PC9);
     }
     else{
-        PinWrite(GPIOA, 2);
-        ResetPins(GPIOA, 1);
+        PinWrite(GPIOC, PC11|PC8);
+        PinWrite(GPIOB, PB3|PB5 );
     }
-    if(pwm > TIM4->ARR){
+    if((pwm > TIM4->ARR) | (-1*pwm < TIM4->ARR)){
         pwm = TIM4->ARR;
     }
-    TIM4->CCR1 = pwm;
+    TIM1->CCR1 = pwm;
+    TIM1->CCR3 = pwm;
+    TIM1->CCR2 = pwm;
+    TIM1->CCR4 = pwm;
 
 
 
@@ -167,19 +174,14 @@ void set_speed(uint16_t target){
     error4 = target - measure4;
     error8 = target - measure8;
     
-    TIM1->CCR1 += (Kp*error2)* !(measure2 < -200 ||measure2 > 400);
-    TIM1->CCR2 += (Kp*error8)* !(measure8 < -200 ||measure8 > 400);
-    TIM1->CCR3 += Kp*error4* !(measure4 < -200 ||measure4 > 200);
-    TIM1->CCR4 += Kp*error3* !(measure3 < -200 ||measure3 > 200);
+    TIM1->CCR1 += (Kp*error2) * !(measure2 < -200 ||measure2 > 400);
+    TIM1->CCR2 += (Kp*error8) * !(measure8 < -200 ||measure8 > 400);
+    TIM1->CCR3 += Kp*error4   * !(measure4 < -200 ||measure4 > 200);
+    TIM1->CCR4 += Kp*error3   * !(measure3 < -200 ||measure3 > 200);
 
 }
 
-void test_toggle(void* args){
+void motor_wrapper(void* args){
     (void) args;
-
-    PinWrite(GPIOB, PB3|PB5);
-    PinWrite(GPIOC, PC8|PC11);
-    for(uint32_t i = 0; i < 0xAFFFF ; i++);
-    //ResetPins(GPIOB, PB3|PB5);
-    //ResetPins(GPIOC, PC8|PC11);
+    set_speed(target);
 }

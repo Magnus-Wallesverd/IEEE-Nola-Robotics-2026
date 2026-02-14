@@ -28,10 +28,7 @@ void systeminit(void){
     // enable i2c interrupt
     NVIC->ISER0 |= 1<<31;
     
-    I2C_Init(I2C1, 0);
-    
     input_timer_init();
     output_timer_init();
-    sensor_clock_init();
-    for(int i = 0; i <0xFFF; i++);
+    I2C_Init(I2C1, 0);
 }

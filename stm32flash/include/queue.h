@@ -4,8 +4,8 @@
 #include "stm32f303.h"
 #include <stdint.h>
 
-#define TASK_QUEUE_SIZE 3 
-#define FUNC_POOL_SIZE 3
+#define TASK_QUEUE_SIZE 4 
+#define FUNC_POOL_SIZE 4
 #define MSG_POOL_SIZE 3
 #define MSG_QUEUE_SIZE 3 
 

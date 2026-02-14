@@ -33,13 +33,13 @@ g_pfnVectors:
   .word SysTick_Handler + 1
   .word 0, 0, 0, 0, 0, 0, 0, 0
   .word 0, 0, 0
-  .word DMA1_CH1_IRQHAndler
-  .word DMA1_CH2_IRQHAndler
-  .word DMA1_CH3_IRQHAndler
-  .word DMA1_CH4_IRQHAndler
-  .word DMA1_CH5_IRQHAndler
-  .word DMA1_CH6_IRQHAndler
-  .word DMA1_CH7_IRQHAndler
+  .word DMA1_CH1_IRQHandler
+  .word DMA1_CH2_IRQHandler
+  .word DMA1_CH3_IRQHandler
+  .word DMA1_CH4_IRQHandler
+  .word DMA1_CH5_IRQHandler
+  .word DMA1_CH6_IRQHandler
+  .word DMA1_CH7_IRQHandler
   .word 0, 0, 0, 0, 0, 0 
   .word 0 
   .word TIM1_UP_TIM16_IRQHandler + 1
@@ -196,25 +196,25 @@ Default_Handler:
 .weak DebugMon_Handler
 .thumb_set DebugMon_Handler, Default_Handler
 
-.weak DMA1_CH1_IRQHAndler
+.weak DMA1_CH1_IRQHandler
 .thumb_set DMA1_CH1_IRQHAndler, Default_Handler
 
-.weak DMA1_CH2_IRQHAndler
+.weak DMA1_CH2_IRQHandler
 .thumb_set DMA1_CH2_IRQHAndler, Default_Handler
 
-.weak DMA1_CH3_IRQHAndler
+.weak DMA1_CH3_IRQHandler
 .thumb_set DMA1_CH3_IRQHAndler, Default_Handler
 
-.weak DMA1_CH4_IRQHAndler
+.weak DMA1_CH4_IRQHandler
 .thumb_set DMA1_CH4_IRQHAndler, Default_Handler
 
-.weak DMA1_CH5_IRQHAndler
+.weak DMA1_CH5_IRQHandler
 .thumb_set DMA1_CH5_IRQHAndler, Default_Handler
 
-.weak DMA1_CH6_IRQHAndler
+.weak DMA1_CH6_IRQHandler
 .thumb_set DMA1_CH6_IRQHAndler, Default_Handler
 
-.weak DMA1_CH7_IRQHAndler
+.weak DMA1_CH7_IRQHandler
 .thumb_set DMA1_CH7_IRQHAndler, Default_Handler
 
 .weak TIM1_UP_TIM16_IRQHandler
@@ -236,8 +236,7 @@ Default_Handler:
 .thumb_set I2C2_ER_IRQHandler, Default_Handler
 
 .weak SPI1_IRQHandler
-.thumb_set SPI1_IRQHandler, Default_Handler
+.thumb_set SPI1_IRQHandler, Default_Handler 
 
 .weak SPI2_IRQHandler
 .thumb_set SPI2_IRQHandler, Default_Handler
-

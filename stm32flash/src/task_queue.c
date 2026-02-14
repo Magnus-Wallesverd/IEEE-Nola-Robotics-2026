@@ -3,15 +3,18 @@
 
 queue_t task_queue;
 queue_t* task_queue_ptr = &task_queue;
+queue_t running_queue;
+queue_t* running_queue_ptr = &running_queue;
 work_item_t task_pool[TASK_QUEUE_SIZE];
 void* task_queue_array[TASK_QUEUE_SIZE];
+void* running_queue_array[TASK_QUEUE_SIZE];
 
 // should start thinking of easier ways to get functions in here
 const func_t fn_table[FUNC_POOL_SIZE] = {
     Sensor_Write_Wrapper,
-    lcd_print,
-    //test_toggle,
     Sensor_Read_Wrapper,
+    lcd_print,
+    motor_wrapper
 };
 
 void task_queue_init(void){
@@ -26,9 +29,22 @@ void task_queue_init(void){
         task_pool[i].fn = fn_table[i];
         task_pool[i].args = (void*)0;
     }
+
     
     // need to enqueue the address of the task
     for(int i = 0; i < TASK_QUEUE_SIZE; i++){
         enqueue(task_queue_ptr, &task_pool[i]);
+    }
+}
+
+void running_queue_init(void){
+    running_queue_ptr->count = 0;
+    running_queue_ptr->array = running_queue_array;
+    running_queue_ptr->size  = TASK_QUEUE_SIZE;
+    running_queue_ptr->front = running_queue_ptr->array;
+    running_queue_ptr->end   = running_queue_ptr->array;
+    
+    for(int i = 0; i < TASK_QUEUE_SIZE; i++){
+        enqueue(ready_queue_ptr, &ready_pool[i]);
     }
 }

@@ -31,4 +31,3 @@ PendSV_Handler:
     /* Exception return */
     ldr r0, =0xFFFFFFFD
     bx r0
-

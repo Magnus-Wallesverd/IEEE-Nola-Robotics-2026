@@ -19,8 +19,10 @@ void output_timer_init(void);
 
 void set_speed(uint16_t target);
 
-void test_toggle(void* args);
-
 void steps(int16_t target);
+
+extern uint32_t flag_register;
+
+void motor_wrapper(void* args);
 
 #endif // !MOTORS_H

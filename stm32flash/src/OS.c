@@ -2,34 +2,27 @@
 #include <stdint.h>
 #include "math.h"
 
-extern uint32_t _task1_end;
-uint32_t speed=0;
-uint32_t d1=0;
-uint32_t global_tick;
+uint32_t flag_register = 0;
+uint32_t global_tick = 0;
 uint32_t  task_flag = 0;
-TCB _stcb[SIZE];
+TCB _stcb[TCB_ARRAY_SIZE];
 TCB *current_tcb;
 TCB *next_tcb;
-uint8_t buf[I2C_BUFFER_SIZE];
 
 
 uint32_t get_global_tick(void){
     return global_tick;
 }
 
-uint8_t* get_i2c_buffer(void) {
-    return buf;
-}
-
 void tcbinit(void){
 
-    for(int i = 0; i < SIZE; i++){
+    for(int i = 0; i < TCB_ARRAY_SIZE; i++){
         _stcb[i].total_age = 0;
         _stcb[i].queue_age = 0;
         _stcb[i].pid = i;
         _stcb[i].state = READY;
         _stcb[i].prio = 0xB;
-        _stcb[i].flags = 0xC;
+        _stcb[i].flags = 0x0;
     }
 }
 
@@ -53,7 +46,6 @@ void worker_function(void){
         current_tcb->state = READY;
         yield();
     }
-
 }
 
 void my_thread1(void *ctx){
@@ -126,10 +118,26 @@ void my_thread10(void *ctx){
     }
 }
 
+// nothing sets the _stcb[i].flags
+// if im block what unblocks me 
+// if im block what skips me
+// try adding a running queue
+
 TCB* threadscheduler(void){
-    next_tcb++;
-    if(next_tcb >= &_stcb[SIZE]){
-        next_tcb = _stcb;
+    if(flag_register){
+        for(int i = 0; i < TCB_ARRAY_SIZE; i++){
+            if(_stcb[i].flags){
+                next_tcb = &_stcb[i];
+                flag_register = 0;
+                _stcb[i].flags = 0;
+                break;
+            }
+        }
+    } else {
+        next_tcb++;
+        if(next_tcb >= &_stcb[TCB_ARRAY_SIZE]){
+            next_tcb = _stcb;
+        }
     }
     return next_tcb;
 }
