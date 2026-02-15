@@ -141,3 +141,9 @@ TCB* threadscheduler(void){
     }
     return next_tcb;
 }
+
+void thread_logic(void){
+    for(int i = 0; i < TCB_ARRAY_SIZE; i++){
+        enqueue(running_queue_ptr, &_stcb[i]);
+    }
+}

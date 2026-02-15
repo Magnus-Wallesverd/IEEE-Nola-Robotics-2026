@@ -30,7 +30,6 @@ void task_queue_init(void){
         task_pool[i].args = (void*)0;
     }
 
-    
     // need to enqueue the address of the task
     for(int i = 0; i < TASK_QUEUE_SIZE; i++){
         enqueue(task_queue_ptr, &task_pool[i]);
@@ -43,8 +42,4 @@ void running_queue_init(void){
     running_queue_ptr->size  = TASK_QUEUE_SIZE;
     running_queue_ptr->front = running_queue_ptr->array;
     running_queue_ptr->end   = running_queue_ptr->array;
-    
-    for(int i = 0; i < TASK_QUEUE_SIZE; i++){
-        enqueue(ready_queue_ptr, &ready_pool[i]);
-    }
 }
