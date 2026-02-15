@@ -5,8 +5,12 @@ void block(void){
     yield();
 }
 
-// where is this param coming from
 void unblock(TCB* tcb){
     tcb->state = READY;
     enqueue(ready_queue_ptr, tcb);
+}
+
+void idle_task(void* args){
+    (void) args;
+    while(1);
 }

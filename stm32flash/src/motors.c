@@ -60,9 +60,9 @@ uint8_t Kp = 1;
 void TIM1_UP_TIM16_IRQHandler(void){
     __asm volatile("BKPT #1"); // motor timer
     TIM16->SR = 0;  // clear flags
-    if()
-    unblock(motor_tcb);
-    yield_isr();
+    if(motor_tcb->state == BLOCKED){
+        unblock(motor_tcb);
+    }
 }
 
 void input_timer_init(void){

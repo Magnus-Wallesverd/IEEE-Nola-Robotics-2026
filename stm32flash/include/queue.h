@@ -6,7 +6,7 @@
 #include "lcd.h"
 #include "motors.h"
 
-#define TASK_QUEUE_SIZE 4 
+#define TASK_QUEUE_SIZE 5 
 #define FUNC_POOL_SIZE 4
 #define MSG_POOL_SIZE 3
 #define MSG_QUEUE_SIZE 3 

@@ -19,7 +19,8 @@ void* priority_queue_array[TASK_QUEUE_SIZE];
 
 // should start thinking of easier ways to get functions in here
 const func_t fn_table[] = {
-    // Sensor_Write_Wrapper,
+    idle_spin,
+    Sensor_Write_Wrapper,
     // Sensor_Read_Wrapper,
     lcd_print,
     motor_wrapper
