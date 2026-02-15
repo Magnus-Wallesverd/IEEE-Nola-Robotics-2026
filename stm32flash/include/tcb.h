@@ -1,8 +1,8 @@
 #ifndef TCB_H
 #define TCB_H
 
-#include "stm32f303.h"
 #include <stdint.h>
+#include "queue.h"
 
 #define TCB_ARRAY_SIZE 10
 #define STACK_SIZE 1024

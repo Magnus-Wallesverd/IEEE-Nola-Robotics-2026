@@ -28,7 +28,7 @@ void systeminit(void){
     // enable i2c interrupt
     NVIC->ISER0 |= 1<<31;
     
-    input_timer_init();
-    output_timer_init();
-    I2C_Init(I2C1, 0);
+    ready_queue_init();
+    running_queue_init();
+    priority_queue_init();
 }

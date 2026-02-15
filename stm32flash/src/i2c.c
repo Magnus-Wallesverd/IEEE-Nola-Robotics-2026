@@ -73,6 +73,7 @@ void Sensor_Write(I2C_TypeDef* I2Cx){
 
 void Sensor_Read_Wrapper(void* args){
     (void) args;
+    I2C_Init(I2C1, 0);
     bno_flag = 1;
     while(1){
         if(!(I2C1->ISR&BUSY)){

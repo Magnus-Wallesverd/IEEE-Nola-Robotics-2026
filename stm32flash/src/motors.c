@@ -30,6 +30,8 @@
  *
  * */
 
+//works for now because motor task never quits
+TCB* motor_tcb;
 
 Gen_TIM_TypeDef1* input_timers[] = {TIM2, TIM3, TIM4};
 
@@ -56,8 +58,10 @@ uint8_t direction;
 uint8_t Kp = 1;
 
 void TIM1_UP_TIM16_IRQHandler(void){
-    flag_register = 1;
-    TIM16->SR = 0;      // clear flags
+    __asm volatile("BKPT #1"); // motor timer
+    TIM16->SR = 0;  // clear flags
+    if()
+    unblock(motor_tcb);
     yield_isr();
 }
 
@@ -148,12 +152,10 @@ void steps(int16_t target){
     TIM1->CCR2 = pwm;
     TIM1->CCR4 = pwm;
 
-
-
 }
 
 void set_speed(uint16_t target){
-
+    
     int16_t curr2 = TIM2->CNT;
     int16_t curr3 = TIM3->CNT;
     int16_t curr4 = TIM4->CNT;
@@ -183,5 +185,12 @@ void set_speed(uint16_t target){
 
 void motor_wrapper(void* args){
     (void) args;
-    set_speed(target);
+    motor_tcb = current_tcb;
+    input_timer_init();
+    output_timer_init();
+    while(1){
+        set_speed(target);
+        __asm volatile("BKPT #2"); //block
+        block();
+    }
 }

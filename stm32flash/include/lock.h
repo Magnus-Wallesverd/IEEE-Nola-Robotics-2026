@@ -1,8 +1,9 @@
 #ifndef LOCK_H
 #define LOCK_H
 
-#include "stm32f303.h"
 #include <stdint.h>
+#include "queue.h"
+#include "tcb.h"
 
 extern TCB *current_tcb;
 extern uint32_t lock(uint32_t* flag);
@@ -11,6 +12,8 @@ extern void yield(void);
 extern void yield_isr(void);
 
 void block(void);
+
+void unblock(TCB* tcb);
 
 #endif // !LOCK_H
 

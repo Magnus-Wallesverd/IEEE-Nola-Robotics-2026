@@ -1,8 +1,10 @@
 #ifndef QUEUE_H
 #define QUEUE_H
 
-#include "stm32f303.h"
 #include <stdint.h>
+#include "i2c.h"
+#include "lcd.h"
+#include "motors.h"
 
 #define TASK_QUEUE_SIZE 4 
 #define FUNC_POOL_SIZE 4
@@ -26,9 +28,14 @@ typedef struct {
 }work_item_t;
 
 extern queue_t* task_queue_ptr;
+extern queue_t* ready_queue_ptr;
+extern queue_t* running_queue_ptr;
 
 void enqueue(queue_t* q, void* args);
 void* dequeue(queue_t* q);
 void task_queue_init(void);
+void ready_queue_init(void);
+void running_queue_init(void);
+void priority_queue_init(void);
 
 #endif // !QUEUE_H

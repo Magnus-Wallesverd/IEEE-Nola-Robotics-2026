@@ -2,7 +2,6 @@
 #include <stdint.h>
 #include "math.h"
 
-uint32_t flag_register = 0;
 uint32_t global_tick = 0;
 uint32_t  task_flag = 0;
 TCB _stcb[TCB_ARRAY_SIZE];
@@ -21,7 +20,7 @@ void tcbinit(void){
         _stcb[i].queue_age = 0;
         _stcb[i].pid = i;
         _stcb[i].state = READY;
-        _stcb[i].prio = 0xB;
+        _stcb[i].prio = 0x0;
         _stcb[i].flags = 0x0;
     }
 }
@@ -118,32 +117,22 @@ void my_thread10(void *ctx){
     }
 }
 
-// nothing sets the _stcb[i].flags
-// if im block what unblocks me 
-// if im block what skips me
-// try adding a running queue
-
 TCB* threadscheduler(void){
-    if(flag_register){
-        for(int i = 0; i < TCB_ARRAY_SIZE; i++){
-            if(_stcb[i].flags){
-                next_tcb = &_stcb[i];
-                flag_register = 0;
-                _stcb[i].flags = 0;
-                break;
-            }
-        }
+    if(ready_queue_ptr->count > 0){
+        next_tcb = dequeue(ready_queue_ptr);
+    } else if(current_tcb->state == BLOCKED){
+        next_tcb = (TCB*)dequeue(running_queue_ptr);
+    } else if(current_tcb->state == RUNNING){
+        enqueue(running_queue_ptr, current_tcb);
+        next_tcb = (TCB*)dequeue(running_queue_ptr);
     } else {
-        next_tcb++;
-        if(next_tcb >= &_stcb[TCB_ARRAY_SIZE]){
-            next_tcb = _stcb;
-        }
+        while(1);
     }
+    if(next_tcb == 0){
+        __asm volatile("BKPT #0"); // scheduler error
+        while(1);
+    }
+
     return next_tcb;
 }
 
-void thread_logic(void){
-    for(int i = 0; i < TCB_ARRAY_SIZE; i++){
-        enqueue(running_queue_ptr, &_stcb[i]);
-    }
-}

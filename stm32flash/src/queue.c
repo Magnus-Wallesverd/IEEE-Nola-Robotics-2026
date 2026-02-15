@@ -17,16 +17,18 @@ void enqueue(queue_t* q, void* args){
 }
 
 void* dequeue(queue_t* q){
-    void* args = *(q->front);
+    void* args;
     if(q->count == 0){
         return (void*)0;
     }else if(q->front<=q->array+q->size-1){
+        args = *(q->front);
         *(q->front) = (void*)0;
         q->front++;
         q->count--;
         return args;
     } else {
         q->front = q->array;
+        args = *(q->front);
         *(q->front) = (void*)0;
         q->front++;
         q->count--;
