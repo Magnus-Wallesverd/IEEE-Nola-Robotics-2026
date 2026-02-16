@@ -29,6 +29,6 @@ void systeminit(void){
     NVIC->ISER0 |= 1<<31;
     
     ready_queue_init();
-    running_queue_init();
     priority_queue_init();
+    I2C_Init(I2C1, 0);
 }

@@ -7,6 +7,7 @@ uint32_t  task_flag = 0;
 TCB _stcb[TCB_ARRAY_SIZE];
 TCB *current_tcb;
 TCB *next_tcb;
+uint32_t kernel_idle_flag = 0;
 
 
 uint32_t get_global_tick(void){
@@ -30,19 +31,16 @@ void worker_function(void){
     work_item_t* item;
     
     // take item off queue
-    current_tcb->state = RUNNING;
     if(lock(&task_flag) == 1){
         item = (work_item_t*)dequeue(task_queue_ptr);
         unlock(&task_flag);
     } else { yield(); }
     
     if(item == (void*)0){
-        current_tcb->state = IDLE;
         yield();
         return;
     } else {
         item->fn(item->args);
-        current_tcb->state = READY;
         yield();
     }
 }
@@ -118,21 +116,25 @@ void my_thread10(void *ctx){
 }
 
 TCB* threadscheduler(void){
-    if(ready_queue_ptr->count > 0){
-        next_tcb = dequeue(ready_queue_ptr);
-    } else if(current_tcb->state == BLOCKED){
-        next_tcb = (TCB*)dequeue(running_queue_ptr);
-    } else if(current_tcb->state == RUNNING){
-        enqueue(running_queue_ptr, current_tcb);
-        next_tcb = (TCB*)dequeue(running_queue_ptr);
-    } else {
-        while(1);
-    }
-    if(next_tcb == 0){
-        __asm volatile("BKPT #0"); // scheduler error
-        while(1);
-    }
+    while(1){
 
-    return next_tcb;
+        if(current_tcb->state == BLOCKED){
+            next_tcb = (TCB*)dequeue(ready_queue_ptr);
+            next_tcb->state = RUNNING;
+            return next_tcb;
+        } else if(ready_queue_ptr->count > 0){
+            enqueue(ready_queue_ptr, current_tcb);
+            current_tcb->state = READY;
+            next_tcb = (TCB*)dequeue(ready_queue_ptr);
+            next_tcb->state = RUNNING;
+            return next_tcb;
+        } else {
+            return current_tcb;
+        }
+        if(next_tcb == 0){
+            __asm volatile("BKPT #0"); // scheduler error
+
+        }
+    }
 }
 

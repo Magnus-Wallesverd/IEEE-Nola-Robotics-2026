@@ -3,7 +3,7 @@
 
 int rx_i = 0;
 int bno[] = {0x3d, 0xC, 0x1A};
-int bno_flag = 0;
+volatile int bno_flag = 0;
 int tx_i = 0;
 uint8_t rx_buffer[I2C_BUFFER_SIZE];
 
@@ -33,10 +33,10 @@ void I2C1_EV_IRQHandler(void){
         I2C1->CR2 |= (1 << 25)|(NBYTES << 16)|READ|(BNO055 << 1)|START;
         return;
     } else {
+        __asm volatile("BKPT #6");
         return;
     }
     
-
 }
 
 void I2C1_ER_IRQHandler(void){

@@ -6,23 +6,18 @@ queue_t task_queue;
 queue_t* task_queue_ptr = &task_queue;
 queue_t ready_queue;
 queue_t* ready_queue_ptr = &ready_queue;
-queue_t running_queue;
-queue_t* running_queue_ptr = &running_queue;
 queue_t priority_queue;
 queue_t* priority_queue_ptr = &priority_queue;
 
 work_item_t task_pool[TASK_QUEUE_SIZE];
 void* task_queue_array[TASK_QUEUE_SIZE];
 void* ready_queue_array[TASK_QUEUE_SIZE];
-void* running_queue_array[TASK_QUEUE_SIZE];
 void* priority_queue_array[TASK_QUEUE_SIZE];
 
 // should start thinking of easier ways to get functions in here
 const func_t fn_table[] = {
-    idle_spin,
-    Sensor_Write_Wrapper,
-    // Sensor_Read_Wrapper,
     lcd_print,
+    Sensor_Read_Wrapper,
     motor_wrapper
 };
 
@@ -52,17 +47,9 @@ void ready_queue_init(void){
     ready_queue_ptr->front = ready_queue_ptr->array;
     ready_queue_ptr->end   = ready_queue_ptr->array;
     
-    for(unsigned int i = 0; i < sizeof(fn_table)/4; i++){
+    for(unsigned int i = 1; i < sizeof(fn_table)/4; i++){
         enqueue(ready_queue_ptr, &_stcb[i]);
     }
-}
-
-void running_queue_init(void){
-    running_queue_ptr->count = 0;
-    running_queue_ptr->array = running_queue_array;
-    running_queue_ptr->size  = TASK_QUEUE_SIZE;
-    running_queue_ptr->front = running_queue_ptr->array;
-    running_queue_ptr->end   = running_queue_ptr->array;
 }
 
 void priority_queue_init(void){
@@ -72,5 +59,3 @@ void priority_queue_init(void){
     priority_queue_ptr->front = priority_queue_ptr->array;
     priority_queue_ptr->end   = priority_queue_ptr->array;
 }
-
- // make array of queues for one function instead of 3

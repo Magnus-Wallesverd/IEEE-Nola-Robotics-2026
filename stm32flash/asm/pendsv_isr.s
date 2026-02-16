@@ -16,6 +16,7 @@ PendSV_Handler:
     bl threadscheduler 
     
     /* update to next */
+    ldr r1, =current_tcb
     str r0, [r1]
     ldr r0, [r0]
     msr psp, r0

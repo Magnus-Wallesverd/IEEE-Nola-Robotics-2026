@@ -7,28 +7,6 @@
 #include "lock.h"
 #include <stdint.h>
 
-/* *
- * ENA - PC0 
- * ENB - PC1
- * IN1 - PC10
- * IN2 - PC11
- * IN3 - PC8
- * IN4 - PC9
- *
- * ENA - PC2
- * ENB - PC3
- * IN1 - PB1
- * IN2 - PB2
- * IN3 - PC4
- * IN4 - PC5
- *
- * ENCODERA - PA 6,7 
- * ENCODERB - PA 0,1
- *
- * ENCODERA - PA 11,12 
- * ENCODERB - PC 6,7
- *
- * */
 
 //works for now because motor task never quits
 TCB* motor_tcb;
@@ -58,9 +36,9 @@ uint8_t direction;
 uint8_t Kp = 1;
 
 void TIM1_UP_TIM16_IRQHandler(void){
-    __asm volatile("BKPT #1"); // motor timer
     TIM16->SR = 0;  // clear flags
-    if(motor_tcb->state == BLOCKED){
+    if(motor_tcb->flags > 0){
+        flag_wait(motor_tcb);
         unblock(motor_tcb);
     }
 }
@@ -190,7 +168,8 @@ void motor_wrapper(void* args){
     output_timer_init();
     while(1){
         set_speed(target);
-        __asm volatile("BKPT #2"); //block
+        // __asm volatile("BKPT #2"); //block
+        flag_post(motor_tcb);
         block();
     }
 }

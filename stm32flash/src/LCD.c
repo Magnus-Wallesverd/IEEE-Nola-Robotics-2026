@@ -114,7 +114,7 @@ void lcd_init(void){
 
 void lcd_print(void* args){
     (void)args;
-    char entry_1[] = {"READY QUEUE: "};
+    char entry_1[] = {"Heading: "};
     // char entry_2[] = {"TIM3"};
     // char entry_3[] = {"TIM4"};
     // char entry_4[] = {"TIM8"};
@@ -136,8 +136,8 @@ void lcd_print(void* args){
     while(1){
         t0 = get_global_tick();
         while((t0-t1) > REFRESH_RATE){
-            move_cursor(1,  0);
-            // signed_stringify((*(get_i2c_buffer()+1)<<8) + *(get_i2c_buffer()),buffer_1);
+            move_cursor(0, 10);
+            signed_stringify((*(get_i2c_buffer()+1)<<8) + *(get_i2c_buffer()),buffer_1);
             // move_cursor(1, 7);
             // signed_stringify((*(get_i2c_buffer()+3)<<8) + *(get_i2c_buffer()+2),buffer_1);
             // move_cursor(2, 7);
@@ -148,7 +148,7 @@ void lcd_print(void* args){
             // stringify(TIM4->CNT, buffer_1);
             // move_cursor(3, 7);
             // stringify(TIM8->CNT, buffer_4);
-            stringify(get_global_tick(), buffer_1);
+            // stringify(get_global_tick(), buffer_1);
             t1=t0;
         }
     }

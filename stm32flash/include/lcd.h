@@ -14,7 +14,7 @@
 #define RS_E_PINS       E_PIN|RS_PIN
 #define RS_RW_E_PINS    E_PIN|RS_PIN|RW_PIN
 #define FUNC_SET        0x38
-#define DISP_SET        0x0F
+#define DISP_SET        0x0C
 #define CLR_LCD         0x01
 #define LINE1           0x80
 #define LINE2           0xC0

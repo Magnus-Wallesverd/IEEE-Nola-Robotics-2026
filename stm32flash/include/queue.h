@@ -29,13 +29,11 @@ typedef struct {
 
 extern queue_t* task_queue_ptr;
 extern queue_t* ready_queue_ptr;
-extern queue_t* running_queue_ptr;
 
 void enqueue(queue_t* q, void* args);
 void* dequeue(queue_t* q);
 void task_queue_init(void);
 void ready_queue_init(void);
-void running_queue_init(void);
 void priority_queue_init(void);
 
 #endif // !QUEUE_H

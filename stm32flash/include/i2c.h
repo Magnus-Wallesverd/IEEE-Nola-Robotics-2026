@@ -22,6 +22,7 @@
 
 #define TXIE    1<<1 
 #define RXIE    1<<2 
+#define NACKIE  1<<4 
 #define STOPIE  1<<5
 #define TCIE    1<<6
 
@@ -74,7 +75,7 @@ typedef struct{
 #define I2C1 ((I2C_TypeDef *)0x40005400)
 #define I2C2 ((I2C_TypeDef *)0x40005800)
 
-extern int bno_flag;
+extern volatile int bno_flag;
 
 // I2C HAL function prototypes
 

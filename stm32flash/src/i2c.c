@@ -30,7 +30,7 @@ void I2C_Init(I2C_TypeDef* I2Cx, uint8_t mode){
             I2Cx->CR1 &= ~(1<<0);
             I2Cx->TIMINGR = 0x10420F13;
             I2Cx->ICR = 0x3F38;
-            I2Cx->CR1 |= TXIE|RXIE|TCIE|STOPIE;
+            I2Cx->CR1 |= TXIE|RXIE|TCIE|STOPIE|NACKIE;
             I2Cx->CR1 |= (1<<0);
             
         // case 1:
@@ -73,8 +73,9 @@ void Sensor_Write(I2C_TypeDef* I2Cx){
 
 void Sensor_Read_Wrapper(void* args){
     (void) args;
-    I2C_Init(I2C1, 0);
-    bno_flag = 1;
+    Sensor_Write(I2C1);
+    yield();
+    bno_flag++;
     while(1){
         if(!(I2C1->ISR&BUSY)){
             Sensor_Read(I2C1);

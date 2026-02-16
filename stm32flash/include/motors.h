@@ -4,6 +4,29 @@
 #include <stdint.h>
 #include "gpio.h"
 
+/* *
+ * ENA - 
+ * ENB - 
+ * IN1 - 
+ * IN2 - 
+ * IN3 - 
+ * IN4 - 
+ *
+ * ENA - 
+ * ENB - 
+ * IN1 - 
+ * IN2 - 
+ * IN3 - 
+ * IN4 - 
+ *
+ * ENCODERA - PA 6,7 
+ * ENCODERB - PA 0,1
+ *
+ * ENCODERA - PA 11,12 
+ * ENCODERB - PC 6,7
+ *
+ * */
+
 #define INL1 PC8
 #define INL2 PC9
 #define INL3 PC11

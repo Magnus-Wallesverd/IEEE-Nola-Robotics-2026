@@ -15,5 +15,9 @@ void block(void);
 
 void unblock(TCB* tcb);
 
+void flag_wait(TCB* tcb);
+
+void flag_post(TCB* tcb);
+
 #endif // !LOCK_H
 
