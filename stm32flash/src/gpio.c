@@ -99,6 +99,14 @@ void SetOutputType(GPIO_TypeDef *port, uint32_t pins, uint8_t bit){
     port->OTYPER = GenerateBitMask(port->OTYPER, pins, 1, bit);
 }
 
+// set output type
+void SetOutputSpeed(GPIO_TypeDef *port, uint32_t pins, uint8_t bits){
+
+    pins = ClearUpperBits(pins);
+
+    port->OSPEEDR = GenerateBitMask(port->OSPEEDR, pins, 2, bits);
+}
+
 // set pins in pull up mode
 void SetPinPU(GPIO_TypeDef *port, uint32_t pins){
     

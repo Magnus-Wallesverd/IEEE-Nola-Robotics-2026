@@ -1,19 +1,34 @@
 //Initialize Timer, GPIO Circuitry.
-//
-// TIM4_CR2 Bit 7 has TIM1_CH selection
+
+// TIM4_CR2 Bit 7 has TIM1_CH selection 
 #include "stm32f303.h"
 
 //#define DBGMCU_CR *((volatile uint32_t*) 0xE0042004)
 
+
 void systeminit(void){
-    
+
     // systic interrupt init
     STK->CTRL |= 0x6;
-
-    // System clock time interval
-    STK->LOAD |= 0x3E7F;
+    STK->LOAD |= 0x1F3F;
     
     // priority set
     SCB->SHPR3 |= 0xE0F00000;
+     
+    RCC->APB1ENR |= (1 << 21);
+    // RCC->APB1ENR |= (1 << 2) | (1 << 21);               // Enable TIM4
+    // RCC->APB2ENR |= (1 << 11);              // Enable TIM1
     
+    RCC->AHBENR |= 0xE0000;                   // enable GPIO ABC  clock 
+
+
+    // enable timer 16 and 17 interrupt
+    NVIC->ISER0 |= (1 << 25) | 1 << 26;
+ 
+    // enable i2c interrupt
+    NVIC->ISER0 |= 1<<31;
+    
+    ready_queue_init();
+    priority_queue_init();
+    I2C_Init(I2C1, 0);
 }

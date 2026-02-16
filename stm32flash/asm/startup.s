@@ -31,12 +31,26 @@ g_pfnVectors:
   .word 0
   .word PendSV_Handler + 1
   .word SysTick_Handler + 1
-  .word WWDG + 1 
   .word 0, 0, 0, 0, 0, 0, 0, 0
-  .word 0, 0, 0, 0, 0, 0, 0, 0 
-  .word 0, 0, 0, 0, 0, 0, 0, 0 
-  .word 0, 0 
-  /* .word TIM1_CC + 1*/
+  .word 0, 0, 0
+  .word DMA1_CH1_IRQHandler
+  .word DMA1_CH2_IRQHandler
+  .word DMA1_CH3_IRQHandler
+  .word DMA1_CH4_IRQHandler
+  .word DMA1_CH5_IRQHandler
+  .word DMA1_CH6_IRQHandler
+  .word DMA1_CH7_IRQHandler
+  .word 0, 0, 0, 0, 0, 0 
+  .word 0 
+  .word TIM1_UP_TIM16_IRQHandler + 1
+  .word TIM1_TRG_TIM17_IRQHandler + 1
+  .word 0, 0, 0, 0
+  .word I2C1_EV_IRQHandler + 1
+  .word I2C1_ER_IRQHandler + 1
+  .word I2C2_EV_IRQHandler + 1
+  .word I2C2_ER_IRQHandler + 1
+  .word SPI1_IRQHandler + 1
+  .word SPI2_IRQHandler + 1
 
   /* Add peripheral ISRs as needed here */
 
@@ -158,5 +172,74 @@ MemManage_Handler:  b .
 BusFault_Handler:   b .
 UsageFault_Handler: b .
 DebugMon_Handler:   b .
-WWDG:               b .
-/* TIM1_CC:         b .*/
+
+.section .text.Default_Handler, "ax", %progbits
+.thumb_func
+
+Default_Handler:
+1: b 1b
+
+/* Weak aliases */
+
+.weak NMI_Handler
+.thumb_set NMI_Handler, Default_Handler
+
+.weak HardFault_Handler
+.thumb_set HardFault_Handler, Default_Handler
+
+.weak MemManage_Handler
+.thumb_set MemManage_Handler, Default_Handler
+
+.weak BusFault_Handler_Handler
+.thumb_set BusFault_Handler, Default_Handler
+
+.weak UsageFault_Handler
+.thumb_set UsageFault_Handler, Default_Handler
+
+.weak DebugMon_Handler
+.thumb_set DebugMon_Handler, Default_Handler
+
+.weak DMA1_CH1_IRQHandler
+.thumb_set DMA1_CH1_IRQHAndler, Default_Handler
+
+.weak DMA1_CH2_IRQHandler
+.thumb_set DMA1_CH2_IRQHAndler, Default_Handler
+
+.weak DMA1_CH3_IRQHandler
+.thumb_set DMA1_CH3_IRQHAndler, Default_Handler
+
+.weak DMA1_CH4_IRQHandler
+.thumb_set DMA1_CH4_IRQHAndler, Default_Handler
+
+.weak DMA1_CH5_IRQHandler
+.thumb_set DMA1_CH5_IRQHAndler, Default_Handler
+
+.weak DMA1_CH6_IRQHandler
+.thumb_set DMA1_CH6_IRQHAndler, Default_Handler
+
+.weak DMA1_CH7_IRQHandler
+.thumb_set DMA1_CH7_IRQHAndler, Default_Handler
+
+.weak TIM1_UP_TIM16_IRQHandler
+.thumb_set TIM1_UP_TIM16_IRQHandler, Default_Handler
+
+.weak TIM1_TRG_TIM17_IRQHandler
+.thumb_set TIM1_TRG_TIM17_IRQHandler, Default_Handler
+
+.weak I2C1_EV_IRQHandler
+.thumb_set I2C1_EV_IRQHandler, Default_Handler
+
+.weak I2C1_ER_IRQHandler
+.thumb_set I2C1_ER_IRQHandler, Default_Handler
+
+.weak I2C2_EV_IRQHandler
+.thumb_set I2C2_EV_IRQHandler, Default_Handler
+
+.weak I2C2_ER_IRQHandler
+.thumb_set I2C2_ER_IRQHandler, Default_Handler
+
+.weak SPI1_IRQHandler
+.thumb_set SPI1_IRQHandler, Default_Handler 
+
+.weak SPI2_IRQHandler
+.thumb_set SPI2_IRQHandler, Default_Handler

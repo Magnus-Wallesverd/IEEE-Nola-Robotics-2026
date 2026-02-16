@@ -1,10 +1,10 @@
 #ifndef TCB_H
 #define TCB_H
 
-#include "stm32f303.h"
 #include <stdint.h>
+#include "queue.h"
 
-#define SIZE 10
+#define TCB_ARRAY_SIZE 10
 #define STACK_SIZE 1024
 #define TASK_BLOCK (1024/sizeof(uint32_t))
 
@@ -28,11 +28,7 @@ enum states{
     IDLE
 };
 
-enum thread_priority{
-    LOW = 0,
-    MID,
-    HIGH
-};
+extern TCB _stcb[TCB_ARRAY_SIZE];
 
 __attribute__((section(".thread1"), used, naked))  void  my_thread1(void *ctx);
 __attribute__((section(".thread2"), used, naked))  void  my_thread2(void *ctx);
@@ -45,7 +41,5 @@ __attribute__((section(".thread8"), used, naked))  void  my_thread8(void *ctx);
 __attribute__((section(".thread9"), used, naked))  void  my_thread9(void *ctx);
 __attribute__((section(".thread10"), used, naked)) void  my_thread10(void *ctx);
 
-extern TCB _stcb[SIZE];
-extern void (*function_list[SIZE])(void *);
 
 #endif // !TCB_H
