@@ -37,8 +37,7 @@ static uint32_t GenerateBitMask(uint32_t reg, uint32_t pins, uint8_t bitwidth, u
     if(bitwidth == 2){
         clearmask = 0b11;
     }
-    else
-        clearmask = 0b1111;
+    else {clearmask = 0b1111;}
 
     // checks each bit for 1 then generates the bit mask
     for(int i = 0; i < 32/bitwidth; i++){
@@ -100,6 +99,14 @@ void SetOutputType(GPIO_TypeDef *port, uint32_t pins, uint8_t bit){
     port->OTYPER = GenerateBitMask(port->OTYPER, pins, 1, bit);
 }
 
+// set output type
+void SetOutputSpeed(GPIO_TypeDef *port, uint32_t pins, uint8_t bits){
+
+    pins = ClearUpperBits(pins);
+
+    port->OSPEEDR = GenerateBitMask(port->OSPEEDR, pins, 2, bits);
+}
+
 // set pins in pull up mode
 void SetPinPU(GPIO_TypeDef *port, uint32_t pins){
     
@@ -151,4 +158,12 @@ void AlternateFunctionSet(GPIO_TypeDef *port, uint32_t pins, uint32_t function){
     port->AFRL = GenerateBitMask(port->AFRL, (pins & 0xFF), 4, function);
 }
 
+// flicker led
+void blink_led(void* args){
+    (void)args;
+    PinWrite(GPIOA, 0x20);
+    for(volatile int i = 0; i < 5000; i++);
+    ResetPins(GPIOA, 0x20);
+    for(volatile int i = 0; i < 5000; i++);
+}
 

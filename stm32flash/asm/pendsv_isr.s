@@ -2,7 +2,7 @@
 .text
 .global PendSV_Handler
 
-/* calls the task scheduler for context switching information */
+/* calls the thread scheduler for context switching information */
 
 PendSV_Handler:
     
@@ -13,9 +13,10 @@ PendSV_Handler:
     str r2, [r0]
 
     /* returns next_tcb into r0*/
-    bl taskscheduler 
+    bl threadscheduler 
     
     /* update to next */
+    ldr r1, =current_tcb
     str r0, [r1]
     ldr r0, [r0]
     msr psp, r0
@@ -31,4 +32,3 @@ PendSV_Handler:
     /* Exception return */
     ldr r0, =0xFFFFFFFD
     bx r0
-

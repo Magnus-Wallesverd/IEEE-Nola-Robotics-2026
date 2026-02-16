@@ -1,3 +1,4 @@
+.syntax unified
 .text
 .global SysTick_Handler
 

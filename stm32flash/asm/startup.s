@@ -31,12 +31,33 @@ g_pfnVectors:
   .word 0
   .word PendSV_Handler + 1
   .word SysTick_Handler + 1
-  .word WWDG + 1 
   .word 0, 0, 0, 0, 0, 0, 0, 0
-  .word 0, 0, 0, 0, 0, 0, 0, 0 
-  .word 0, 0, 0, 0, 0, 0, 0, 0 
-  .word 0, 0 
-  /* .word TIM1_CC + 1*/
+  .word 0, 0, 0
+  .word DMA1_CH1_IRQHandler
+  .word DMA1_CH2_IRQHandler
+  .word DMA1_CH3_IRQHandler
+  .word DMA1_CH4_IRQHandler
+  .word DMA1_CH5_IRQHandler
+  .word DMA1_CH6_IRQHandler
+  .word DMA1_CH7_IRQHandler
+  .word 0, 0, 0, 0, 0, 0 
+  .word 0 
+  .word TIM1_UP_TIM16_IRQHandler + 1
+  .word TIM1_TRG_TIM17_IRQHandler + 1
+  .word 0, 0, 0, 0
+  .word I2C1_EV_IRQHandler + 1
+  .word I2C1_ER_IRQHandler + 1
+  .word I2C2_EV_IRQHandler + 1
+  .word I2C2_ER_IRQHandler + 1
+  .word SPI1_IRQHandler + 1
+  .word SPI2_IRQHandler + 1
+  .word USART1 + 1
+  .word USART2 + 1
+  .word USART3 + 1
+  .word 0, 0, 0, 0, 0, 0, 0, 0
+  .word 0, 0, 0, 0
+  .word UART4 + 1 
+  .word UART5 + 1
 
   /* Add peripheral ISRs as needed here */
 
@@ -88,12 +109,13 @@ copy_data2:
   blt copy_data2
 
  
-  ldr r4, = _task1_end 
-  ldr r5, = _task10_end
-  ldr r6, = _task1_start
+  ldr r4, = _thread1_end 
+  ldr r5, = _thread10_end
+  ldr r6, = _thread1_start
   mov r7, sp
   ldr r8, = _stcb
   ldr r9, = _stcb
+
 init_frames:
   cmp  r4, r5
   orr  r2, r6, #1
@@ -127,10 +149,13 @@ zero_bss:
   strlt r2, [r0], #4    /*  store r2 = 0 into address pointed to by R0 increment register 0 address #4 bytes */
   blt zero_bss          /*  branch back to zero if N is set */
 
+  /*bl bmp_search*/
 
+  /* C initializers */
   bl tcbinit
-  /* Call systeminit, branch with link */
+  bl task_queue_init
   bl systeminit
+  bl lcd_init
 
 set_global:
   ldr r0, =_stcb
@@ -139,7 +164,9 @@ set_global:
   str r0, [r1]
   str r0, [r2]
 
-SVC #0
+service:
+  SVC #0
+
 
 infinite_loop:
   b infinite_loop
@@ -151,5 +178,89 @@ MemManage_Handler:  b .
 BusFault_Handler:   b .
 UsageFault_Handler: b .
 DebugMon_Handler:   b .
-WWDG:               b .
-/* TIM1_CC:         b .*/
+
+.section .text.Default_Handler, "ax", %progbits
+.thumb_func
+
+Default_Handler:
+1: b 1b
+
+/* Weak aliases */
+
+.weak NMI_Handler
+.thumb_set NMI_Handler, Default_Handler
+
+.weak HardFault_Handler
+.thumb_set HardFault_Handler, Default_Handler
+
+.weak MemManage_Handler
+.thumb_set MemManage_Handler, Default_Handler
+
+.weak BusFault_Handler_Handler
+.thumb_set BusFault_Handler, Default_Handler
+
+.weak UsageFault_Handler
+.thumb_set UsageFault_Handler, Default_Handler
+
+.weak DebugMon_Handler
+.thumb_set DebugMon_Handler, Default_Handler
+
+.weak DMA1_CH1_IRQHandler
+.thumb_set DMA1_CH1_IRQHAndler, Default_Handler
+
+.weak DMA1_CH2_IRQHandler
+.thumb_set DMA1_CH2_IRQHAndler, Default_Handler
+
+.weak DMA1_CH3_IRQHandler
+.thumb_set DMA1_CH3_IRQHAndler, Default_Handler
+
+.weak DMA1_CH4_IRQHandler
+.thumb_set DMA1_CH4_IRQHAndler, Default_Handler
+
+.weak DMA1_CH5_IRQHandler
+.thumb_set DMA1_CH5_IRQHAndler, Default_Handler
+
+.weak DMA1_CH6_IRQHandler
+.thumb_set DMA1_CH6_IRQHAndler, Default_Handler
+
+.weak DMA1_CH7_IRQHandler
+.thumb_set DMA1_CH7_IRQHAndler, Default_Handler
+
+.weak TIM1_UP_TIM16_IRQHandler
+.thumb_set TIM1_UP_TIM16_IRQHandler, Default_Handler
+
+.weak TIM1_TRG_TIM17_IRQHandler
+.thumb_set TIM1_TRG_TIM17_IRQHandler, Default_Handler
+
+.weak I2C1_EV_IRQHandler
+.thumb_set I2C1_EV_IRQHandler, Default_Handler
+
+.weak I2C1_ER_IRQHandler
+.thumb_set I2C1_ER_IRQHandler, Default_Handler
+
+.weak I2C2_EV_IRQHandler
+.thumb_set I2C2_EV_IRQHandler, Default_Handler
+
+.weak I2C2_ER_IRQHandler
+.thumb_set I2C2_ER_IRQHandler, Default_Handler
+
+.weak SPI1_IRQHandler
+.thumb_set SPI1_IRQHandler, Default_Handler 
+
+.weak SPI2_IRQHandler
+.thumb_set SPI2_IRQHandler, Default_Handler
+
+.weak USART1_IRQHandler
+.thumb_set USART1_IRQHandler, Default_Handler
+
+.weak USART2_IRQHandler
+.thumb_set USART2_IRQHandler, Default_Handler
+
+.weak USART3_IRQHandler
+.thumb_set USART3_IRQHandler, Default_Handler
+
+.weak UART4_IRQHandler
+.thumb_set UART4_IRQHandler, Default_Handler
+
+.weak UART5_IRQHandler
+.thumb_set UART5_IRQHandler, Default_Handler

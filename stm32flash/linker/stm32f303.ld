@@ -28,71 +28,80 @@ SECTIONS
     *(.data*)
     _stcb = . ;
     . = . + 0xA0;
-
     
     _spadding = . ;
     . = . + 0x100 ;
     _epadding = . ;
 
-
-    _stask_load = .;
+    _sthread_load = .;
    
-    _task1_start = .;
-    KEEP(*(.task1))
-    _task1_end = _task1_start + 0x400;  
-    . = _task1_end;
+    _thread1_start = .;
+    KEEP(*(.thread1))
+    _thread1_end = _thread1_start + 0x400;  
+    . = _thread1_end;
 
-    _task2_start = .;
-    KEEP(*(.task2))
-    _task2_end = _task2_start + 0x400;  
-    . = _task2_end;
+    _thread2_start = .;
+    KEEP(*(.thread2))
+    _thread2_end = _thread2_start + 0x400;  
+    . = _thread2_end;
 
-    _task3_start = .;
-    KEEP(*(.task3))
-    _task3_end = _task3_start + 0x400;  
-    . = _task3_end;
+    _thread3_start = .;
+    KEEP(*(.thread3))
+    _thread3_end = _thread3_start + 0x400;  
+    . = _thread3_end;
 
-    _task4_start = .;
-    KEEP(*(.task4))
-    _task4_end = _task4_start + 0x400;  
-    . = _task4_end;
+    _thread4_start = .;
+    KEEP(*(.thread4))
+    _thread4_end = _thread4_start + 0x400;  
+    . = _thread4_end;
 
-    _task5_start = .;
-    KEEP(*(.task5))
-    _task5_end = _task5_start + 0x400;  
-    . = _task5_end;
+    _thread5_start = .;
+    KEEP(*(.thread5))
+    _thread5_end = _thread5_start + 0x400;  
+    . = _thread5_end;
 
-    _task6_start = .;
-    KEEP(*(.task6))
-    _task6_end = _task6_start + 0x400;  
-    . = _task6_end;
+    _thread6_start = .;
+    KEEP(*(.thread6))
+    _thread6_end = _thread6_start + 0x400;  
+    . = _thread6_end;
 
-    _task7_start = .;
-    KEEP(*(.task7))
-    _task7_end = _task7_start + 0x400;  
-    . = _task7_end;
+    _thread7_start = .;
+    KEEP(*(.thread7))
+    _thread7_end = _thread7_start + 0x400;  
+    . = _thread7_end;
 
-    _task8_start = .;
-    KEEP(*(.task8))
-    _task8_end = _task8_start + 0x400;  
-    . = _task8_end;
+    _thread8_start = .;
+    KEEP(*(.thread8))
+    _thread8_end = _thread8_start + 0x400;  
+    . = _thread8_end;
 
-    _task9_start = .;
-    KEEP(*(.task9))
-    _task9_end = _task9_start + 0x400;  
-    . = _task9_end;
+    _thread9_start = .;
+    KEEP(*(.thread9))
+    _thread9_end = _thread9_start + 0x400;  
+    . = _thread9_end;
 
-    _task10_start = .;
-    KEEP(*(.task10))
-    _task10_end = _task10_start + 0x400;  
-    . = _task10_end;
+    _thread10_start = .;
+    KEEP(*(.thread10))
+    _thread10_end = _thread10_start + 0x400;  
+    . = _thread10_end;
 
+    _ethread_load = .;
 
-    _etask_load = .;
+    _task_queue = .;
+    KEEP(*(.task_queue))
+    _task_queue_end = .;
 
     _edata = .;
   } > RAM AT>FLASH
-  
+ 
+  /* .node_heap (NOLOAD) : */
+  /* { */
+  /*   _node_heap_start = .; */
+  /*   KEEP(*(.node_heap)) */
+  /*   _node_heap_end = _node_heap_start + 0x400; */
+  /*   . = _node_heap_end; */
+  /* } > RAM */
+
   .ccmram :
   {
     _ccmram = .;
@@ -100,7 +109,6 @@ SECTIONS
     _eccmram = .;
 
   } > CCMRAM AT> FLASH
-
 
   .bss :
   {

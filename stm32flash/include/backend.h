@@ -2,7 +2,56 @@
 #define BACKEND_H
 
 #include <stdint.h>
-#include "stm32f303.h"
+
+#define NVIC_USART1 (1<<(37-32))
+#define NVIC_USART2 (1<<(38-32))
+#define NVIC_USART3 (1<<(39-32))
+#define NVIC_UART4  (1<<(52-32))
+#define NVIC_UART5  (1<<(53-32))
+
+typedef struct{
+    volatile uint32_t ISER0;
+    volatile uint32_t ISER1;
+    volatile uint32_t ISER2;
+    volatile uint32_t ISER3;
+    volatile uint32_t ISER4;
+    volatile uint32_t ISER5;
+    volatile uint32_t ISER6;
+    volatile uint32_t ISER7;
+    volatile uint32_t ICER0;
+    volatile uint32_t ICER1;
+    volatile uint32_t ICER2;
+    volatile uint32_t ICER3;
+    volatile uint32_t ICER4;
+    volatile uint32_t ICER5;
+    volatile uint32_t ICER6;
+    volatile uint32_t ICER7;
+    volatile uint32_t ISPR0;
+    volatile uint32_t ISPR1;
+    volatile uint32_t ISPR2;
+    volatile uint32_t ISPR3;
+    volatile uint32_t ISPR4;
+    volatile uint32_t ISPR5;
+    volatile uint32_t ISPR6;
+    volatile uint32_t ISPR7;
+    volatile uint32_t ICPR0;
+    volatile uint32_t ICPR1;
+    volatile uint32_t ICPR2;
+    volatile uint32_t ICPR3;
+    volatile uint32_t ICPR4;
+    volatile uint32_t ICPR5;
+    volatile uint32_t ICPR6;
+    volatile uint32_t ICPR7;
+    volatile uint32_t IABR0;
+    volatile uint32_t IABR1;
+    volatile uint32_t IABR2;
+    volatile uint32_t IABR3;
+    volatile uint32_t IABR4;
+    volatile uint32_t IABR5;
+    volatile uint32_t IABR6;
+    volatile uint32_t IABR7;
+    volatile uint32_t STIR;
+}NVIC_TypeDef;
 
 typedef struct{
     volatile uint32_t CPUID;    //0x00
@@ -33,7 +82,7 @@ typedef struct {
     volatile uint32_t SHPR3;
 }SHPR3_TypeDef;
 
-
+#define NVIC  ((NVIC_TypeDef *)    0xE000E100)
 #define STK   ((Systick_TypeDef *) 0xE000E010)
 #define SCB   ((SCB_TypeDef *)     0xE000ED00)
 

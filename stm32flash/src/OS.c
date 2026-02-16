@@ -1,115 +1,153 @@
+// TODO 
+// you changed the workers, 
+// you need to finish blocking and yielding.
+// ready_q stuff and going from there to testing
+
 #include "stm32f303.h"
 #include <stdint.h>
 
-extern uint32_t _task1_end;
-uint32_t global_tick;
-TCB _stcb[SIZE];
+uint32_t kernel_unblock_counter = 0;
+uint32_t global_tick = 0;
+uint32_t  task_flag = 0;
+
+TCB _stcb[TCB_ARRAY_SIZE];
 TCB *current_tcb;
 TCB *next_tcb;
 
+static void* ready_array[TCB_ARRAY_SIZE];
+static queue_t ready_q;
+
+sem_t sem_blocked[TCB_ARRAY_SIZE];
+
+uint32_t get_global_tick(void){
+    return global_tick;
+}
+
+void os_queue_init(void){
+    ready_q.size  = TCB_ARRAY_SIZE;
+    ready_q.count = 0;
+    ready_q.array = ready_array;
+    ready_q.front = ready_array;
+    ready_q.end   = ready_array;
+}
+
 void tcbinit(void){
-    
-    // list of functions 
-    void (*function_list[SIZE])(void *) = {
-        my_task1,
-        my_task2,
-        my_task3,
-        my_task4,
-        my_task5,
-        my_task6,
-        my_task7,
-        my_task8,
-        my_task9,
-        my_task10
-    };
 
-    for(int i = 0; i < SIZE; i++){
-        
-        // _stcb[i].sp = &(_task1_end)+ i*0x100 ;
-        _stcb[i].context = 0;
-        _stcb[i].function = function_list[i];
+    for(int i = 0; i < TCB_ARRAY_SIZE; i++){
+        _stcb[i].total_age = 0;
+        _stcb[i].queue_age = 0;
         _stcb[i].pid = i;
-        _stcb[i].state = 0;
-        _stcb[i].prio = 0xB;
-        _stcb[i].flags = 0xC;
+        _stcb[i].state = READY;
+        _stcb[i].prio = 0x0;
+        _stcb[i].flags = 0x0;
     }
-
 }
 
-void my_task1(void *ctx){
+void worker_function(void){
+    
+    work_item_t* item;
+    
+    // take item off queue
+    if(lock(&task_flag) == 1){
+        item = (work_item_t*)dequeue(task_queue_ptr);
+        unlock(&task_flag);
+    } else { yield(); }
+    
+    if(item == (void*)0){
+        yield();
+        return;
+    } else {
+        item->fn(item->args);
+        yield();
+    }
+}
+
+// i dont think i need all these threads. 
+// many tasks should just run the same function
+// worker_function
+
+void my_thread1(void *ctx){
     (void)ctx;
+    worker_function();
+}
+
+void my_thread2(void *ctx){
+    (void)ctx;
+    worker_function();
+}
+
+void my_thread3(void *ctx){
+    (void)ctx;
+    worker_function(); 
+}
+
+void my_thread4(void *ctx){
+    (void)ctx;
+    worker_function();
+}
+
+void my_thread5(void *ctx){
+    (void)ctx;
+    worker_function();
+}
+
+void my_thread6(void *ctx){
+    (void)ctx;
+    worker_function();
+}
+
+void my_thread7(void *ctx){
+    (void)ctx;
+    worker_function();
+}
+
+void my_thread8(void *ctx){
+    (void)ctx;
+    worker_function();
+}
+
+void my_thread9(void *ctx){
+    (void)ctx;
+    worker_function();
+}
+
+void my_thread10(void *ctx){
+    (void)ctx;
+    worker_function();
+}
+
+void kernel_tcb_unblock(TCB tcb[]){
+    for(int i = 0; i < TCB_ARRAY_SIZE; i++){
+        if(tcb[i].flags > 0){
+            tcb[i].flags--;
+            tcb[i].state = READY;
+            enqueue(ready_queue_ptr, &tcb[i]);
+            kernel_unblock_counter--;
+        }
+    }
+}
+
+TCB* threadscheduler(void){
     while(1){
-        PinWrite(GPIOA, 0x20);
-    } 
-}
+        if(kernel_unblock_counter){
+            kernel_tcb_unblock(_stcb);       
+        }
+        if(current_tcb->state == BLOCKED){
+            next_tcb = (TCB*)dequeue(ready_queue_ptr);
+            next_tcb->state = RUNNING;
+            return next_tcb;
+        } else if(ready_queue_ptr->count > 0){
+            enqueue(ready_queue_ptr, current_tcb);
+            current_tcb->state = READY;
+            next_tcb = (TCB*)dequeue(ready_queue_ptr);
+            next_tcb->state = RUNNING;
+            return next_tcb;
+        } else {
+            return current_tcb;
+        }
+        if(next_tcb == 0){
+            __asm volatile("BKPT #0"); // scheduler error
 
-void my_task2(void *ctx){
-    (void)ctx;
-    while (1){
-        ResetPins(GPIOA,0x20);
+        }
     }
-}
-
-void my_task3(void *ctx){
-    (void)ctx;
-    while(1){
-        PinWrite(GPIOA, 0x20);
-    } 
-}
-
-void my_task4(void *ctx){
-    (void)ctx;
-    while (1){
-        ResetPins(GPIOA,0x20);
-    }
-}
-
-void my_task5(void *ctx){
-    (void)ctx;
-    while(1){
-        PinWrite(GPIOA, 0x20);
-    } 
-}
-
-void my_task6(void *ctx){
-    (void)ctx;
-    while (1){
-        ResetPins(GPIOA,0x20);
-    }
-}
-
-void my_task7(void *ctx){
-    (void)ctx;
-    while(1){
-        PinWrite(GPIOA, 0x20);
-    } 
-}
-
-void my_task8(void *ctx){
-    (void)ctx;
-    while (1){
-        ResetPins(GPIOA,0x20);
-    }
-}
-
-void my_task9(void *ctx){
-    (void)ctx;
-    while(1){
-        PinWrite(GPIOA, 0x20);
-    } 
-}
-
-void my_task10(void *ctx){
-    (void)ctx;
-    while (1){
-        ResetPins(GPIOA,0x20);
-    }
-}
-
-TCB* taskscheduler(void){
-    next_tcb++;
-    if(next_tcb >= &_stcb[SIZE]){
-        next_tcb = _stcb;
-    }
-    return next_tcb;
 }
