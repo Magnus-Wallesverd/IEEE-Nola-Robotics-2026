@@ -3,6 +3,12 @@
 
 #include <stdint.h>
 
+#define NVIC_USART1 (1<<(37-32))
+#define NVIC_USART2 (1<<(38-32))
+#define NVIC_USART3 (1<<(39-32))
+#define NVIC_UART4  (1<<(52-32))
+#define NVIC_UART5  (1<<(53-32))
+
 typedef struct{
     volatile uint32_t ISER0;
     volatile uint32_t ISER1;

@@ -8,6 +8,8 @@
 
 #include <stdint.h>
 
+#define FCLK 8000000
+
 #define DMA1_EN (1<<0)
 #define DMA2_EN (1<<1)
 
@@ -22,6 +24,12 @@
 #define TIM16_EN (1<<17)
 #define TIM17_EN (1<<18)
 #define TIM20_EN (1<<20)
+
+#define USART1_EN (1<<14)
+#define USART2_EN (1<<17)
+#define USART3_EN (1<<18)
+#define UART4_EN  (1<<19)
+#define UART5_EN  (1<<20)
 
 typedef struct{
     volatile uint32_t CR;       //0x00

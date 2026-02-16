@@ -51,6 +51,13 @@ g_pfnVectors:
   .word I2C2_ER_IRQHandler + 1
   .word SPI1_IRQHandler + 1
   .word SPI2_IRQHandler + 1
+  .word USART1 + 1
+  .word USART2 + 1
+  .word USART3 + 1
+  .word 0, 0, 0, 0, 0, 0, 0, 0
+  .word 0, 0, 0, 0
+  .word UART4 + 1 
+  .word UART5 + 1
 
   /* Add peripheral ISRs as needed here */
 
@@ -242,3 +249,18 @@ Default_Handler:
 
 .weak SPI2_IRQHandler
 .thumb_set SPI2_IRQHandler, Default_Handler
+
+.weak USART1_IRQHandler
+.thumb_set USART1_IRQHandler, Default_Handler
+
+.weak USART2_IRQHandler
+.thumb_set USART2_IRQHandler, Default_Handler
+
+.weak USART3_IRQHandler
+.thumb_set USART3_IRQHandler, Default_Handler
+
+.weak UART4_IRQHandler
+.thumb_set UART4_IRQHandler, Default_Handler
+
+.weak UART5_IRQHandler
+.thumb_set UART5_IRQHandler, Default_Handler
