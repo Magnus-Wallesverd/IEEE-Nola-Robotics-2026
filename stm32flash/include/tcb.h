@@ -20,7 +20,6 @@ typedef struct {
     uint8_t  flags;
 }TCB;
 
-
 // states for threads
 enum states{
     READY = 0,
@@ -41,5 +40,9 @@ __attribute__((section(".thread7"), used, naked))  void  my_thread7(void *ctx);
 __attribute__((section(".thread8"), used, naked))  void  my_thread8(void *ctx);
 __attribute__((section(".thread9"), used, naked))  void  my_thread9(void *ctx);
 __attribute__((section(".thread10"), used, naked)) void  my_thread10(void *ctx);
+
+uint32_t get_global_tick(void);
+uint8_t* get_i2c_buffer(void);
+
 
 #endif // !TCB_H

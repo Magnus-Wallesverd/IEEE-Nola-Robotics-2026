@@ -1,7 +1,4 @@
-## threads need display
+## TODO
+- lcd keeps garbage on the screen
+- mlfq
 
-- make an lcd display queue and display text to screen
-
-## cleanup system init
-
-- it looks awful

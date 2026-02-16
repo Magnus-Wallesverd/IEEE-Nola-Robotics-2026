@@ -28,12 +28,10 @@ SECTIONS
     *(.data*)
     _stcb = . ;
     . = . + 0xA0;
-
     
     _spadding = . ;
     . = . + 0x100 ;
     _epadding = . ;
-
 
     _sthread_load = .;
    
@@ -93,10 +91,17 @@ SECTIONS
     KEEP(*(.task_queue))
     _task_queue_end = .;
 
-
     _edata = .;
   } > RAM AT>FLASH
-  
+ 
+  /* .node_heap (NOLOAD) : */
+  /* { */
+  /*   _node_heap_start = .; */
+  /*   KEEP(*(.node_heap)) */
+  /*   _node_heap_end = _node_heap_start + 0x400; */
+  /*   . = _node_heap_end; */
+  /* } > RAM */
+
   .ccmram :
   {
     _ccmram = .;
@@ -104,7 +109,6 @@ SECTIONS
     _eccmram = .;
 
   } > CCMRAM AT> FLASH
-
 
   .bss :
   {

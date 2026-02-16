@@ -1,4 +1,3 @@
-#include "stm32f303.h"
     // list of functions 
     void (*function_list[SIZE])(void *) = {
         my_thread1,

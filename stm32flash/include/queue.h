@@ -10,6 +10,9 @@
 #define FUNC_POOL_SIZE 4
 #define MSG_POOL_SIZE 3
 #define MSG_QUEUE_SIZE 3 
+#define HIGH_QUEUE_MAX_TIME 10
+#define MID_QUEUE_MAX_TIME 20
+#define LOW_QUEUE_MAX_TIME 50
 
 
 typedef void (*func_t)(void* args);
@@ -17,6 +20,7 @@ typedef void (*func_t)(void* args);
 typedef struct{
     uint32_t size;
     uint32_t count;
+    uint32_t max_time;
     void**   front;
     void**   end;
     void**   array;

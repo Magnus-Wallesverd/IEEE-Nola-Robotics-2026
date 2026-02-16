@@ -33,7 +33,8 @@ void I2C1_EV_IRQHandler(void){
         I2C1->CR2 |= (1 << 25)|(NBYTES << 16)|READ|(BNO055 << 1)|START;
         return;
     } else {
-        __asm volatile("BKPT #6");
+        uint32_t i2c_isr = I2C1->ISR;
+        __asm volatile("BKPT #6"); // print the i2c interrupt flags
         return;
     }
     

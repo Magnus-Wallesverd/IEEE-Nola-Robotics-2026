@@ -37,8 +37,7 @@ static uint32_t GenerateBitMask(uint32_t reg, uint32_t pins, uint8_t bitwidth, u
     if(bitwidth == 2){
         clearmask = 0b11;
     }
-    else
-        clearmask = 0b1111;
+    else {clearmask = 0b1111;}
 
     // checks each bit for 1 then generates the bit mask
     for(int i = 0; i < 32/bitwidth; i++){

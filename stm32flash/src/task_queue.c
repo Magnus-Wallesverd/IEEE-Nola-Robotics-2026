@@ -22,9 +22,10 @@ const func_t fn_table[] = {
 };
 
 void task_queue_init(void){
-    task_queue_ptr->count = 0;
     task_queue_ptr->array = task_queue_array;
+    task_queue_ptr->count = 0;
     task_queue_ptr->size  = TASK_QUEUE_SIZE;
+    /*task_queue_ptr->max_time = 0;*/
     task_queue_ptr->front = task_queue_ptr->array;
     task_queue_ptr->end   = task_queue_ptr->array;
     
