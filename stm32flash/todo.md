@@ -1,12 +1,4 @@
-## cleanup system init
+## TODO
+- lcd keeps garbage on the screen
+- mlfq
 
-- it looks awful
-
-## finish mlfq
-
-- finish queue logic
-- make linked list api
-
-## dll.c
-
-- finish helper functions 

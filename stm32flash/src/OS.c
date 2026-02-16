@@ -5,25 +5,25 @@
 
 #include "stm32f303.h"
 #include <stdint.h>
-#include "math.h"
 
+uint32_t kernel_unblock_counter = 0;
 uint32_t global_tick = 0;
 uint32_t  task_flag = 0;
 TCB _stcb[TCB_ARRAY_SIZE];
 TCB *current_tcb;
 TCB *next_tcb;
-uint32_t kernel_idle_flag = 0;
 
-
-static void* ready_array[SIZE];
+static void* ready_array[TCB_ARRAY_SIZE];
 static queue_t ready_q;
+
+sem_t sem_blocked[TCB_ARRAY_SIZE];
 
 uint32_t get_global_tick(void){
     return global_tick;
 }
 
 void os_queue_init(void){
-    ready_q.size  = SIZE;
+    ready_q.size  = TCB_ARRAY_SIZE;
     ready_q.count = 0;
     ready_q.array = ready_array;
     ready_q.front = ready_array;
@@ -60,6 +60,10 @@ void worker_function(void){
         yield();
     }
 }
+
+// i dont think i need all these threads. 
+// many tasks should just run the same function
+// worker_function
 
 void my_thread1(void *ctx){
     (void)ctx;
@@ -111,9 +115,22 @@ void my_thread10(void *ctx){
     worker_function();
 }
 
+void kernel_tcb_unblock(TCB tcb[]){
+    for(int i = 0; i < TCB_ARRAY_SIZE; i++){
+        if(tcb[i].flags > 0){
+            tcb[i].flags--;
+            tcb[i].state = READY;
+            enqueue(ready_queue_ptr, &tcb[i]);
+            kernel_unblock_counter--;
+        }
+    }
+}
+
 TCB* threadscheduler(void){
     while(1){
-
+        if(kernel_unblock_counter){
+            kernel_tcb_unblock(_stcb);       
+        }
         if(current_tcb->state == BLOCKED){
             next_tcb = (TCB*)dequeue(ready_queue_ptr);
             next_tcb->state = RUNNING;

@@ -14,10 +14,10 @@ typedef struct {
     uint32_t *sp;
     uint32_t total_age;
     uint32_t queue_age;
-    uint8_t  state;
     uint8_t  pid;
-    uint8_t  priority;
-    uint8_t  queue_time;
+    uint8_t  state;
+    uint8_t  prio;
+    uint8_t  flags;
 }TCB;
 
 // states for threads
@@ -40,6 +40,9 @@ __attribute__((section(".thread7"), used, naked))  void  my_thread7(void *ctx);
 __attribute__((section(".thread8"), used, naked))  void  my_thread8(void *ctx);
 __attribute__((section(".thread9"), used, naked))  void  my_thread9(void *ctx);
 __attribute__((section(".thread10"), used, naked)) void  my_thread10(void *ctx);
+
+uint32_t get_global_tick(void);
+uint8_t* get_i2c_buffer(void);
 
 
 #endif // !TCB_H

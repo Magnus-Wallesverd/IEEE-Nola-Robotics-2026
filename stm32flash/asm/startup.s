@@ -147,7 +147,6 @@ zero_bss:
   /* C initializers */
   bl tcbinit
   bl task_queue_init
-  bl mlfq_init
   bl systeminit
   bl lcd_init
 

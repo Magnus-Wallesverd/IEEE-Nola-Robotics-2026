@@ -80,7 +80,4 @@ typedef struct {
 #define STK   ((Systick_TypeDef *) 0xE000E010)
 #define SCB   ((SCB_TypeDef *)     0xE000ED00)
 
-uint32_t get_global_tick(void);
-uint8_t* get_i2c_buffer(void);
-
 #endif // !BACKEND_H
