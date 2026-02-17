@@ -10,70 +10,86 @@ static uint8_t rx_i = 0;
 uint8_t tx_buffer[USART_BUF_SIZE];
 uint8_t rx_buffer[USART_BUF_SIZE];
 
-
 /*
  * TODO add error interrupts 
  */
 void USART1_IRQHandler(void){
     
-    if((USART1->ISR & RXNE) && (USART1->CR1 & RXNEIE)){
-        usart_t.USARTx->RDR = usart.rx_buffer[rx_i++%USART_BUF_SIZE];
+    if((USART1->ISR & USART_RXNE) && (USART1->CR1 & USART_RXNEIE)){
+        usart.rx_buffer_p[rx_i++%USART_BUF_SIZE] = usart.USARTx->RDR;
     }
     
-    if((USART1->ISR & TXE) && (USART1->CR1 & TXEIE)){
-        usart_t.USARTx->TDR = usart.tx_buffer[tx_i++];
+    if((USART1->ISR & USART_TXE) && (USART1->CR1 & USART_TXEIE)){
+        usart.USARTx->TDR = usart.tx_buffer_p[tx_i++];
         if(tx_i == USART_BUF_SIZE){
             tx_i = 0;
-            USART1->CR1 &= ~TXEIE
-            USART1->CR1 |=  TCIE
+            USART1->CR1 &= ~USART_TXEIE;
+            USART1->CR1 |=  USART_TCIE;
         } 
-    
-    if((USART1->ISR & TC) && (USART1->CR1 & TCIE)){
-            USART1->CR1 &=  ~TCIE
+    }
+
+    if((USART1->ISR & USART_TC) && (USART1->CR1 & USART_TCIE)){
+            USART1->CR1 &=  ~USART_TCIE;
     }
 }
 
+
 // init usart clocks, the physical gpio, set baud
-void usart_init(USART_Typedef* USARTx, GPIOx port, uint32_t pins, uint16_t baud){
-    switch(USARTx){
-        case USART1:
+void usart_init(USART_Typedef* USARTx, GPIO_TypeDef* port, uint32_t pins, uint32_t baud){
+    switch((uint32_t)USARTx){
+        case (uint32_t)USART1:
             RCC->APB2ENR |= USART1_EN;
             NVIC->ISER1  |= NVIC_USART1;
-            PinWrite(port, pins);
+            SetPinAlternate(port, pins);
+            AlternateFunctionSet(port,pins,7);
+            SetOutputSpeed(port, pins, 1);
             break;
-        case USART2:
+        case (uint32_t)USART2:
             RCC->APB1ENR |= USART2_EN;
             NVIC->ISER1  |= NVIC_USART2;
-            PinWrite(port, pins);
+            SetOutputSpeed(port, pins, 1);
             break;
-        case USART3:
+        case (uint32_t)USART3:
             RCC->APB1ENR |= USART3_EN;
             NVIC->ISER1  |= NVIC_USART3;
-            PinWrite(port, pins);
+            SetOutputSpeed(port, pins, 1);
             break;
-        case UART4:
+        case(uint32_t) UART4:
             RCC->APB1ENR |= UART4_EN;
             NVIC->ISER1  |= NVIC_UART4;
-            PinWrite(port, pins);
+            SetOutputSpeed(port, pins, 1);
             break;
-        case UART5:
+        case(uint32_t) UART5:
             RCC->APB1ENR |= UART5_EN;
             NVIC->ISER1  |= NVIC_UART5;
-            PinWrite(port, pins);
+            SetOutputSpeed(port, pins, 1);
             break;
     }
 
     usart.USARTx = USARTx;
-    usart.tx_buffer_p = &tx_buffer;
-    usart.rx_buffer_p = &rx_buffer;
+    usart.tx_buffer_p = &tx_buffer[0];
+    usart.rx_buffer_p = &rx_buffer[0];
 
     USARTx->CR1 |= CR1_SETUP;
-    USARTx->CR3 |= EIE;
     USARTx->BRR = FCLK/baud;
+
+    USARTx->CR3 |= (1<<12);
 }
 
-void usart_begin(void){
-    usart.USARTx->CR1 |= UE;
-    usart.USARTx->CR1 |= TE;
-    usart.USARTx->CR1 |= RE;
+void load_tx(void){
+    char db[] = "01234567"; 
+    for(int i = 0; i < USART_BUF_SIZE; i++){
+        data[i] = db[i];
+    }
+    usart.tx_buffer_p = data; 
+}
+
+void usart_begin(void* args){
+    (void) args;
+    usart.USARTx->CR1 |= USART_RXNEIE;
+    // usart.USARTx->CR1 |= USART_TXEIE;
+}
+
+usart_t* get_usart_t(void){
+    return &usart;
 }

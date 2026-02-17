@@ -51,13 +51,13 @@ g_pfnVectors:
   .word I2C2_ER_IRQHandler + 1
   .word SPI1_IRQHandler + 1
   .word SPI2_IRQHandler + 1
-  .word USART1 + 1
-  .word USART2 + 1
-  .word USART3 + 1
+  .word USART1_IRQHandler + 1
+  .word USART2_IRQHandler + 1
+  .word USART3_IRQHandler + 1
   .word 0, 0, 0, 0, 0, 0, 0, 0
   .word 0, 0, 0, 0
-  .word UART4 + 1 
-  .word UART5 + 1
+  .word UART4_IRQHandler+ 1 
+  .word UART5_IRQHandler+ 1
 
   /* Add peripheral ISRs as needed here */
 

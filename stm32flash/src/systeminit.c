@@ -1,10 +1,4 @@
-//Initialize Timer, GPIO Circuitry.
-//
-// TIM4_CR2 Bit 7 has TIM1_CH selection 
 #include "stm32f303.h"
-
-//#define DBGMCU_CR *((volatile uint32_t*) 0xE0042004)
-
 
 void systeminit(void){
 
@@ -31,4 +25,9 @@ void systeminit(void){
     ready_queue_init();
     priority_queue_init();
     I2C_Init(I2C1, 0);
+
+    // enable timer 16 interrupt
+    // NVIC->ISER0 |= (1 << 25);
+ 
+    // usart_init(USART1, GPIOC,PC4|PC5,115200);
 }

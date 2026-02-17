@@ -2,6 +2,7 @@
 #include "i2c.h"
 
 int rx_i = 0;
+int nack_counter = 0;
 int bno[] = {0x3d, 0xC, 0x1A};
 volatile int bno_flag = 0;
 int tx_i = 0;
@@ -32,10 +33,12 @@ void I2C1_EV_IRQHandler(void){
         I2C1->CR2 = 0;
         I2C1->CR2 |= (1 << 25)|(NBYTES << 16)|READ|(BNO055 << 1)|START;
         return;
+    } else if(I2C1->ISR & NACKF){
+        nack_counter++;
+        return;
     } else {
         uint32_t i2c_isr = I2C1->ISR;
         __asm volatile("BKPT #6"); // print the i2c interrupt flags
-        return;
     }
     
 }

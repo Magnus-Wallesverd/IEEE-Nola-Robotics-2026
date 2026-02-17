@@ -23,7 +23,7 @@
 #define MAX_WIDTH       19
 #define BUFFER_SIZE     6
 #define NUM_BASE        0x30
-#define REFRESH_RATE    200
+#define REFRESH_RATE    20
 
 enum lcd_mode{
     BIT_MODE_4 = 0,

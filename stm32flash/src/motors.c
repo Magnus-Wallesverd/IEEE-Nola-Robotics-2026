@@ -37,8 +37,7 @@ uint8_t Kp = 1;
 
 void TIM1_UP_TIM16_IRQHandler(void){
     TIM16->SR = 0;  // clear flags
-    if(motor_tcb->flags > 0){
-        flag_wait(motor_tcb);
+    if(motor_tcb->state == BLOCKED){
         unblock(motor_tcb);
     }
 }
@@ -106,32 +105,34 @@ void output_timer_init(void){
 }
 
 void steps(int16_t target){
-    int16_t curr4 = (TIM4->CNT);
+    int16_t curr8 = (TIM4->CNT);
     int16_t A = 1;
     int16_t B = 1;
     pwm = 0;
-    measure4 = curr4 - prev4;
-    prev4 = curr4;
-    int16_t error = target - curr4;
+    measure8 = curr8 - prev8;
+    prev8 = curr8;
+    int16_t error = target - curr8;
     pwm = error*A + B*measure4;
-    if(pwm<0){
-        ResetPins(GPIOB, PB3|PB5);
-        ResetPins(GPIOC, PC10|PC9);
+    if(pwm<0){ //reverse rotation
+        ResetPins(GPIOC, INL1|INL3|INR1);
+        ResetPins(GPIOB, INR3);
+        PinWrite(GPIOC, INL2|INL4);
+        PinWrite(GPIOB, INR2|INR4);
     }
-    else{
-        PinWrite(GPIOC, PC11|PC8);
-        PinWrite(GPIOB, PB3|PB5 );
+    else{ //forward rotation
+
+        ResetPins(GPIOC, INL2|INL4);
+        ResetPins(GPIOB, INR2|INR4);
+        PinWrite(GPIOC, INL1|INL3|INR1);
+        PinWrite(GPIOB, INR3);
     }
     if((pwm > TIM4->ARR) | (-1*pwm < TIM4->ARR)){
         pwm = TIM4->ARR;
     }
-    TIM1->CCR1 = pwm;
     TIM1->CCR3 = pwm;
-    TIM1->CCR2 = pwm;
-    TIM1->CCR4 = pwm;
+    set_speed(measure8);
 
 }
-
 void set_speed(uint16_t target){
     
     int16_t curr2 = TIM2->CNT;
@@ -166,10 +167,12 @@ void motor_wrapper(void* args){
     motor_tcb = current_tcb;
     input_timer_init();
     output_timer_init();
+    PinWrite(GPIOC, INL1|INL4);
+    PinWrite(GPIOB, INR4);
+    PinWrite(GPIOA, INR3);
     while(1){
         set_speed(target);
-        // __asm volatile("BKPT #2"); //block
-        flag_post(motor_tcb);
+        // steps(1000);
         block();
     }
 }

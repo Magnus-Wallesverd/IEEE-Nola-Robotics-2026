@@ -114,40 +114,44 @@ void lcd_init(void){
 
 void lcd_print(void* args){
     (void)args;
-    char entry_1[] = {"Heading: "};
-    // char entry_2[] = {"TIM3"};
-    // char entry_3[] = {"TIM4"};
-    // char entry_4[] = {"TIM8"};
+    char entry_1[] = {"TIM2"};
+    char entry_2[] = {"TIM3"};
+    char entry_3[] = {"TIM4"};
+    char entry_4[] = {"TIM8"};
     char x = 0;
     char buffer_1[BUFFER_SIZE] = {0};
     char buffer_2[BUFFER_SIZE] = {0};
     char buffer_3[BUFFER_SIZE] = {0};
     char buffer_4[BUFFER_SIZE] = {0};
     print(entry_1);
-    // move_cursor(1, 7);
-    // print(entry_2);
-    // move_cursor(2,0);
-    // print(entry_3);
-    // move_cursor(3,0);
-    // print(entry_4);
-    // move_cursor(4,0);
+    move_cursor(1,0);
+    print(entry_2);
+    move_cursor(2,0);
+    print(entry_3);
+    move_cursor(3,0);
+    print(entry_4);
+    move_cursor(4,0);
     uint32_t t0 = 0;
     uint32_t t1 = 0;
+    int i = 0;
     while(1){
         t0 = get_global_tick();
         while((t0-t1) > REFRESH_RATE){
-            move_cursor(0, 10);
-            signed_stringify((*(get_i2c_buffer()+1)<<8) + *(get_i2c_buffer()),buffer_1);
+            move_cursor(0, 7);
+            // signed_stringify((*(get_i2c_buffer()+1)<<8) + *(get_i2c_buffer()),buffer_1);
             // move_cursor(1, 7);
             // signed_stringify((*(get_i2c_buffer()+3)<<8) + *(get_i2c_buffer()+2),buffer_1);
             // move_cursor(2, 7);
             // signed_stringify((*(get_i2c_buffer()+5)<<8) + *(get_i2c_buffer()+4),buffer_1);
             //move_cursor(2, 7);
-            // stringify(TIM3->CNT, buffer_2);
-            // move_cursor(2, 7);
-            // stringify(TIM4->CNT, buffer_1);
-            // move_cursor(3, 7);
-            // stringify(TIM8->CNT, buffer_4);
+            // putchar(get_usart_t()->rx_buffer_p[i++%8]);
+            stringify(TIM2->CNT&0xFFFF, buffer_1);
+            move_cursor(1, 7);
+            stringify(TIM3->CNT, buffer_2);
+            move_cursor(2, 7);
+            stringify(TIM4->CNT, buffer_3);
+            move_cursor(3, 7);
+            stringify(TIM8->CNT, buffer_4);
             // stringify(get_global_tick(), buffer_1);
             t1=t0;
         }

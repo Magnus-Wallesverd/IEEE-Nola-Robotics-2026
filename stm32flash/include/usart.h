@@ -55,7 +55,9 @@ typedef struct{
 #define UART4  ((USART_Typedef *) 0x40004C00)
 #define UART5  ((USART_Typedef *) 0x40005000)
 
-void usart_init(USART_Typedef* USARTx, GPIOx port, uint32_t pins, uint16_t baud);
+void usart_init(USART_Typedef* USARTx, GPIO_TypeDef* port, uint32_t pins, uint32_t baud);
+void load_tx(void);
+void usart_begin(void* args);
+usart_t* get_usart_t(void);
 
-void usart_begin(void);
 #endif // !USART_H

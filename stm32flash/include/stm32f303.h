@@ -21,7 +21,9 @@
 #include "lcd.h"
 #include "i2c.h"
 #include "motors.h"
+#include "usart.h"
 #include "spi.h"
 #include "dma.h"
+
 
 #endif
