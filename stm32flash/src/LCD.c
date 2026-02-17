@@ -133,6 +133,7 @@ void lcd_print(void* args){
     move_cursor(4,0);
     uint32_t t0 = 0;
     uint32_t t1 = 0;
+    int i = 0;
     while(1){
         t0 = get_global_tick();
         while((t0-t1) > REFRESH_RATE){
@@ -143,6 +144,7 @@ void lcd_print(void* args){
             // move_cursor(2, 7);
             // signed_stringify((*(get_i2c_buffer()+5)<<8) + *(get_i2c_buffer()+4),buffer_1);
             //move_cursor(2, 7);
+            // putchar(get_usart_t()->rx_buffer_p[i++%8]);
             stringify(TIM2->CNT&0xFFFF, buffer_1);
             move_cursor(1, 7);
             stringify(TIM3->CNT, buffer_2);

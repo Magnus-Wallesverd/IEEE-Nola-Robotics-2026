@@ -21,5 +21,6 @@
 #include "lcd.h"
 #include "i2c.h"
 #include "motors.h"
+#include "usart.h"
 
 #endif
