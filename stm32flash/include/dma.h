@@ -1,6 +1,8 @@
 #ifndef DMA_H
 #define DMA_H
 
+#include "spi.h"
+
 #include <stdint.h>
 
 #define DMA_I2C1_RX 6 
@@ -53,9 +55,22 @@ typedef struct{
 
 } DMA_TypeDef;
 
+//unused
+typedef enum {
+    SPI1_RX = 2,
+    SPI1_TX,
+    SPI2_RX,
+    SPI2_TX
+}DMA1_SPI;
+
 #define DMA ((DMA_TypeDef *) 0x40020000)
 #define DMA2 ((DMA2_TypeDef *) 0x40020400)
  
+<<<<<<< HEAD
 void DMA_Init(void);
+=======
+void dma_channel_init();
+void configure_spi(SPI_TypeDef* SPIx);
+>>>>>>> feature/spi_temp
 
 #endif

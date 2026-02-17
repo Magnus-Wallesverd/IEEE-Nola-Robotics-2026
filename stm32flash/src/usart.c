@@ -9,7 +9,6 @@ static uint8_t rx_i = 0;
 
 uint8_t tx_buffer[USART_BUF_SIZE];
 uint8_t rx_buffer[USART_BUF_SIZE];
-uint8_t data[USART_BUF_SIZE];
 
 /*
  * TODO add error interrupts 

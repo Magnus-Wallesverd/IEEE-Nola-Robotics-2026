@@ -1,11 +1,10 @@
-
 #include "stm32f303.h"
 
 void systeminit(void){
 
     // systic interrupt init
     STK->CTRL |= 0x6;
-    STK->LOAD |= 0x1F3F;
+    STK->LOAD |= 0x3D08FF;
     
     // priority set
     SCB->SHPR3 |= 0xE0F00000;
