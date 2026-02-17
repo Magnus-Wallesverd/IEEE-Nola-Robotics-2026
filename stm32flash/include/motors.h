@@ -33,7 +33,7 @@
 #define INL4 PC10
 #define INR1 PC12
 #define INR2 PB3
-#define INR3 PB4
+#define INR3 PA10
 #define INR4 PB5
 
 void input_timer_init(void);
