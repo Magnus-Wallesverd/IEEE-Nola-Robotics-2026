@@ -12,7 +12,14 @@
 #define STANDARD_MODE 0
 #define FAST_MODE 1
 #define FAST_MODE_PLUS 2
+
 #define BNO055 0x28
+#define OPR_REG 0x3D
+#define NDOF_MODE 0xC
+#define HEADING_REG 0x1A
+#define HEADING_LSB 0
+#define HEADING_MSB 1
+#define HEADING_MAX_VALUE 5760
 
 #define WRITE   ~(1<<10)
 #define READ    1<<10
@@ -34,6 +41,7 @@
 #define TCR     1<<7
 #define BUSY    1<<15
 
+#define NACKCF  1<<4  
 #define STOPCF  1<<5
 
 typedef struct {
@@ -75,7 +83,8 @@ typedef struct{
 #define I2C1 ((I2C_TypeDef *)0x40005400)
 #define I2C2 ((I2C_TypeDef *)0x40005800)
 
-extern volatile int bno_flag;
+extern int bno_flag;
+extern int bno_ready;
 
 // I2C HAL function prototypes
 

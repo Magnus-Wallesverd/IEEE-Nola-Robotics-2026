@@ -144,9 +144,5 @@ TCB* threadscheduler(void){
         } else {
             return current_tcb;
         }
-        if(next_tcb == 0){
-            __asm volatile("BKPT #0"); // scheduler error
-
-        }
     }
 }

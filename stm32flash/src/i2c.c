@@ -9,8 +9,10 @@
 #include <stdint.h>
 #include "timx.h"
 #include "lock.h"
+#include "tcb.h"
 
 int ovf17 = 0;
+int bno_ready = 0;
 
 void TIM1_TRG_TIM17_IRQHandler(void){
     ovf17++;
@@ -73,8 +75,14 @@ void Sensor_Write(I2C_TypeDef* I2Cx){
 
 void Sensor_Read_Wrapper(void* args){
     (void) args;
-    Sensor_Write(I2C1);
-    yield();
+    I2C_Init(I2C1, 0);
+    while(get_global_tick() < 400){
+        yield();
+    }
+    while(!bno_ready){
+        Sensor_Write(I2C1);
+        yield();
+    }
     bno_flag++;
     while(1){
         if(!(I2C1->ISR&BUSY)){

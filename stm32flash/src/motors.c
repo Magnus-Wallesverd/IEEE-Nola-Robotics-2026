@@ -1,10 +1,9 @@
-// TODO hook motors and clamp the CCR integrator
-// TODO implement 3 point backwards difference
-
 #include "motors.h"
 #include "timx.h"
 #include "rcc.h"
 #include "lock.h"
+#include "tcb.h"
+#include "stmath.h"
 #include <stdint.h>
 
 
@@ -18,6 +17,14 @@ int16_t prev3 = 0;
 int16_t prev4 = 0;
 int16_t prev8 = 0;
 
+int16_t ref_h= 0;
+int16_t curr_h = 0;
+int16_t measure_h;
+int16_t prev_h = 0;
+int16_t error_h = 0;
+// uint16_t target_h = 0;
+uint8_t Kp_h = 2;
+
 int16_t pwm=0;
 
 int16_t measure2 = 0;
@@ -28,9 +35,9 @@ int16_t measure8 = 0;
 int16_t error2 = 0;
 int16_t error3 = 0;
 int16_t error4 = 0;
-int16_t error8= 0;
+int16_t error8 = 0;
 
-uint16_t target = 100;
+// uint16_t target = 100;
 uint8_t direction;
 
 uint8_t Kp = 1;
@@ -133,6 +140,66 @@ void steps(int16_t target){
     set_speed(measure8);
 
 }
+
+// R = ch1,4 & L = ch 2,3 
+void heading_correction(int16_t target_h){
+    curr_h = (i2c_rx_buffer[HEADING_MSB] << 8 | i2c_rx_buffer[HEADING_LSB]);
+    measure_h = curr_h - prev_h;
+    if((!measure_h) & bno_flag){
+        return;
+    }
+    if(curr_h > HEADING_MAX_VALUE - 160 && prev_h < 160 ){
+        //undf
+        // decrement right side wheels
+        error_h = target_h - (HEADING_MAX_VALUE - measure_h);
+        TIM1->CCR1 += Kp_h*error_h;
+        TIM1->CCR4 += Kp_h*error_h;
+        
+    } else if(curr_h < 160 && prev_h > HEADING_MAX_VALUE - 160){
+        //ovf
+        // decrement left side wheels
+        error_h = target_h - twos_compl16(HEADING_MAX_VALUE + measure_h);
+        TIM1->CCR2 += Kp_h*error_h;
+        TIM1->CCR3 += Kp_h*error_h;
+    } else {
+        error_h = target_h - measure_h;
+        if(measure_h < 0){
+            // error_h is positive
+            // decrement right side wheels
+            error_h*=-1;
+            TIM1->CCR1 += Kp_h*error_h;
+            TIM1->CCR4 += Kp_h*error_h;
+        } else {
+            // decrement left side wheels
+            // error_h is negative
+            Kp_h*error_h;
+            TIM1->CCR2 += Kp_h*error_h;
+            TIM1->CCR3 += Kp_h*error_h;
+        }
+    }
+    prev_h = curr_h;
+}
+
+void correct_heading(int16_t target_h){
+    curr_h = (i2c_rx_buffer[HEADING_MSB] << 8 | i2c_rx_buffer[HEADING_LSB]);
+    measure_h = curr_h - prev_h;
+    if(measure_h <= HEADING_MAX_VALUE/2) measure_h+=HEADING_MAX_VALUE;
+    if(measure_h > HEADING_MAX_VALUE/2) measure_h-=HEADING_MAX_VALUE;
+    
+    error_h = measure_h;
+
+    if(abs(error_h) < 16){
+        return;
+    } else if(error_h < 0){
+        TIM1->CCR2 += Kp_h*error_h;
+        TIM1->CCR3 += Kp_h*error_h;
+    } else {
+        TIM1->CCR1 += Kp_h*error_h;
+        TIM1->CCR4 += Kp_h*error_h;
+    }
+    prev_h = curr_h;
+}
+
 void set_speed(uint16_t target){
     
     int16_t curr2 = TIM2->CNT;
@@ -159,7 +226,6 @@ void set_speed(uint16_t target){
     TIM1->CCR2 += (Kp*error8) * !(measure8 < -200 ||measure8 > 400);
     TIM1->CCR3 += Kp*error4   * !(measure4 < -200 ||measure4 > 200);
     TIM1->CCR4 += Kp*error3   * !(measure3 < -200 ||measure3 > 200);
-
 }
 
 void motor_wrapper(void* args){
@@ -167,12 +233,25 @@ void motor_wrapper(void* args){
     motor_tcb = current_tcb;
     input_timer_init();
     output_timer_init();
-    PinWrite(GPIOC, INL1|INL4);
-    PinWrite(GPIOB, INR4);
-    PinWrite(GPIOA, INR3);
+    while(i2c_rx_buffer[1]== 0){
+        yield();
+    }
+    ref_h = (i2c_rx_buffer[HEADING_MSB] << 8 | i2c_rx_buffer[HEADING_LSB]);
+    prev_h = ref_h;
+    GPIOC->BSRR |= INL1|INL4;
+    GPIOB->BSRR |= INR4;
+    GPIOA->BSRR |= INR3;
+
     while(1){
-        set_speed(target);
-        // steps(1000);
-        block();
+        while(get_global_tick() < 10000){
+            set_speed(60);
+            // correct_heading(ref_h);
+            heading_correction(0);
+            // steps(1000);
+            block();
+        }
+    GPIOC->BSRR |= (INL1|INL4)<<16;
+    GPIOB->BSRR |= (INR4)<<16;
+    GPIOA->BSRR |= (INR3)<<16;
     }
 }
