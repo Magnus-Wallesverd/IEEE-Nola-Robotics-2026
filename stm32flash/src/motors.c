@@ -243,7 +243,7 @@ void motor_wrapper(void* args){
     GPIOA->BSRR |= INR3;
 
     while(1){
-        while(get_global_tick() < 10000){
+        while(get_global_tick() < 5000){
             set_speed(60);
             // correct_heading(ref_h);
             heading_correction(0);
