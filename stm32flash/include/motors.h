@@ -3,6 +3,7 @@
 
 #include <stdint.h>
 #include "gpio.h"
+#include "i2c.h"
 
 /* *
  * ENA - 
@@ -36,6 +37,9 @@
 #define INR3 PA10
 #define INR4 PB5
 
+extern uint32_t flag_register;
+extern uint8_t i2c_rx_buffer[I2C_BUFFER_SIZE];
+
 void input_timer_init(void);
 
 void output_timer_init(void);
@@ -43,8 +47,6 @@ void output_timer_init(void);
 void set_speed(uint16_t target);
 
 void steps(int16_t target);
-
-extern uint32_t flag_register;
 
 void motor_wrapper(void* args);
 

@@ -1,4 +1,5 @@
 #include "stm32f303.h"
+#include <stdint.h>
 
 void systeminit(void){
 
@@ -24,8 +25,7 @@ void systeminit(void){
     
     ready_queue_init();
     priority_queue_init();
-    I2C_Init(I2C1, 0);
-
+    
     // enable timer 16 interrupt
     // NVIC->ISER0 |= (1 << 25);
  

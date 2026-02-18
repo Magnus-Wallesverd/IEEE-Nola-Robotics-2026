@@ -9,6 +9,7 @@
 #ifndef STM32F303_H
 #define STM32F303_H
 
+#include "stmath.h"
 #include "tcb.h"
 #include "lock.h"
 #include "queue.h"
