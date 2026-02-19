@@ -103,18 +103,6 @@ copy_data2:
   ldrlt r3, [r2], #4
   strlt r3, [r0], #4
   blt copy_data2
-
-
-  /* Zero initialize .bss*/
-  ldr r0, =_sbss
-  ldr r1, =_ebss
-
-zero_bss:
-  cmp r0,r1             /*  zero out the bss section */
-  ittt lt               /*  if start < end */
-  movlt r2, #0          /*  move 0 into r2 */
-  strlt r2, [r0], #4    /*  store r2 = 0 into address pointed to by R0 increment register 0 address #4 bytes */
-  blt zero_bss          /*  branch back to zero if N is set */
  
   ldr r4, = _thread2_start 
   ldr r5, = _thread_block_end
@@ -143,7 +131,16 @@ init_frames:
   
   mov sp, r7
 
-  /*bl bmp_search*/
+  /* Zero initialize .bss*/
+  ldr r0, =_sbss
+  ldr r1, =_ebss
+
+zero_bss:
+  cmp r0,r1             /*  zero out the bss section */
+  ittt lt               /*  if start < end */
+  movlt r2, #0          /*  move 0 into r2 */
+  strlt r2, [r0], #4    /*  store r2 = 0 into address pointed to by R0 increment register 0 address #4 bytes */
+  blt zero_bss          /*  branch back to zero if N is set */
 
   /* C initializers */
   bl tcbinit
@@ -160,7 +157,6 @@ set_global:
 
 service:
   SVC #0
-
 
 infinite_loop:
   b infinite_loop
