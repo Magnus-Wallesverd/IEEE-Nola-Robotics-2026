@@ -65,15 +65,15 @@ def detect_apriltags(img):
     return 0
 
 def detect_blob(img, threshold, size):
-    blobs = img.find_blobs([threshold], pixels_threshold=150, area_threshold=150)
+    blobs = img.find_blobs([threshold], pixels_threshold=10, area_threshold=10)
     valid_blobs = []
 
     for b in blobs:
         aspect = b.w() / b.h()
         area = b.pixels()
-        elong = b.elongation()
+        solidity = b.density()
 
-        if(0.8 < aspect < 1.2) and (200 < area < 5000) and (elong < 0.5):
+        if(0.8 < aspect < 1.2) and (area < 5000) and (solidity > 0.35):
             blob_diameter = (b.w() + b.h()) / 2
             angle_deg = calc_angle(b.cx())
             distance_cm = calc_distance(blob_diameter, size)
@@ -102,8 +102,8 @@ def detect_blob(img, threshold, size):
     else:
         print("Move forward")
 
-    img.draw_rectangle(blob.rect(), color=(255, 0, 0))
-    img.draw_cross(blob.cx(), blob.cy(), color=(0, 255, 0))
+    img.draw_rectangle(blob.rect(), color=(0, 255, 0))
+    img.draw_cross(blob.cx(), blob.cy(), color=(255, 0, 0))
 
     return len(valid_blobs)
 
@@ -128,4 +128,5 @@ while True:
         if balls > 0:
             print("Number of balls: ", balls)
         else:
-            print("Turn right idk")
+            print("Turn right or move forward idk")
+
