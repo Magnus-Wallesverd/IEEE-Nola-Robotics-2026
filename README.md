@@ -10,15 +10,12 @@
 
 ### TODO
 
-- add a lock/unlock
-  - add a yield()
-- upgrade the scheduler
-- add logging/trace
-- research memory allocation (OS Part 2)
+- Hardware Abstraction Layer
+  - i2c
+  - threads and workers and task queue
 
 ### UPDATES
 
-- worker function 
-- shared queue
-- merged to develop
-- working context switcher
+- round robin context switcher added
+- gpio hardware abstraction completed. will push if testing shows its necerssary
+- file directories have been cleaned up on branches from here
