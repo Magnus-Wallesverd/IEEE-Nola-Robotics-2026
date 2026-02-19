@@ -9,6 +9,7 @@
 uint32_t kernel_unblock_counter = 0;
 uint32_t global_tick = 0;
 uint32_t  task_flag = 0;
+
 TCB _stcb[TCB_ARRAY_SIZE];
 TCB *current_tcb;
 TCB *next_tcb;
@@ -20,14 +21,6 @@ sem_t sem_blocked[TCB_ARRAY_SIZE];
 
 uint32_t get_global_tick(void){
     return global_tick;
-}
-
-void os_queue_init(void){
-    ready_q.size  = TCB_ARRAY_SIZE;
-    ready_q.count = 0;
-    ready_q.array = ready_array;
-    ready_q.front = ready_array;
-    ready_q.end   = ready_array;
 }
 
 void tcbinit(void){
@@ -61,60 +54,6 @@ void worker_function(void){
     }
 }
 
-// i dont think i need all these threads. 
-// many tasks should just run the same function
-// worker_function
-
-void my_thread1(void *ctx){
-    (void)ctx;
-    worker_function();
-}
-
-void my_thread2(void *ctx){
-    (void)ctx;
-    worker_function();
-}
-
-void my_thread3(void *ctx){
-    (void)ctx;
-    worker_function(); 
-}
-
-void my_thread4(void *ctx){
-    (void)ctx;
-    worker_function();
-}
-
-void my_thread5(void *ctx){
-    (void)ctx;
-    worker_function();
-}
-
-void my_thread6(void *ctx){
-    (void)ctx;
-    worker_function();
-}
-
-void my_thread7(void *ctx){
-    (void)ctx;
-    worker_function();
-}
-
-void my_thread8(void *ctx){
-    (void)ctx;
-    worker_function();
-}
-
-void my_thread9(void *ctx){
-    (void)ctx;
-    worker_function();
-}
-
-void my_thread10(void *ctx){
-    (void)ctx;
-    worker_function();
-}
-
 void kernel_tcb_unblock(TCB tcb[]){
     for(int i = 0; i < TCB_ARRAY_SIZE; i++){
         if(tcb[i].flags > 0){
@@ -127,22 +66,20 @@ void kernel_tcb_unblock(TCB tcb[]){
 }
 
 TCB* threadscheduler(void){
-    while(1){
-        if(kernel_unblock_counter){
-            kernel_tcb_unblock(_stcb);       
-        }
-        if(current_tcb->state == BLOCKED){
-            next_tcb = (TCB*)dequeue(ready_queue_ptr);
-            next_tcb->state = RUNNING;
-            return next_tcb;
-        } else if(ready_queue_ptr->count > 0){
-            enqueue(ready_queue_ptr, current_tcb);
-            current_tcb->state = READY;
-            next_tcb = (TCB*)dequeue(ready_queue_ptr);
-            next_tcb->state = RUNNING;
-            return next_tcb;
-        } else {
-            return current_tcb;
-        }
+    if(kernel_unblock_counter){
+        kernel_tcb_unblock(_stcb);       
+    }
+    if(current_tcb->state == BLOCKED){
+        next_tcb = (TCB*)dequeue(ready_queue_ptr);
+        next_tcb->state = RUNNING;
+        return next_tcb;
+    } else if(ready_queue_ptr->count > 0){
+        enqueue(ready_queue_ptr, current_tcb);
+        current_tcb->state = READY;
+        next_tcb = (TCB*)dequeue(ready_queue_ptr);
+        next_tcb->state = RUNNING;
+        return next_tcb;
+    } else {
+        return current_tcb;
     }
 }

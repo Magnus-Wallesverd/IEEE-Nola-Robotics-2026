@@ -97,10 +97,6 @@ fill_padding:
   strlt r2, [r0], #4
   blt fill_padding
 
-/* Load up CCMRAM boundary addresses */
-  ldr r0, =_ccmram
-  ldr r1, =_eccmram
-
 copy_data2:
   cmp r0, r1
   ittt lt
@@ -109,12 +105,11 @@ copy_data2:
   blt copy_data2
 
  
-  ldr r4, = _thread1_end 
-  ldr r5, = _thread10_end
-  ldr r6, = _thread1_start
+  ldr r4, = _thread2_start 
+  ldr r5, = _thread_block_end
+  ldr r6, = worker_function
   mov r7, sp
   ldr r8, = _stcb
-  ldr r9, = _stcb
 
 init_frames:
   cmp  r4, r5
@@ -133,7 +128,6 @@ init_frames:
   
   str sp, [r8], #0x10
   add r4, r4, #0x400
-  add r6, r6, #0x400
   blt init_frames
   
   mov sp, r7
@@ -152,6 +146,7 @@ zero_bss:
   /*bl bmp_search*/
 
   /* C initializers */
+  bl set_pc
   bl tcbinit
   bl task_queue_init
   bl systeminit
