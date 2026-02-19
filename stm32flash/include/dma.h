@@ -66,11 +66,7 @@ typedef enum {
 #define DMA ((DMA_TypeDef *) 0x40020000)
 #define DMA2 ((DMA2_TypeDef *) 0x40020400)
  
-<<<<<<< HEAD
-void DMA_Init(void);
-=======
 void dma_channel_init();
 void configure_spi(SPI_TypeDef* SPIx);
->>>>>>> feature/spi_temp
 
 #endif

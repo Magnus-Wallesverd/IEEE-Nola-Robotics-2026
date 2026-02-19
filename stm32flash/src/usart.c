@@ -7,8 +7,8 @@ usart_t usart;
 static uint8_t tx_i = 0;
 static uint8_t rx_i = 0;
 
-uint8_t tx_buffer[USART_BUF_SIZE];
-uint8_t rx_buffer[USART_BUF_SIZE];
+uint8_t usart_tx_buffer[USART_BUF_SIZE];
+uint8_t usart_rx_buffer[USART_BUF_SIZE];
 uint8_t data[USART_BUF_SIZE];
 
 /*
@@ -68,8 +68,8 @@ void usart_init(USART_Typedef* USARTx, GPIO_TypeDef* port, uint32_t pins, uint32
     }
 
     usart.USARTx = USARTx;
-    usart.tx_buffer_p = &tx_buffer[0];
-    usart.rx_buffer_p = &rx_buffer[0];
+    usart.tx_buffer_p = &usart_tx_buffer[0];
+    usart.rx_buffer_p = &usart_rx_buffer[0];
 
     USARTx->CR1 |= CR1_SETUP;
     USARTx->BRR = FCLK/baud;
