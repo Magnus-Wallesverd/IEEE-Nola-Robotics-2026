@@ -32,9 +32,9 @@
 #define INL2 PC9
 #define INL3 PC11
 #define INL4 PC10
-#define INR1 PC12
-#define INR2 PB3
-#define INR3 PA10
+#define INR3 PC12
+#define INR1 PB3
+#define INR2 PA10
 #define INR4 PB5
 
 extern uint32_t flag_register;
