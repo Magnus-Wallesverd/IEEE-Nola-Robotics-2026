@@ -110,14 +110,20 @@ void output_timer_init(void){
     TIM16->CR1   |= 0b10000001;
 }
 
-void steps(int16_t target){
+void steps(int16_t target, int16_t dir){
+
+    curr_h = (i2c_rx_buffer[HEADING_MSB] << 8 | i2c_rx_buffer[HEADING_LSB]);
+    measure_h = target - curr_h;
+    if(measure_h <= HEADING_MAX_VALUE/2) measure_h+=HEADING_MAX_VALUE;
+    if(measure_h > HEADING_MAX_VALUE/2) measure_h-=HEADING_MAX_VALUE;
+
     int16_t curr2 = TIM2->CNT;
     int16_t curr3 = TIM3->CNT;
     int16_t curr4 = TIM4->CNT;
     int16_t curr8 = TIM8->CNT;
 
     int16_t curr_avg = 0;
-    curr_avg = (curr2+curr3+curr4+curr8)/4;
+    curr_avg = (curr4+curr8+curr2+curr3)/4;
 
     
     int16_t A = 2;
@@ -126,10 +132,14 @@ void steps(int16_t target){
     pwm = 0;
     measure8 = curr_avg - prev4;
     prev4 = curr_avg;
-    int16_t error = target - curr_avg;
+    int16_t error = (target - curr_avg)*(!dir) + measure_h*(dir);
     ierr += error;
-    pwm = error*A - B*measure4 + ierr/C;
-    if(pwm<0){ //reverse rotation
+    pwm = error*(A*(!dir)+ 10*dir) - B*measure4 + ierr/C;
+
+
+
+
+    if((pwm<0) & (!dir) ){ //reverse rotation
         //GPIOC->BSRR |= INL4;
         //GPIOB->BSRR |= INR4;
         //GPIOA->BSRR |= INR3;
@@ -145,7 +155,7 @@ void steps(int16_t target){
         //GPIOA->BSRR |= INR3 << 16;
         pwm *=-1;
     }
-    else{ //forward rotation
+    else if((pwm>0 )& (!dir)){ //forward rotation
 
         
         //GPIOC->BSRR |= INL3|INL2|INR1 << 16;
@@ -158,6 +168,25 @@ void steps(int16_t target){
         GPIOC->BSRR |= (INL3|INL2|INR3 )<< 16;
         //GPIOB->BSRR |= INR4;
         //GPIOA->BSRR |= INR2;
+    }
+
+    if((pwm <0) & (dir)){
+        pwm*=-1;
+        GPIOC->BSRR |= (INL4|INL1|INR3) << 16;
+        GPIOB->BSRR |= (INR1 <<16) | INR4;
+        GPIOA->BSRR |= INR2;
+        GPIOC->BSRR |= (INL3|INL2);
+
+
+    }
+    else if((pwm >0) & (dir)){
+
+        GPIOC->BSRR |= INL4|INL1|INR3 ;
+        GPIOB->BSRR |= (INR1) | (INR4 << 16);
+        GPIOA->BSRR |= INR2 << 16;
+        GPIOC->BSRR |= (INL3|INL2 )<< 16;
+
+
     }
     if((pwm > TIM4->ARR) | (-1*pwm < TIM4->ARR)){
         pwm = TIM4->ARR;
@@ -257,6 +286,7 @@ void set_speed(uint16_t target){
     //TIM1->CCR4 += Kp*error3   * !(measure3 < -200 ||measure3 > 200);
 }
 
+
 void motor_wrapper(void* args){
     (void) args;
     motor_tcb = current_tcb;
@@ -272,11 +302,8 @@ void motor_wrapper(void* args){
     // GPIOA->BSRR |= INR3;
     for(int i = 0; i <0x50000;i++);
     while(1){
-            //set_speed(50);
-        steps(1540);
-            //correct_heading(ref_h);
-            //heading_correction(0);
-            block();
+        steps(45*16, 1);
+        block();
     // GPIOC->BSRR |= (INL1|INL4)<<16;
     // GPIOB->BSRR |= (INR4)<<16;
     // GPIOA->BSRR |= (INR3)<<16;
