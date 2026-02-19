@@ -7,3 +7,5 @@ void DMA_Init(void){
         RCC->AHBENR |= DMA1_EN;
     }
 }
+
+// test
