@@ -97,24 +97,18 @@ fill_padding:
   strlt r2, [r0], #4
   blt fill_padding
 
-/* Load up CCMRAM boundary addresses */
-  ldr r0, =_ccmram
-  ldr r1, =_eccmram
-
 copy_data2:
   cmp r0, r1
   ittt lt
   ldrlt r3, [r2], #4
   strlt r3, [r0], #4
   blt copy_data2
-
  
-  ldr r4, = _thread1_end 
-  ldr r5, = _thread10_end
-  ldr r6, = _thread1_start
+  ldr r4, = _thread2_start 
+  ldr r5, = _thread_block_end
+  ldr r6, = worker_function
   mov r7, sp
   ldr r8, = _stcb
-  ldr r9, = _stcb
 
 init_frames:
   cmp  r4, r5
@@ -133,7 +127,6 @@ init_frames:
   
   str sp, [r8], #0x10
   add r4, r4, #0x400
-  add r6, r6, #0x400
   blt init_frames
   
   mov sp, r7
@@ -148,8 +141,6 @@ zero_bss:
   movlt r2, #0          /*  move 0 into r2 */
   strlt r2, [r0], #4    /*  store r2 = 0 into address pointed to by R0 increment register 0 address #4 bytes */
   blt zero_bss          /*  branch back to zero if N is set */
-
-  /*bl bmp_search*/
 
   /* C initializers */
   bl tcbinit
@@ -166,7 +157,6 @@ set_global:
 
 service:
   SVC #0
-
 
 infinite_loop:
   b infinite_loop
