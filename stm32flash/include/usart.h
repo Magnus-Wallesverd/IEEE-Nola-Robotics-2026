@@ -4,30 +4,31 @@
 #include <stdint.h>
 #include "gpio.h"
 #include "rcc.h"
+#include "backend.h"
 
 #define UE      (1<<0)
 #define RE      (1<<2)
 #define TE      (1<<3)
-#define IDLEIE  (1<<4)
-#define RXNIE   (1<<5)
-#define TCIE    (1<<6)
-#define TXEIE   (1<<7)
-#define RTOIE   (1<<26)
+#define USART_IDLEIE  (1<<4)
+#define USART_RXNEIE   (1<<5)
+#define USART_TCIE    (1<<6)
+#define USART_TXEIE   (1<<7)
+#define USART_RTOIE   (1<<26)
 
 #define EIE     (1<<0)
 
 #define RTOEN   (1<<23)
 
-#define IDLE    (1<<4)
-#define RXNE    (1<<5)
-#define TC      (1<<6)
-#define TXE     (1<<7)
+#define USART_IDLE    (1<<4)
+#define USART_RXNE    (1<<5)
+#define USART_TC      (1<<6)
+#define USART_TXE     (1<<7)
 
 #define RATE 115200
-#define BRR FCLK/RATE
+#define USART_BRR FCLK/RATE
 #define USART_BUF_SIZE 8
 
-#define CR1_SETUP RTOIE|TXEIE|TCIE|RXNIE
+#define CR1_SETUP UE|TE|RE
 
 typedef struct{
     volatile uint32_t CR1;    //0x00
@@ -44,7 +45,7 @@ typedef struct{
 } USART_Typedef;                    
 
 typedef struct{
-    USART_typedef* USARTx;
+    USART_Typedef* USARTx;
     uint8_t* tx_buffer_p;
     uint8_t* rx_buffer_p;
 } usart_t;
@@ -61,4 +62,3 @@ void usart_begin(void* args);
 usart_t* get_usart_t(void);
 
 #endif // !USART_H
-
