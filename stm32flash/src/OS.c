@@ -80,6 +80,7 @@ TCB* threadscheduler(void){
         next_tcb->state = RUNNING;
         return next_tcb;
     } else {
+        current_tcb->state = RUNNING;
         return current_tcb;
     }
 }

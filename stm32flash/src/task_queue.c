@@ -18,7 +18,7 @@ void* priority_queue_array[TASK_QUEUE_SIZE];
 const func_t fn_table[] = {
     lcd_print,
     Sensor_Read_Wrapper,
-    motor_wrapper
+    // motor_wrapper
 };
 
 void task_queue_init(void){
