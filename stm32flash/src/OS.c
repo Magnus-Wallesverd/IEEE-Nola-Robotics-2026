@@ -47,7 +47,6 @@ void worker_function(void){
     
     if(item == (void*)0){
         yield();
-        return;
     } else {
         item->fn(item->args);
         yield();
