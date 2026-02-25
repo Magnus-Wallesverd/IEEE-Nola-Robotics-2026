@@ -11,7 +11,7 @@
 TCB* motor_tcb;
 
 Gen_TIM_TypeDef1* input_timers[] = {TIM2, TIM3, TIM4};
-int16_t ierr = 0;
+int32_t ierr = 0;
 int16_t prev2 = 0;
 int16_t prev3 = 0;
 int16_t prev4 = 0;
@@ -23,7 +23,7 @@ int16_t curr_h = 0;
 int16_t measure_h;
 int16_t prev_h = 0;
 int16_t error_h = 0;
-// uint16_t target_h = 0;
+int16_t target_h = 0;
 uint8_t Kp_h = 2;
 
 int32_t pwm=0;
@@ -37,9 +37,9 @@ int16_t error2 = 0;
 int16_t error3 = 0;
 int16_t error4 = 0;
 int16_t error8 = 0;
-// uint16_t target = 100;
+int16_t target = 100;
 uint8_t direction;
-
+uint32_t counter;
 uint8_t Kp = 1;
 
 void TIM1_UP_TIM16_IRQHandler(void){
@@ -47,6 +47,38 @@ void TIM1_UP_TIM16_IRQHandler(void){
     if(motor_tcb->state == BLOCKED){
         unblock(motor_tcb);
     }
+    counter++;
+    if(counter <300){
+        target = 500;
+        direction = 0;
+    }
+    else if(counter < 1200){
+        direction = 1;   //direction bit is 1 => Rotation
+        target = 120*16;   //  rotate 120 degrees
+    }
+    else if (counter < 1240){
+        direction = 1;
+        target = 240*16;
+    }
+    else if(counter < 1800){
+        direction = 1;
+        target = 360*16 ;
+    }
+    else if(counter < 2100){
+        direction = 1;
+        target= 0;
+    }
+    else if(counter < 2400){
+        direction=0;
+        target = -300;
+
+    }
+    else{
+        counter =0;
+
+    }
+
+
 }
 
 void input_timer_init(void){
@@ -91,8 +123,8 @@ void output_timer_init(void){
 
     TIM1->CCMR1 |= 0x6868;      // pwm 1 CH 1,2
     TIM1->CCMR2 |= 0x6868;      // pwm 1 CH 3,4
-    TIM1->PSC   |= 0;           //
-    TIM1->ARR   = 7999;        // top
+    TIM1->PSC   |= 2;           //
+    TIM1->ARR   = 0xFFFF;        // top
     TIM1->CCR1  = 0;        // compare ch1
     TIM1->CCR2  = 0;        // compare ch1
     TIM1->CCR3  = 0;        // compare ch1
@@ -127,16 +159,20 @@ void steps(int16_t target, int16_t dir){
     curr_avg = (curr4+curr8+curr2+curr3)/4;
 
     
-    int16_t A = 2;
-    int16_t B = 7;
-    int16_t C = 20;
+    uint16_t A = 100;
+    uint16_t B = 50;
+    uint16_t C = 100;
+
+    uint16_t hA = 60;
+    uint16_t hB = 70;
+    uint16_t hC =  70;
     pwm = 0;
     measure8 = (curr_avg - prev4)*(!dir) - dir * (measure_h - prev_h);
     prev4 = curr_avg;
     prev_h = measure_h;
     int32_t error = (target - curr_avg)*(!dir) + measure_h*(dir);
-    ierr += (error*(!dir) + dir*measure_h)/C;
-    pwm = error*(A*(!dir)+ 10*dir) - B*measure8 + ierr;
+    ierr += (error*(!dir) + dir*measure_h)/(C*(!dir)+ hC*dir);
+    pwm = error*(A*(!dir)+ hA*dir) - (B*(!dir)+hB*dir)*measure8 + ierr;
 
 
 
@@ -192,6 +228,15 @@ void steps(int16_t target, int16_t dir){
     TIM1->CCR2 = pwm;
     TIM1->CCR1 = pwm;
     TIM1->CCR4 = pwm;
+
+    if(dir){
+        
+        TIM2->CNT= 0;
+        TIM3->CNT = 0;
+        TIM4->CNT = 0;
+        TIM8->CNT = 0;
+        prev4=0;
+    }
     //set_speed(measure8);
 
 }
@@ -299,7 +344,7 @@ void motor_wrapper(void* args){
     // GPIOA->BSRR |= INR3;
     for(int i = 0; i <0x50000;i++);
     while(1){
-        steps(20*16, 1);
+        steps(target,direction);
         block();
     // GPIOC->BSRR |= (INL1|INL4)<<16;
     // GPIOB->BSRR |= (INR4)<<16;
