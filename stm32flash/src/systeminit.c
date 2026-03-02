@@ -27,6 +27,9 @@ void systeminit(void){
     ready_queue_init();
     priority_queue_init();
     
+
+    // init_servo_TIM();
+    // servo(0);
     // enable timer 16 interrupt
     // NVIC->ISER0 |= (1 << 25);
  

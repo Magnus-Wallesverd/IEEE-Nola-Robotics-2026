@@ -114,7 +114,7 @@ void lcd_init(void){
 
 void lcd_print(void* args){
     (void)args;
-    char entry_1[] = {"L"};
+    char entry_1[] = {"HELLO"};
     char entry_2[] = {"L"};
     char entry_3[] = {"R"};
     char entry_4[] = {"R"};
@@ -126,15 +126,8 @@ void lcd_print(void* args){
     char buffer_4[BUFFER_SIZE] = {0};
     char buffer_5[BUFFER_SIZE] = {0};
 
+    // move_cursor(0,0);
     print(entry_1);
-    move_cursor(1,0);
-    print(entry_2);
-    move_cursor(2,0);
-    print(entry_3);
-    move_cursor(3,0);
-    print(entry_4);
-    move_cursor(0, 9);
-    print(entry_5);
 
     uint32_t t0 = 0;
     uint32_t t1 = 0;
@@ -148,16 +141,12 @@ void lcd_print(void* args){
             // signed_stringify((*(get_i2c_buffer()+5)<<8) + *(get_i2c_buffer()+4),buffer_1);
             //move_cursor(2, 7);
             // putchar(get_usart_t()->rx_buffer_p[i++%8]);
-            move_cursor(0, 3);
-            stringify(TIM1->CCR1, buffer_1);
-            move_cursor(1, 3);
-            stringify(TIM1->CCR4, buffer_2);
-            move_cursor(2, 3);
-            stringify(TIM1->CCR2, buffer_3);
-            move_cursor(3, 3);
-            stringify(TIM1->CCR3, buffer_4);
-            move_cursor(0, 11);
-            signed_stringify(((*(get_i2c_buffer()+1)<<8)+*(get_i2c_buffer())),buffer_5);
+            // move_cursor(0,0);
+            // signed_stringify(((*(get_i2c_buffer()+1)<<8)+*(get_i2c_buffer())),buffer_5);
+            // move_cursor(0, 7); 
+            // stringify(TIM4->CNT, buffer_1);
+            // move_cursor(1,0);
+            // stringify(TIM3->CNT, buffer_2);
             // stringify(get_global_tick(), buffer_1);
             t1=t0;
         }

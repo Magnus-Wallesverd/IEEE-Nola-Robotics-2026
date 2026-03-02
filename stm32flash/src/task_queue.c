@@ -17,8 +17,8 @@ void* priority_queue_array[TASK_QUEUE_SIZE];
 // should start thinking of easier ways to get functions in here
 const func_t fn_table[] = {
     lcd_print,
-    Sensor_Read_Wrapper,
     motor_wrapper
+    //servo
 };
 
 void task_queue_init(void){

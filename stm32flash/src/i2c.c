@@ -43,20 +43,20 @@ void I2C_Init(I2C_TypeDef* I2Cx, uint8_t mode){
 
 void sensor_clock_init(){
 
-    RCC->APB2ENR |= 1 <<18;    // Enable TIM 17
-
-    //TIM1 PWM
-
-    //GPIO Control pins PB 1,2
-    
-    TIM17->DIER  |= 1;
-    TIM17->CCMR1 |= 0x68;
-    TIM17->PSC   |= 40;
-    TIM17->ARR    = 7999;
-    TIM17->CCR1  |= 4000;
-    TIM17->CCER  |= 1;
-    TIM17->BDTR  |= 1<<15;       // Main Output enable
-    TIM17->CR1   |= 0b10000001;
+    // RCC->APB2ENR |= 1 <<18;    // Enable TIM 17
+    //
+    // //TIM1 PWM
+    //
+    // //GPIO Control pins PB 1,2
+    //
+    // // TIM17->DIER  |= 1;
+    // TIM17->CCMR1 |= 0x68;
+    // TIM17->PSC   |= 40;
+    // TIM17->ARR    = 7999;
+    // TIM17->CCR1  |= 4000;
+    // TIM17->CCER  |= 1;
+    // TIM17->BDTR  |= 1<<15;       // Main Output enable
+    // TIM17->CR1   |= 0b10000001;
 }
 
 void Sensor_Read(I2C_TypeDef* I2Cx){

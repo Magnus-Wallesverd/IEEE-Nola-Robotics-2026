@@ -19,13 +19,6 @@
  * IN2 - 
  * IN3 - 
  * IN4 - 
- *
- * ENCODERA - PA 6,7 
- * ENCODERB - PA 0,1
- *
- * ENCODERA - PA 11,12 
- * ENCODERB - PC 6,7
- *
  * */
 
 #define INL1 PC8
@@ -50,4 +43,7 @@ void steps(int16_t target, int16_t dir);
 
 void motor_wrapper(void* args);
 
+void init_servo_TIM(void);
+
+void servo(void* args);
 #endif // !MOTORS_H

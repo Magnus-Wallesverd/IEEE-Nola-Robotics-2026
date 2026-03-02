@@ -4,6 +4,7 @@
 #include "lock.h"
 #include "tcb.h"
 #include "stmath.h"
+#include "gpio.h"
 #include <stdint.h>
 
 
@@ -17,7 +18,10 @@ int16_t prev3 = 0;
 int16_t prev4 = 0;
 int16_t prev8 = 0;
 int ovf = 0;
-
+int16_t curr2 = 0;
+int16_t curr3 = 0;
+int16_t curr4 = 0;
+int16_t curr8 = 0;
 int16_t ref_h= 0;
 int16_t curr_h = 0;
 int16_t measure_h;
@@ -42,41 +46,61 @@ uint8_t direction;
 uint32_t counter;
 uint8_t Kp = 1;
 
+uint16_t A = 100;
+uint16_t B = 100;
+uint16_t C = 30;
+
+uint16_t hA = 60;
+uint16_t hB = 70;
+uint16_t hC =  70;
+
 void TIM1_UP_TIM16_IRQHandler(void){
     TIM16->SR = 0;  // clear flags
     if(motor_tcb->state == BLOCKED){
         unblock(motor_tcb);
     }
     counter++;
-    if(counter <300){
-        target = 500;
+    if(counter < 1000){
+        target = 3000;
         direction = 0;
     }
-    else if(counter < 1200){
-        direction = 1;   //direction bit is 1 => Rotation
-        target = 120*16;   //  rotate 120 degrees
+    else if(counter < 2000){
+        target = 0;
+        direction =0;
     }
-    else if (counter < 1240){
-        direction = 1;
-        target = 240*16;
+    else if(counter < 4000){
+        counter = 0 ;
     }
-    else if(counter < 1800){
-        direction = 1;
-        target = 360*16 ;
-    }
-    else if(counter < 2100){
-        direction = 1;
-        target= 0;
-    }
-    else if(counter < 2400){
-        direction=0;
-        target = -300;
 
-    }
-    else{
-        counter =0;
-
-    }
+    // if(counter <300){
+    //     target = 500;
+    //     direction = 0;
+    // }
+    // else if(counter < 1200){
+    //     direction = 1;   //direction bit is 1 => Rotation
+    //     target = 120*16;   //  rotate 120 degrees
+    // }
+    // else if (counter < 1240){
+    //     direction = 1;
+    //     target = 240*16;
+    // }
+    // else if(counter < 1800){
+    //     direction = 1;
+    //     target = 360*16 ;
+    // }
+    // else if(counter < 2100){
+    //     direction = 1;
+    //     target= 0;
+    // }
+    // else if(counter < 2400){
+    //     direction=0;
+    //     target = -300;
+    //
+    // }
+    // else{
+    //     counter =0;
+    //
+    // }
 
 
 }
@@ -104,11 +128,13 @@ void input_timer_init(void){
     TIM8->CCMR1 |= 0x101;
     TIM8->CCER |= 0x11;
     TIM8->BDTR  |= 1<<15;       // Main Output enable
-    TIM8->CR1 |= 0b10000;
+    TIM8->CR1 |= 0b10000001;
 
 }
 
 void output_timer_init(void){
+    
+    // init_servo_TIM();
 
     RCC->APB2ENR |= (1 << 11)|(1 << 17);    // Enable TIM 1, 16
 
@@ -150,22 +176,15 @@ void steps(int16_t target, int16_t dir){
     if(measure_h <= HEADING_MAX_VALUE/2) measure_h+=HEADING_MAX_VALUE;
     if(measure_h > HEADING_MAX_VALUE/2) measure_h-=HEADING_MAX_VALUE;
 
-    int16_t curr2 = TIM2->CNT;
-    int16_t curr3 = TIM3->CNT;
-    int16_t curr4 = TIM4->CNT;
-    int16_t curr8 = TIM8->CNT;
+    curr2 = TIM2->CNT;
+    curr3 = TIM3->CNT;
+    curr4 = TIM4->CNT;
+    curr8 = TIM8->CNT;
 
     int16_t curr_avg = 0;
-    curr_avg = (curr4+curr8+curr2+curr3)/4;
+    curr_avg = (curr4+curr8+curr2)/3;
 
     
-    uint16_t A = 100;
-    uint16_t B = 50;
-    uint16_t C = 100;
-
-    uint16_t hA = 60;
-    uint16_t hB = 70;
-    uint16_t hC =  70;
     pwm = 0;
     measure8 = (curr_avg - prev4)*(!dir) - dir * (measure_h - prev_h);
     prev4 = curr_avg;
@@ -179,28 +198,18 @@ void steps(int16_t target, int16_t dir){
 
     if((pwm<0) & (!dir) ){ //reverse rotation
         GPIOC->BSRR |= INL3|INL2|INR3 | ((INL4|INL1)<<16);
-        //GPIOB->BSRR |= INR2;
-
-
-        //GPIOC->BSRR |= (INL4|INL1) <<16;
         GPIOB->BSRR |= ((INR4)<<16) | INR1;
-        //GPIOB->BSRR |= INR1;
         GPIOA->BSRR |= INR2 << 16;
         pwm *=-1;
+        //GPIOC -> BSRR |= INL3;
+
     }
     else if((pwm>0 )& (!dir)){ //forward rotation
-
-        
-        //GPIOC->BSRR |= INL3|INL2|INR1 << 16;
-        //GPIOB->BSRR |= INR2 << 16;
-
-
         GPIOC->BSRR |= INL4|INL1 | ((INL3|INL2|INR3) << 16) ;
         GPIOB->BSRR |= INR4|(INR1 <<16);
         GPIOA->BSRR |= INR2;
-        //GPIOC->BSRR |= (INL3|INL2|INR3 )<< 16;
-        //GPIOB->BSRR |= INR4;
-        //GPIOA->BSRR |= INR2;
+        // GPIOC->BSRR |= INL1 ;
+        // GPIOC->BSRR |= INL2 << 16;
     }
 
     if((pwm <0) & (dir)){
@@ -208,7 +217,6 @@ void steps(int16_t target, int16_t dir){
         GPIOC->BSRR |= ((INL4|INL1|INR3) << 16) | INL3|INL2;
         GPIOB->BSRR |= (INR1 <<16) | INR4;
         GPIOA->BSRR |= INR2;
-        //GPIOC->BSRR |= (INL3|INL2);
 
 
     }
@@ -222,7 +230,7 @@ void steps(int16_t target, int16_t dir){
 
     }
     if((pwm > TIM1->ARR)){
-        pwm = TIM1->ARR;
+        pwm = (TIM1->ARR)/4;
     }
     TIM1->CCR3 = pwm;
     TIM1->CCR2 = pwm;
@@ -328,6 +336,29 @@ void set_speed(uint16_t target){
     //TIM1->CCR4 += Kp*error3   * !(measure3 < -200 ||measure3 > 200);
 }
 
+void init_servo_TIM(void){
+    // SetPinAlternate(GPIOA, PA7);
+    // AlternateFunctionSet(GPIOA, PA7, 1);
+    RCC->APB2ENR |= 1 <<18;    // Enable TIM 17
+
+    //TIM1 PWM
+
+    //GPIO Control pins PB 1,2
+    
+    // TIM17->DIER  |= 1;
+    TIM17->CCMR1 |= 0x68;
+    TIM17->PSC   |= 0;
+    TIM17->ARR    = 23999;
+    TIM17->CCR1  |= 0;
+    TIM17->CCER  |= 1;
+    TIM17->BDTR  |= 1<<15;       // Main Output enable
+    TIM17->CR1   |= 0b10000001;
+}
+
+void servo(void* args){
+    (void) args;
+    TIM17->CCR1 = 16000;
+}
 
 void motor_wrapper(void* args){
     (void) args;
@@ -344,7 +375,7 @@ void motor_wrapper(void* args){
     // GPIOA->BSRR |= INR3;
     for(int i = 0; i <0x50000;i++);
     while(1){
-        steps(target,direction);
+        steps(target, 0);
         block();
     // GPIOC->BSRR |= (INL1|INL4)<<16;
     // GPIOB->BSRR |= (INR4)<<16;
