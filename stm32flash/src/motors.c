@@ -68,7 +68,19 @@ void TIM1_UP_TIM16_IRQHandler(void){
         target = 0;
         direction =0;
     }
+    else if(counter < 3000){
+        target = 15*16;
+        direction = 1;
+    }
+    else if(counter < 3500){
+        target = 0;
+    }
     else if(counter < 4000){
+        curr2 = 0;
+        curr3=0;
+        curr4=0;
+        curr8=0;
+        prev4 = 0;
         counter = 0 ;
     }
 
