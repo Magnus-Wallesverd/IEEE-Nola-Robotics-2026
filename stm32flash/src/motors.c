@@ -88,37 +88,6 @@ void TIM20_UP_IRQHandler(void){
         counter = 0 ;
     }
 
-    // if(counter <300){
-    //     target = 500;
-    //     direction = 0;
-    // }
-    // else if(counter < 1200){
-    //     direction = 1;   //direction bit is 1 => Rotation
-    //     target = 120*16;   //  rotate 120 degrees
-    // }
-    // else if (counter < 1240){
-    //     direction = 1;
-    //     target = 240*16;
-    // }
-    // else if(counter < 1800){
-    //     direction = 1;
-    //     target = 360*16 ;
-    // }
-    // else if(counter < 2100){
-    //     direction = 1;
-    //     target= 0;
-    // }
-    // else if(counter < 2400){
-    //     direction=0;
-    //     target = -300;
-    //
-    // }
-    // else{
-    //     counter =0;
-    //
-    // }
-
-
 }
 
 void input_timer_init(void){
@@ -157,6 +126,9 @@ void output_timer_init(void){
     //TIM1 PWM
     SetPinAlternate(GPIOC, 0xF);            
     AlternateFunctionSet(GPIOC, 0xF, 2);    // PC0-3 -> AF2   
+    
+    SetPinAlternate(GPIOB, PB4);            
+    AlternateFunctionSet(GPIOB, PB4, 1);    // PC0-3 -> AF2   
 
     //GPIO Control pins PC 8-12 PB 
     SetPinOutput(GPIOC, PC8|PC9|PC10|PC11|PC12);
@@ -175,6 +147,14 @@ void output_timer_init(void){
     TIM1->BDTR  |= 1<<15;       // Main Output enable
     TIM1->CR1 |= 0b10000001;    // Enable TIM1 counter
     
+    TIM16->CCMR1 |= 0x68;
+    TIM16->PSC   |= 0;
+    TIM16->ARR    = 23999;
+    TIM16->CCR1  |= 0;
+    TIM16->CCER  |= 1;
+    TIM16->BDTR  |= 1<<15;       // Main Output enable
+    TIM16->CR1   |= 0b10000001;
+
     TIM20->DIER  |= 1;
     TIM20->CCMR1 |= 0x68;
     TIM20->PSC   |= 24;
@@ -352,28 +332,9 @@ void set_speed(uint16_t target){
     //TIM1->CCR4 += Kp*error3   * !(measure3 < -200 ||measure3 > 200);
 }
 
-void init_servo_TIM(void){
-    // SetPinAlternate(GPIOA, PA7);
-    // AlternateFunctionSet(GPIOA, PA7, 1);
-    RCC->APB2ENR |= 1 <<18;    // Enable TIM 17
-
-    //TIM1 PWM
-
-    //GPIO Control pins PB 1,2
-    
-    // TIM17->DIER  |= 1;
-    TIM17->CCMR1 |= 0x68;
-    TIM17->PSC   |= 0;
-    TIM17->ARR    = 23999;
-    TIM17->CCR1  |= 0;
-    TIM17->CCER  |= 1;
-    TIM17->BDTR  |= 1<<15;       // Main Output enable
-    TIM17->CR1   |= 0b10000001;
-}
-
 void servo(void* args){
     (void) args;
-    TIM17->CCR1 = 16000;
+    TIM16->CCR1 = 16000;
 }
 
 void motor_wrapper(void* args){

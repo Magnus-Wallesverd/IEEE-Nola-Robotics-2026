@@ -19,11 +19,12 @@ void systeminit(void){
 
 
     // enable timer 16 and 17 interrupt
-    NVIC->ISER0 |= (1 << 25) | 1 << 26;
+    // NVIC->ISER0 |= (1 << 25) | 1 << 26;
  
     // enable i2c interrupt
     NVIC->ISER0 |= 1<<31;
 
+    //TIM20 interrupt enable
     NVIC->ISER2 |= 1<<14;
     
     ready_queue_init();
