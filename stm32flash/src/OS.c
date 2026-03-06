@@ -36,21 +36,23 @@ void tcbinit(void){
 }
 
 void worker_function(void){
-    
-    work_item_t* item;
-    
-    // take item off queue
-    if(lock(&task_flag) == 1){
-        item = (work_item_t*)dequeue(task_queue_ptr);
-        unlock(&task_flag);
-    } else { yield(); }
-    
-    if(item == (void*)0){
-        yield();
-    } else {
-        item->fn(item->args);
-        yield();
-    }
+    while(1){
+
+        work_item_t* item;
+        
+        // take item off queue
+        if(lock(&task_flag) == 1){
+            item = (work_item_t*)dequeue(task_queue_ptr);
+            unlock(&task_flag);
+        } else { yield(); }
+        
+        if(item == (void*)0){
+            yield();
+        } else {
+            item->fn(item->args);
+            yield();
+        }
+    }   
 }
 
 void kernel_tcb_unblock(TCB tcb[]){

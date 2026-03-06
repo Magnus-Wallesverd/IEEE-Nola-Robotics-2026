@@ -19,7 +19,6 @@ const func_t fn_table[] = {
     lcd_print,
     motor_wrapper,
     Sensor_Read_Wrapper
-    //servo
 };
 
 void task_queue_init(void){
