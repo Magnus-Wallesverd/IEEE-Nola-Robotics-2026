@@ -57,7 +57,11 @@ g_pfnVectors:
   .word 0, 0, 0, 0, 0, 0, 0, 0
   .word 0, 0, 0, 0
   .word UART4_IRQHandler+ 1 
-  .word UART5_IRQHandler+ 1
+  .word UART5_IRQHandler+ 1     /* 60 */
+  .word 0, 0, 0, 0, 0, 0, 0, 0
+  .word 0, 0, 0, 0, 0, 0, 0, 0
+  .word 0, 0, 0, 0, 0, 0, 0, 0
+  .word TIM20_UP_IRQHandler+1
 
   /* Add peripheral ISRs as needed here */
 
@@ -254,3 +258,7 @@ Default_Handler:
 
 .weak UART5_IRQHandler
 .thumb_set UART5_IRQHandler, Default_Handler
+
+.weak TIM20_UP_IRQHandler
+.thumb_set TIM20_UP_IRQHandler, Default_Handler
+

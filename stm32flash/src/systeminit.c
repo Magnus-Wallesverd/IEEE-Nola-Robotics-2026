@@ -23,10 +23,13 @@ void systeminit(void){
  
     // enable i2c interrupt
     NVIC->ISER0 |= 1<<31;
+
+    NVIC->ISER2 |= 1<<14;
     
     ready_queue_init();
     priority_queue_init();
     
+    output_timer_init();
     // enable timer 16 interrupt
     // NVIC->ISER0 |= (1 << 25);
  

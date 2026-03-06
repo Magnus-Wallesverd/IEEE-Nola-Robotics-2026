@@ -43,9 +43,14 @@ uint8_t Kp = 1;
 
 void TIM1_UP_TIM16_IRQHandler(void){
     TIM16->SR = 0;  // clear flags
+}
+
+void TIM20_UP_IRQHandler(void){
+    TIM20->SR = 0;  // clear flags
     if(motor_tcb->state == BLOCKED){
         unblock(motor_tcb);
     }
+
 }
 
 void input_timer_init(void){
@@ -77,7 +82,7 @@ void input_timer_init(void){
 
 void output_timer_init(void){
 
-    RCC->APB2ENR |= (1 << 11)|(1 << 17);    // Enable TIM 1, 16
+    RCC->APB2ENR |= (1 << 11)|(1 << 17)|(1 << 20);    // Enable TIM 1, 16, 20
 
     //TIM1 PWM
     SetPinAlternate(GPIOC, 0xF);            
@@ -100,14 +105,14 @@ void output_timer_init(void){
     TIM1->BDTR  |= 1<<15;       // Main Output enable
     TIM1->CR1 |= 0b10000001;    // Enable TIM1 counter
     
-    TIM16->DIER  |= 1;
-    TIM16->CCMR1 |= 0x68;
-    TIM16->PSC   |= 24;
-    TIM16->ARR    = 7999;
-    TIM16->CCR1  |= 4000;
-    TIM16->CCER  |= 1;
-    TIM16->BDTR  |= 1<<15;       // Main Output enable
-    TIM16->CR1   |= 0b10000001;
+    TIM20->DIER  |= 1;
+    TIM20->CCMR1 |= 0x68;
+    TIM20->PSC   |= 24;
+    TIM20->ARR    = 7999;
+    TIM20->CCR1  |= 4000;
+    TIM20->CCER  |= 1;
+    TIM20->BDTR  |= 1<<15;       // Main Output enable
+    TIM20->CR1   |= 0b10000001;
 }
 
 void steps(int16_t target, int16_t dir){
