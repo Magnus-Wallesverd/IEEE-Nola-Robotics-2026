@@ -4,6 +4,7 @@
 #include <stdint.h>
 #include "gpio.h"
 #include "i2c.h"
+#include "usart.h"
 
 /* *
  * ENA - 
@@ -32,6 +33,7 @@
 
 extern uint32_t flag_register;
 extern uint8_t i2c_rx_buffer[I2C_BUFFER_SIZE];
+extern uint8_t usart_rx_buffer[USART_BUF_SIZE];
 
 void input_timer_init(void);
 

@@ -4,8 +4,8 @@
 // holds the pointer to peripheral and buffers
 usart_t usart;
 
-static uint8_t tx_i = 0;
-static uint8_t rx_i = 0;
+uint8_t tx_i = 0;
+uint8_t rx_i = 0;
 
 uint8_t usart_tx_buffer[USART_BUF_SIZE];
 uint8_t usart_rx_buffer[USART_BUF_SIZE];

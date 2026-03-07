@@ -1,7 +1,3 @@
-//this is the i2c.h header file 
-//
-
-
 #ifndef I2C_H
 #define I2C_H
 

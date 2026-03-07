@@ -26,7 +26,7 @@
 
 #define RATE 115200
 #define USART_BRR FCLK/RATE
-#define USART_BUF_SIZE 8
+#define USART_BUF_SIZE 2
 
 #define CR1_SETUP UE|TE|RE
 

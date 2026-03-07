@@ -6,6 +6,7 @@
 #include "stmath.h"
 #include "gpio.h"
 #include "i2c.h"
+#include "usart.h"
 #include <stdint.h>
 
 
@@ -63,8 +64,7 @@ void TIM1_UP_TIM16_IRQHandler(void){
 
 void TIM20_UP_IRQHandler(void){
     TIM20->SR = 0;  // clear flags
-    heading_t.lsb = i2c_rx_buffer[0];
-    heading_t.msb = i2c_rx_buffer[1];
+    target_h = (i2c_rx_buffer[0]|(i2c_rx_buffer[1]<<8)) + (usart_rx_buffer[0]<<4); 
     if(motor_tcb->state == BLOCKED){
         unblock(motor_tcb);
     }     
@@ -335,7 +335,7 @@ void motor_wrapper(void* args){
     // GPIOA->BSRR |= INR3;
     for(int i = 0; i <0x50000;i++);
     while(1){
-        steps(10, 0);
+        steps(0, target_h);
         block();
     // GPIOC->BSRR |= (INL1|INL4)<<16;
     // GPIOB->BSRR |= (INR4)<<16;
