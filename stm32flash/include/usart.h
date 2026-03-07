@@ -14,6 +14,8 @@
 #define USART_TCIE    (1<<6)
 #define USART_TXEIE   (1<<7)
 #define USART_RTOIE   (1<<26)
+#define USART_FE      (1<<1)
+#define USART_FECF     (1<<1)
 
 #define EIE     (1<<0)
 
