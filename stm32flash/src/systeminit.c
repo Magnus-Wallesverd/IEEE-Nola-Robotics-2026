@@ -1,12 +1,15 @@
 
 #include "stm32f303.h"
+#include "rcc.h"
 #include <stdint.h>
 
 void systeminit(void){
 
+    set_clock_64Mhz();
+
     // systic interrupt init
     STK->CTRL |= 0x6;
-    STK->LOAD |= 0x1F3F;
+    STK->LOAD |= 0xF9FF;
     
     // priority set
     SCB->SHPR3 |= 0xE0F00000;
