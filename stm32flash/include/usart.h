@@ -5,6 +5,7 @@
 #include "gpio.h"
 #include "rcc.h"
 #include "backend.h"
+#include "i2c.h"
 
 #define UE      (1<<0)
 #define RE      (1<<2)
@@ -16,6 +17,8 @@
 #define USART_RTOIE   (1<<26)
 #define USART_FE      (1<<1)
 #define USART_FECF     (1<<1)
+#define USART_ORE  (1<<3)
+#define USART_ORECF (1<<3)
 
 #define EIE     (1<<0)
 
@@ -57,6 +60,8 @@ typedef struct{
 #define USART3 ((USART_Typedef *) 0x40004800)
 #define UART4  ((USART_Typedef *) 0x40004C00)
 #define UART5  ((USART_Typedef *) 0x40005000)
+
+extern int16_t target_h;
 
 void usart_init(USART_Typedef* USARTx, GPIO_TypeDef* port, uint32_t pins, uint32_t baud);
 void load_tx(void);

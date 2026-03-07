@@ -31,6 +31,8 @@ enum lcd_mode{
 };
 
 extern int16_t error2;
+extern int16_t target_h;
+extern int16_t measure_h;
 
 // void lcd_init(GPIO_TypeDef* dp, GPIO_TypeDef* cp, uint8_t pins, uint8_t bit_mode, uint8_t offset);
 

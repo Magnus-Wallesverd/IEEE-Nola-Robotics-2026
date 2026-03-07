@@ -126,8 +126,6 @@ void lcd_print(void* args){
     char buffer_4[BUFFER_SIZE] = {0};
     char buffer_5[BUFFER_SIZE] = {0};
 
-    // move_cursor(0,0);
-    print(entry_1);
 
     uint32_t t0 = 0;
     uint32_t t1 = 0;
@@ -135,6 +133,14 @@ void lcd_print(void* args){
     while(1){
         t0 = get_global_tick();
         while((t0-t1) > REFRESH_RATE){
+            move_cursor(0,0);
+            stringify((i2c_rx_buffer[HEADING_MSB] << 8 | i2c_rx_buffer[HEADING_LSB]), buffer_1);
+            move_cursor(0, 7);
+            stringify(usart_rx_buffer[0], buffer_2);
+            move_cursor(1, 0);
+            signed_stringify(target_h, buffer_3);
+            move_cursor(1, 7);
+            stringify(measure_h, buffer_4);
             // move_cursor(1, 7);
             // signed_stringify((*(get_i2c_buffer()+3)<<8) + *(get_i2c_buffer()+2),buffer_1);
             // move_cursor(2, 7);

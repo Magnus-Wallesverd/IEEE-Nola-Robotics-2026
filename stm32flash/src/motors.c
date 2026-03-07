@@ -64,7 +64,7 @@ void TIM1_UP_TIM16_IRQHandler(void){
 
 void TIM20_UP_IRQHandler(void){
     TIM20->SR = 0;  // clear flags
-    target_h = (i2c_rx_buffer[0]|(i2c_rx_buffer[1]<<8)) + (usart_rx_buffer[0]<<4); 
+    //target_h = (i2c_rx_buffer[0]|(i2c_rx_buffer[1]<<8)) + (usart_rx_buffer[0]<<4); 
     if(motor_tcb->state == BLOCKED){
         unblock(motor_tcb);
     }     
@@ -146,7 +146,7 @@ void output_timer_init(void){
     TIM20->CR1   |= 0b10000001;
 }
 
-void steps(int8_t target_cm, int8_t dir_deg){
+void steps(int8_t target_cm, int16_t target_h){
     target = 48*target_cm; // convert cm to encoder counts
     curr_h = (i2c_rx_buffer[HEADING_MSB] << 8 | i2c_rx_buffer[HEADING_LSB]);
     measure_h = target_h - curr_h;
