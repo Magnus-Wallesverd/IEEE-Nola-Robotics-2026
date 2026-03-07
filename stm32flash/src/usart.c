@@ -16,6 +16,12 @@ uint8_t data[USART_BUF_SIZE];
  */
 void USART1_IRQHandler(void){
     
+    if(USART1->ISR & USART_FE){
+        USART1->ICR |= USART_FECF;
+        usart.rx_buffer_p[0] = 0;
+        usart.rx_buffer_p[1] = 0;
+    }
+
     if((USART1->ISR & USART_RXNE) && (USART1->CR1 & USART_RXNEIE)){
         usart.rx_buffer_p[rx_i++%USART_BUF_SIZE] = usart.USARTx->RDR;
     }
