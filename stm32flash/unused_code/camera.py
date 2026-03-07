@@ -54,8 +54,10 @@ def detect_apriltags(img):
             angle_deg,
             distance_cm
         )
-
-        uart.write(msg.encode())
+        packet = bytearray(2)
+        packet[0] = int(distance_cm)
+        packet[1] = int(angle_deg)
+        uart.write(packet)
         print(msg)
 
         img.draw_rectangle(tag.rect, color=(255, 0, 0))
@@ -89,8 +91,14 @@ def detect_blob(img, threshold, size):
     closest = min(valid_blobs, key=lambda x: x[2])
     blob, angle_deg, distance_cm = closest
 
-    msg = "OBJ, {:.2f}, {:.2f}\n".format(angle_deg, distance_cm)
-    uart.write(msg.encode())
+    msg = "OBJ, {:.2f}, {:.2f}".format(angle_deg, distance_cm)
+    #msg = f"{int(angle_deg)}"
+
+    packet = bytearray(2)
+    packet[0] = int(angle_deg)
+    packet[1] = int(distance_cm)
+    uart.write(packet)
+
     print(msg)
 
     if distance_cm <= 10:
@@ -121,12 +129,12 @@ while True:
     if tag == 0:
         tag = detect_apriltags(img)
 
-    if frame_count % 10 == 0:
-        balls = detect_blob(img, OBJECT_THRESHOLD, BALL_DIAMETER)
+    #if frame_count % 160 == 0:
+    #    balls = detect_blob(img, OBJECT_THRESHOLD, BALL_DIAMETER)
         #box = detect_blob(img, BOX_THRESHOLD, BOX_SIZE)
         #items = balls + box
-        if balls > 0:
-            print("Number of balls: ", balls)
-        else:
-            print("Turn right or move forward idk")
+        #if balls > 0:
+        #    print("Number of balls: ")
+        #else:
+        #    print("Turn right or move forward idk")
 
