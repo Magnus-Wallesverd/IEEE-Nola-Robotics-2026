@@ -39,7 +39,7 @@ void output_timer_init(void);
 
 void set_speed(uint16_t target);
 
-void steps(int16_t target, int16_t dir);
+void steps(int8_t target_cm, int8_t dir_deg);
 
 void motor_wrapper(void* args);
 

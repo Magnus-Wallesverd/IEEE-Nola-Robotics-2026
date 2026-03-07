@@ -67,32 +67,7 @@ void TIM20_UP_IRQHandler(void){
     heading_t.msb = i2c_rx_buffer[1];
     if(motor_tcb->state == BLOCKED){
         unblock(motor_tcb);
-    }
-
-    counter++;
-    if(counter < 1000){
-        target = 3000;
-        direction = 0;
-    }
-    else if(counter < 2000){
-        target = 0;
-        direction =0;
-    }
-    else if(counter < 3000){
-        target = 15*16;
-        direction = 1;
-    }
-    else if(counter < 3500){
-        target = 0;
-    }
-    else if(counter < 4000){
-        curr2 = 0;
-        curr3=0;
-        curr4=0;
-        curr8=0;
-        prev4 = 0;
-        counter = 0 ;
-    }
+    }     
 
 }
 
@@ -171,13 +146,13 @@ void output_timer_init(void){
     TIM20->CR1   |= 0b10000001;
 }
 
-void steps(int16_t target, int16_t dir){
-
-    curr_h = (heading_t.msb << 8 | heading_t.lsb);
-    measure_h = target - curr_h;
+void steps(int8_t target_cm, int8_t dir_deg){
+    target = 48*target_cm; // convert cm to encoder counts
+    curr_h = (i2c_rx_buffer[HEADING_MSB] << 8 | i2c_rx_buffer[HEADING_LSB]);
+    measure_h = target_h - curr_h;
     if(measure_h <= HEADING_MAX_VALUE/2) measure_h+=HEADING_MAX_VALUE;
     if(measure_h > HEADING_MAX_VALUE/2) measure_h-=HEADING_MAX_VALUE;
-
+    uint8_t dir = !(measure_h ==0);
     curr2 = TIM2->CNT;
     curr3 = TIM3->CNT;
     curr4 = TIM4->CNT;
@@ -349,7 +324,6 @@ void servo(void* args){
 void motor_wrapper(void* args){
     (void) args;
     motor_tcb = current_tcb;
-    input_timer_init();
     output_timer_init();
     // while(i2c_rx_buffer[1]== 0){
     //     yield();
@@ -361,7 +335,7 @@ void motor_wrapper(void* args){
     // GPIOA->BSRR |= INR3;
     for(int i = 0; i <0x50000;i++);
     while(1){
-        steps(0, 0);
+        steps(10, 0);
         block();
     // GPIOC->BSRR |= (INL1|INL4)<<16;
     // GPIOB->BSRR |= (INR4)<<16;
