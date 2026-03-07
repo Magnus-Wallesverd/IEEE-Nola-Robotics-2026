@@ -76,7 +76,6 @@ typedef struct{
 typedef struct{
     uint8_t msb;
     uint8_t lsb;
-    i2c_transfer_data_t info;
 } Heading_Typedef;
 
 // Peripheral base addresses (APB1)

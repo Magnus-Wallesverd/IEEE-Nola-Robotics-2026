@@ -5,11 +5,14 @@
 #include "tcb.h"
 #include "stmath.h"
 #include "gpio.h"
+#include "i2c.h"
 #include <stdint.h>
 
 
 //works for now because motor task never quits
 TCB* motor_tcb;
+
+Heading_Typedef heading_t;
 
 Gen_TIM_TypeDef1* input_timers[] = {TIM2, TIM3, TIM4};
 int32_t ierr = 0;
@@ -60,9 +63,12 @@ void TIM1_UP_TIM16_IRQHandler(void){
 
 void TIM20_UP_IRQHandler(void){
     TIM20->SR = 0;  // clear flags
+    heading_t.lsb = i2c_rx_buffer[0];
+    heading_t.msb = i2c_rx_buffer[1];
     if(motor_tcb->state == BLOCKED){
         unblock(motor_tcb);
     }
+
     counter++;
     if(counter < 1000){
         target = 3000;
@@ -167,7 +173,7 @@ void output_timer_init(void){
 
 void steps(int16_t target, int16_t dir){
 
-    curr_h = (i2c_rx_buffer[HEADING_MSB] << 8 | i2c_rx_buffer[HEADING_LSB]);
+    curr_h = (heading_t.msb << 8 | heading_t.lsb);
     measure_h = target - curr_h;
     if(measure_h <= HEADING_MAX_VALUE/2) measure_h+=HEADING_MAX_VALUE;
     if(measure_h > HEADING_MAX_VALUE/2) measure_h-=HEADING_MAX_VALUE;
