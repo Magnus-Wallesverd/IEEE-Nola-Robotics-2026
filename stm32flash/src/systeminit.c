@@ -36,5 +36,5 @@ void systeminit(void){
     // enable timer 16 interrupt
     // NVIC->ISER0 |= (1 << 25);
  
-    // usart_init(USART1, GPIOC,PC4|PC5,115200);
+    usart_init(USART1, GPIOC,PC4|PC5,115200);
 }

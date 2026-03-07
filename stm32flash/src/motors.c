@@ -334,7 +334,10 @@ void set_speed(uint16_t target){
 
 void servo(void* args){
     (void) args;
-    TIM16->CCR1 = 16000;
+    while(1){
+        // TIM16->CCR1 |= 14000; 
+        // TIM16->CCR1 = TIM16->ARR - get_global_tick() % TIM16->ARR;
+    }
 }
 
 void motor_wrapper(void* args){
@@ -352,7 +355,7 @@ void motor_wrapper(void* args){
     // GPIOA->BSRR |= INR3;
     for(int i = 0; i <0x50000;i++);
     while(1){
-        steps(target, 0);
+        steps(0, 0);
         block();
     // GPIOC->BSRR |= (INL1|INL4)<<16;
     // GPIOB->BSRR |= (INR4)<<16;
