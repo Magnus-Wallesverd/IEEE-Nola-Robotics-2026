@@ -6,7 +6,7 @@ void set_clock_64Mhz(void){
     
     FLASH->ACR |= FLASH_ACR_LATENCY2;
 
-    RCC->CFGR |= RCC_PLL_8x|RCC_PLLSRC_HSI|RCC_PPRE2_DIV8|RCC_PPRE1_DIV8;
+    RCC->CFGR |= RCC_PLL_8x|RCC_PLLSRC_HSI|RCC_PPRE1_DIV8;
 
     RCC->CR |= RCC_PLLON;
     while(!(RCC->CR & RCC_PLLRDY));

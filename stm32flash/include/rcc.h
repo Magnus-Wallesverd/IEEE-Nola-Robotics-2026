@@ -8,7 +8,9 @@
 
 #include <stdint.h>
 
-#define CLK_8Mhz  8000000
+#define FCLK 8000000
+
+#define CLK_8Mhz   8000000
 #define CLK_16Mhz 16000000
 #define CLK_32Mhz 32000000
 #define CLK_64Mhz 64000000
@@ -78,7 +80,7 @@ typedef struct{
     uint32_t AHB;
     uint32_t APB1;
     uint32_t APB2;
-} SYSCLK_t
+} SYSCLK_t;
 
 #define RCC ((RCC_TypeDef *) 0x40021000)
 

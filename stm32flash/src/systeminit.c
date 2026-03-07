@@ -30,6 +30,8 @@ void systeminit(void){
     ready_queue_init();
     priority_queue_init();
     
+    //
+
     // enable timer 16 interrupt
     // NVIC->ISER0 |= (1 << 25);
  

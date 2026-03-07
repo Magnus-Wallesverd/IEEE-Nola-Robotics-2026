@@ -72,7 +72,7 @@ void usart_init(USART_Typedef* USARTx, GPIO_TypeDef* port, uint32_t pins, uint32
     usart.rx_buffer_p = &usart_rx_buffer[0];
 
     USARTx->CR1 |= CR1_SETUP;
-    USARTx->BRR = FCLK/baud;
+    USARTx->BRR = CLK_64Mhz/baud;
 
     USARTx->CR3 |= (1<<12);
 }
