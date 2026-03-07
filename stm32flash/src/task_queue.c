@@ -1,6 +1,7 @@
 #include <stdint.h>
 #include "queue.h"
 #include "tcb.h"
+#include "usart.h"
 
 queue_t task_queue;
 queue_t* task_queue_ptr = &task_queue;
@@ -19,7 +20,7 @@ const func_t fn_table[] = {
     lcd_print,
     motor_wrapper,
     Sensor_Read_Wrapper,
-    servo
+    usart_begin
 };
 
 void task_queue_init(void){

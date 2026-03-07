@@ -310,7 +310,10 @@ void set_speed(uint16_t target){
 
 void servo(void* args){
     (void) args;
-    TIM16->CCR1 = TIM16->ARR/24;
+    while(1){
+        // TIM16->CCR1 |= 14000; 
+        // TIM16->CCR1 = TIM16->ARR - get_global_tick() % TIM16->ARR;
+    }
 }
 
 void motor_wrapper(void* args){
