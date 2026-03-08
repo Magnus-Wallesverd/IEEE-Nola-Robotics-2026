@@ -8,16 +8,16 @@ int twos_complement(int val){
 static void setup(uint32_t PINS){
     PinWrite(GPIOA, E_PIN);
     PinWrite(GPIOB, (PINS<<OFFSET)&0xFF00);
-    for(volatile int i = 0; i < 6; i++);
+    for(volatile int i = 0; i < 6 * 8; i++);
     ResetPins(GPIOA, E_PIN);
     ResetPins(GPIOB, DATA_PINS);
-    for(volatile int i = 0; i < 6; i++);
+    for(volatile int i = 0; i < 6 * 8; i++);
 }
 
 void byte2LCD(char data, uint16_t ctrl_pins){
     PinWrite(GPIOA, ctrl_pins|E_PIN);
     PinWrite(GPIOB, data<<OFFSET);
-    for(volatile int i = 0; i < 6; i++);
+    for(volatile int i = 0; i < 6 * 8; i++);
     ResetPins(GPIOA, E_PIN);
     ResetPins(GPIOA, ctrl_pins);
     ResetPins(GPIOB, data<<OFFSET);
@@ -26,11 +26,11 @@ void byte2LCD(char data, uint16_t ctrl_pins){
 static void putchar(char buffer){
     PinWrite(GPIOA, RS_E_PINS);
     PinWrite(GPIOB, buffer<<OFFSET);
-    for(volatile int i = 0; i < 6; i++);
+    for(volatile int i = 0; i < 6 * 8 ; i++);
     ResetPins(GPIOA, E_PIN);
     ResetPins(GPIOA, RS_PIN);
     ResetPins(GPIOB, buffer<<OFFSET);
-    for(volatile int i = 0; i < 6; i++)i;
+    for(volatile int i = 0; i < 6 * 8; i++)i;
 }
 
 // hex to char array
@@ -76,21 +76,21 @@ static void print(char buffer[]){
     for(int i = 0; buffer[i] != '\0'; i++){
         PinWrite(GPIOA, RS_E_PINS);
         PinWrite(GPIOB, buffer[i]<<OFFSET);
-        for(volatile int i = 0; i < 6; i++);
+        for(volatile int i = 0; i < 6 * 8; i++);
         ResetPins(GPIOA, E_PIN);
         ResetPins(GPIOA, RS_PIN);
         ResetPins(GPIOB, buffer[i]<<OFFSET);
-        for(volatile int i = 0; i < 6; i++);
+        for(volatile int i = 0; i < 6 * 8; i++);
     }
 }
 
 static void lcd_ddram_cmd(uint32_t addr){
     PinWrite(GPIOA, E_PIN);
     PinWrite(GPIOB, addr<<OFFSET);
-    for(volatile int i = 0; i < 6; i++);
+    for(volatile int i = 0; i < 6 * 8; i++);
     ResetPins(GPIOA, E_PIN);
     ResetPins(GPIOB, addr<<OFFSET);
-    for(volatile int i = 0; i < 6; i++);
+    for(volatile int i = 0; i < 6 * 8; i++);
 }
 
 void lcd_init(void){
@@ -109,7 +109,7 @@ void lcd_init(void){
     setup((E_PIN|FUNC_SET));
     setup((E_PIN|DISP_SET));
     setup((E_PIN|CLR_LCD));
-    for(volatile int i = 0; i < 1818; i++);
+    for(volatile int i = 0; i < 1818*8; i++);
 }
 
 void lcd_print(void* args){

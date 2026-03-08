@@ -46,7 +46,7 @@ int16_t error3 = 0;
 int16_t error4 = 0;
 int16_t error8 = 0;
 int16_t target = 100;
-uint8_t direction;
+uint8_t dir = 0;
 uint32_t counter;
 uint8_t Kp = 1;
 
@@ -56,7 +56,7 @@ uint16_t C = 30;
 
 uint16_t hA = 60;
 uint16_t hB = 70;
-uint16_t hC =  70;
+uint16_t hC =  20;
 
 void TIM1_UP_TIM16_IRQHandler(void){
     TIM16->SR = 0;  // clear flags
@@ -118,7 +118,7 @@ void output_timer_init(void){
 
     TIM1->CCMR1 |= 0x6868;      // pwm 1 CH 1,2
     TIM1->CCMR2 |= 0x6868;      // pwm 1 CH 3,4
-    TIM1->PSC   |= 2;           //
+    TIM1->PSC   |= 7;           //
     TIM1->ARR   = 0xFFFF;        // top
     TIM1->CCR1  = 0;        // compare ch1
     TIM1->CCR2  = 0;        // compare ch1
@@ -152,7 +152,7 @@ void steps(int8_t target_cm, int16_t target_h){
     measure_h = target_h - curr_h;
     if(measure_h <= HEADING_MAX_VALUE/2) measure_h+=HEADING_MAX_VALUE;
     if(measure_h > HEADING_MAX_VALUE/2) measure_h-=HEADING_MAX_VALUE;
-    uint8_t dir = !(measure_h ==0);
+    uint8_t dir = !((measure_h < 4*16 && measure_h > -16*4) && (measure_h < 2 && measure_h > -2));
     curr2 = TIM2->CNT;
     curr3 = TIM3->CNT;
     curr4 = TIM4->CNT;
@@ -335,7 +335,7 @@ void motor_wrapper(void* args){
     // GPIOA->BSRR |= INR3;
     for(int i = 0; i <0x50000;i++);
     while(1){
-        steps(0, target_h);
+        steps(5, 1*16);
         block();
     // GPIOC->BSRR |= (INL1|INL4)<<16;
     // GPIOB->BSRR |= (INR4)<<16;
