@@ -167,3 +167,9 @@ void blink_led(void* args){
     for(volatile int i = 0; i < 5000; i++);
 }
 
+void camera_setup(void){
+    SetPinOutput(GPIOB, PB1);
+    __asm volatile("BKPT #0");
+    PinWrite(GPIOB, PB1);
+    for(volatile uint32_t i = 0; i < 0xAFFFFF; i++);
+}

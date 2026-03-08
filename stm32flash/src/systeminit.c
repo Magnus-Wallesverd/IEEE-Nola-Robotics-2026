@@ -41,4 +41,5 @@ void systeminit(void){
     // NVIC->ISER0 |= (1 << 25);
  
     usart_init(USART1, GPIOC,PC4|PC5,115200);
+    camera_setup();
 }
