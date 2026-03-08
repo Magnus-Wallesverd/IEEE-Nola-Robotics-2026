@@ -160,6 +160,7 @@ void lcd_print(void* args){
 }
 
 void move_cursor(uint32_t x,uint32_t y){
+    for(volatile int i = 0; i < 6 * 8; i++);
     uint32_t temp;
     if(y>MAX_WIDTH){
         return;
