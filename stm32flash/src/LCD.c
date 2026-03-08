@@ -8,16 +8,16 @@ int twos_complement(int val){
 static void setup(uint32_t PINS){
     PinWrite(GPIOA, E_PIN);
     PinWrite(GPIOB, (PINS<<OFFSET)&0xFF00);
-    for(volatile int i = 0; i < 6 * 8; i++);
+    for(volatile int i = 0; i < 6 * 18; i++);
     ResetPins(GPIOA, E_PIN);
     ResetPins(GPIOB, DATA_PINS);
-    for(volatile int i = 0; i < 6 * 8; i++);
+    for(volatile int i = 0; i < 6 * 18; i++);
 }
 
 void byte2LCD(char data, uint16_t ctrl_pins){
     PinWrite(GPIOA, ctrl_pins|E_PIN);
     PinWrite(GPIOB, data<<OFFSET);
-    for(volatile int i = 0; i < 6 * 8; i++);
+    for(volatile int i = 0; i < 6 * 18; i++);
     ResetPins(GPIOA, E_PIN);
     ResetPins(GPIOA, ctrl_pins);
     ResetPins(GPIOB, data<<OFFSET);
@@ -26,11 +26,11 @@ void byte2LCD(char data, uint16_t ctrl_pins){
 static void putchar(char buffer){
     PinWrite(GPIOA, RS_E_PINS);
     PinWrite(GPIOB, buffer<<OFFSET);
-    for(volatile int i = 0; i < 6 * 8 ; i++);
+    for(volatile int i = 0; i < 6 * 18 ; i++);
     ResetPins(GPIOA, E_PIN);
     ResetPins(GPIOA, RS_PIN);
     ResetPins(GPIOB, buffer<<OFFSET);
-    for(volatile int i = 0; i < 6 * 8; i++)i;
+    for(volatile int i = 0; i < 6 * 18; i++)i;
 }
 
 // hex to char array
@@ -76,21 +76,21 @@ static void print(char buffer[]){
     for(int i = 0; buffer[i] != '\0'; i++){
         PinWrite(GPIOA, RS_E_PINS);
         PinWrite(GPIOB, buffer[i]<<OFFSET);
-        for(volatile int i = 0; i < 6 * 8; i++);
+        for(volatile int i = 0; i < 6 * 18; i++);
         ResetPins(GPIOA, E_PIN);
         ResetPins(GPIOA, RS_PIN);
         ResetPins(GPIOB, buffer[i]<<OFFSET);
-        for(volatile int i = 0; i < 6 * 8; i++);
+        for(volatile int i = 0; i < 6 * 18; i++);
     }
 }
 
 static void lcd_ddram_cmd(uint32_t addr){
     PinWrite(GPIOA, E_PIN);
     PinWrite(GPIOB, addr<<OFFSET);
-    for(volatile int i = 0; i < 6 * 8; i++);
+    for(volatile int i = 0; i < 6 * 18; i++);
     ResetPins(GPIOA, E_PIN);
     ResetPins(GPIOB, addr<<OFFSET);
-    for(volatile int i = 0; i < 6 * 8; i++);
+    for(volatile int i = 0; i < 6 * 18; i++);
 }
 
 void lcd_init(void){
@@ -129,18 +129,22 @@ void lcd_print(void* args){
 
     uint32_t t0 = 0;
     uint32_t t1 = 0;
+    
+    print(entry_1);
+    move_cursor(2,0);
+    print(entry_2);
 
     while(1){
         t0 = get_global_tick();
         while((t0-t1) > REFRESH_RATE){
-            move_cursor(0,0);
-            stringify((i2c_rx_buffer[HEADING_MSB] << 8 | i2c_rx_buffer[HEADING_LSB]), buffer_1);
-            move_cursor(0, 7);
-            stringify(usart_rx_buffer[0], buffer_2);
-            move_cursor(1, 0);
-            signed_stringify(target_h, buffer_3);
-            move_cursor(1, 7);
-            stringify(measure_h, buffer_4);
+            // move_cursor(0,0);
+            // stringify((i2c_rx_buffer[HEADING_MSB] << 8 | i2c_rx_buffer[HEADING_LSB]), buffer_1);
+            // move_cursor(0, 7);
+            // stringify(usart_rx_buffer[0], buffer_2);
+            // move_cursor(1, 0);
+            // signed_stringify(target_h, buffer_3);
+            // move_cursor(1, 7);
+            // stringify(measure_h, buffer_4);
             // move_cursor(1, 7);
             // signed_stringify((*(get_i2c_buffer()+3)<<8) + *(get_i2c_buffer()+2),buffer_1);
             // move_cursor(2, 7);
@@ -160,7 +164,6 @@ void lcd_print(void* args){
 }
 
 void move_cursor(uint32_t x,uint32_t y){
-    for(volatile int i = 0; i < 6 * 8; i++);
     uint32_t temp;
     if(y>MAX_WIDTH){
         return;
