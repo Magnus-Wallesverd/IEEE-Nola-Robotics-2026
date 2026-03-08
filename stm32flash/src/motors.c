@@ -128,17 +128,17 @@ void output_timer_init(void){
     TIM1->BDTR  |= 1<<15;       // Main Output enable
     TIM1->CR1 |= 0b10000001;    // Enable TIM1 counter
     
-    TIM16->CCMR1 |= 0x68;
-    TIM16->PSC   |= 0;
-    TIM16->ARR    = 23999;
-    TIM16->CCR1  |= 0;
-    TIM16->CCER  |= 1;
-    TIM16->BDTR  |= 1<<15;       // Main Output enable
-    TIM16->CR1   |= 0b10000001;
+    // TIM16->CCMR1 |= 0x68;
+    // TIM16->PSC   |= 0;
+    // TIM16->ARR    = 23999;
+    // TIM16->CCR1  |= 0;
+    // TIM16->CCER  |= 1;
+    // TIM16->BDTR  |= 1<<15;       // Main Output enable
+    // TIM16->CR1   |= 0b10000001;
 
     TIM20->DIER  |= 1;
     TIM20->CCMR1 |= 0x68;
-    TIM20->PSC   |= 24;
+    TIM20->PSC   |= 24*8;
     TIM20->ARR    = 7999;
     TIM20->CCR1  |= 4000;
     TIM20->CCER  |= 1;
