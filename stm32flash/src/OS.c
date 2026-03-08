@@ -40,6 +40,10 @@ void worker_function(void){
 
         work_item_t* item;
         
+        if(/*producer flag == 1*/){
+            enqueue(task_queue_ptr,/*work_item*/);
+        }
+
         // take item off queue
         if(lock(&task_flag) == 1){
             item = (work_item_t*)dequeue(task_queue_ptr);
