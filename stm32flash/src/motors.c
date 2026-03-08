@@ -7,6 +7,7 @@
 #include "gpio.h"
 #include "i2c.h"
 #include "usart.h"
+#include "backend.h"
 #include <stdint.h>
 
 
@@ -135,6 +136,9 @@ void output_timer_init(void){
     // TIM16->CCER  |= 1;
     // TIM16->BDTR  |= 1<<15;       // Main Output enable
     // TIM16->CR1   |= 0b10000001;
+    
+    // timer prio
+    NVIC_IPR->IPR19 |= NVIC_IRQ_PRIORITY1 << 16;
 
     TIM20->DIER  |= 1;
     TIM20->CCMR1 |= 0x68;

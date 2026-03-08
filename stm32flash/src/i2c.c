@@ -3,13 +3,14 @@
  * proper I2C_Init
  * DMA
  */
+#include <stdint.h>
 #include "i2c.h"
 #include "rcc.h"
 #include "gpio.h"
-#include <stdint.h>
 #include "timx.h"
 #include "lock.h"
 #include "tcb.h"
+#include "backend.h"
 
 int ovf17 = 0;
 int bno_ready = 0;
@@ -24,6 +25,7 @@ void I2C_Init(I2C_TypeDef* I2Cx, uint8_t mode){
 
     switch(mode){
         case 0:
+            NVIC_IPR->IPR7 |= NVIC_IRQ_PRIORITY1 << 24;
             SetPinAlternate(GPIOB,0xC0);            // Set pins 6 & 7 to AF mode I2c
             AlternateFunctionSet(GPIOB,0xC0,4);      // set pins PB 6&7 to AF4
             SetOutputType(GPIOB, 0xC0, 1);
