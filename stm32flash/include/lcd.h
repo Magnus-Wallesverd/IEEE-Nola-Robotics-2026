@@ -21,7 +21,7 @@
 #define LINE3           0x80
 #define LINE4           0xC0
 #define MAX_WIDTH       19
-#define BUFFER_SIZE     10
+#define BUFFER_SIZE     7
 #define NUM_BASE        0x30
 #define REFRESH_RATE    20
 

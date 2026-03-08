@@ -4,6 +4,16 @@ int twos_complement(int val){
 	val = ~val + 1;
 	return val;
 }
+int32_t int32(int16_t val){
+    int32_t temp;
+    if(val>>16){
+        temp = val | 0xFFFF0000;
+    }
+    else{
+        temp = val;
+    }
+    return temp;
+}
 
 static void setup(uint32_t PINS){
     PinWrite(GPIOA, E_PIN);
@@ -121,7 +131,7 @@ void lcd_print(void* args){
     char entry_5[] = {"H"};
 
     char buffer_1[BUFFER_SIZE] = {0};
-    char buffer_2[BUFFER_SIZE] = {0};
+    char buffer_2[10] = {0};
     char buffer_3[BUFFER_SIZE] = {0};
     char buffer_4[BUFFER_SIZE] = {0};
     char buffer_5[BUFFER_SIZE] = {0};
@@ -137,14 +147,14 @@ void lcd_print(void* args){
     while(1){
         t0 = get_global_tick();
         while((t0-t1) > REFRESH_RATE){
-            // move_cursor(0,0);
-            // stringify((i2c_rx_buffer[HEADING_MSB] << 8 | i2c_rx_buffer[HEADING_LSB]), buffer_1);
-            // move_cursor(0, 7);
-            // stringify(usart_rx_buffer[0], buffer_2);
-            // move_cursor(1, 0);
-            // signed_stringify(target_h, buffer_3);
-            // move_cursor(1, 7);
-            // stringify(measure_h, buffer_4);
+            move_cursor(0,0);
+            stringify((i2c_rx_buffer[HEADING_MSB] << 8 | i2c_rx_buffer[HEADING_LSB]), buffer_1);
+            move_cursor(0, 9);
+            stringify(usart_rx_buffer[0], buffer_3);
+            move_cursor(1, 0);
+            stringify(usart_rx_buffer[1], buffer_2);
+            move_cursor(1, 9);
+            stringify(measure_h, buffer_4);
             // move_cursor(1, 7);
             // signed_stringify((*(get_i2c_buffer()+3)<<8) + *(get_i2c_buffer()+2),buffer_1);
             // move_cursor(2, 7);

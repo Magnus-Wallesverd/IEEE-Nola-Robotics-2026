@@ -46,7 +46,7 @@ int16_t error2 = 0;
 int16_t error3 = 0;
 int16_t error4 = 0;
 int16_t error8 = 0;
-int16_t target = 100;
+int16_t target = 0;
 uint8_t dir = 0;
 uint32_t counter;
 uint8_t Kp = 1;
@@ -55,7 +55,7 @@ uint16_t A = 100;
 uint16_t B = 100;
 uint16_t C = 30;
 
-uint16_t hA = 60;
+uint16_t hA = 100;
 uint16_t hB = 70;
 uint16_t hC =  20;
 
@@ -151,12 +151,12 @@ void output_timer_init(void){
 }
 
 void steps(int8_t target_cm, int16_t target_h){
-    target = 48*target_cm; // convert cm to encoder counts
+    target = 48*(target_cm); // convert cm to encoder counts
     curr_h = (i2c_rx_buffer[HEADING_MSB] << 8 | i2c_rx_buffer[HEADING_LSB]);
     measure_h = target_h - curr_h;
     if(measure_h <= HEADING_MAX_VALUE/2) measure_h+=HEADING_MAX_VALUE;
     if(measure_h > HEADING_MAX_VALUE/2) measure_h-=HEADING_MAX_VALUE;
-    uint8_t dir = !((measure_h < 4*16 && measure_h > -16*4) && (measure_h < 2 && measure_h > -2));
+    uint8_t dir = !((measure_h < 16*2 && measure_h > -16*2) && (measure8 < 2 && measure8 > -2));
     curr2 = TIM2->CNT;
     curr3 = TIM3->CNT;
     curr4 = TIM4->CNT;
@@ -339,7 +339,7 @@ void motor_wrapper(void* args){
     // GPIOA->BSRR |= INR3;
     for(int i = 0; i <0x50000;i++);
     while(1){
-        steps(5, 1*16);
+        steps(0, target_h);
         block();
     // GPIOC->BSRR |= (INL1|INL4)<<16;
     // GPIOB->BSRR |= (INR4)<<16;

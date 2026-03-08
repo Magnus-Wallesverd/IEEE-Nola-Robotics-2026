@@ -25,7 +25,8 @@ void USART1_IRQHandler(void){
     if((USART1->ISR & USART_RXNE) && (USART1->CR1 & USART_RXNEIE)){
         usart.rx_buffer_p[rx_i++%USART_BUF_SIZE] = usart.USARTx->RDR;
         int8_t theta = usart_rx_buffer[0];
-        target_h = (*get_i2c_buffer()|*(get_i2c_buffer()+1)<<8) + (theta<<4);
+        target = usart_rx_buffer[1];
+        target_h = (*get_i2c_buffer()|*(get_i2c_buffer()+1)<<8) + (theta*16);
     }
 
     if(USART1->ISR & USART_ORE){
