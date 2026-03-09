@@ -5,9 +5,8 @@
 usart_t usart;
 parser_t usart_parser;
 
-
-uint8_t usart_tx_i = 0;
-uint8_t usart_rx_i = 0;
+uint32_t usart_tx_i = 0;
+uint32_t usart_rx_i = 0;
 
 uint8_t usart_tx_buffer[USART_TX_BUF_SIZE];
 uint8_t usart_rx_buffer[USART_RX_BUF_SIZE];
@@ -20,6 +19,9 @@ void USART1_IRQHandler(void){
     
     if((USART1->ISR & USART_RXNE) && (USART1->CR1 & USART_RXNEIE)){
         usart.rx_buffer_p[usart_rx_i++%USART_RX_BUF_SIZE] = usart.USARTx->RDR;
+        if(wait(usart.sem)){
+            producer_function(usart.sem);
+        }
         // call producer
         // int8_t theta = usart_rx_buffer[0];
         // target = usart_rx_buffer[1];
@@ -31,7 +33,6 @@ void USART1_IRQHandler(void){
     }
 
     if(USART1->ISR & USART_ORE){
-        __asm volatile("bkpt #1");
         USART1->ICR |= USART_ORECF;
         usart.rx_buffer_p[0] = 0;
         usart.rx_buffer_p[1] = 0;
@@ -87,15 +88,23 @@ void usart_init(USART_Typedef* USARTx, GPIO_TypeDef* port, uint32_t pins, uint32
     usart.USARTx = USARTx;
     usart.tx_buffer_p = &usart_tx_buffer[0];
     usart.rx_buffer_p = &usart_rx_buffer[0];
+
     usart.parser = &usart_parser;
     usart.parser->src = usart_rx_buffer;
-    usart.src_i = &usart_rx_i;
-    // usart.parser->dst = __addfield;
-    // usart.parser->dst_i = &__addfield; 
+    usart.parser->src_i = &usart_rx_i;
+    usart.parser->dst = motor_data;
+    usart.parser->dst_i = motor_data_i_p; 
     usart.parser->buffer_size = USART_RX_BUF_SIZE;
     usart.parser->frame_size = USART_FRAME_SIZE;
-    usart.parser->ID = USART_SIGNAL;
+    usart.parser->ID = CAMERA_ID;
 
+    usart.sem = parser_sem_p; 
+
+    sem_init(usart.sem,(void*)&producer_item);  
+    usart.sem->flag = 1;
+
+    ((work_item_t*)usart.sem->item)->fn = parse_array;
+    ((work_item_t*)usart.sem->item)->args = usart.parser;
 
     USARTx->CR1 |= CR1_SETUP;
     USARTx->BRR = CLK_64Mhz/baud;
@@ -114,10 +123,6 @@ void usart_begin(void* args){
     usart.USARTx->CR1 |= USART_RXNEIE;
     load_tx();
     usart.USARTx->CR1 |= USART_TXEIE;
-}
-
-void usart_rx_parser(void){
-    
 }
 
 usart_t* get_usart_t(void){

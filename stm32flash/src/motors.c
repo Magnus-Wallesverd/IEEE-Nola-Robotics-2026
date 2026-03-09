@@ -6,7 +6,6 @@
 #include "stmath.h"
 #include "gpio.h"
 #include "i2c.h"
-#include "usart.h"
 #include "backend.h"
 #include <stdint.h>
 
@@ -15,6 +14,13 @@
 TCB* motor_tcb;
 
 Heading_Typedef heading_t;
+
+uint8_t motor_data[DATA_BUF_SIZE];
+uint32_t motor_data_i;
+uint32_t* motor_data_i_p = &motor_data_i;
+
+uint8_t measure_pair[2];
+uint8_t lcd_i = 0;
 
 Gen_TIM_TypeDef1* input_timers[] = {TIM2, TIM3, TIM4};
 int32_t ierr = 0;
@@ -323,6 +329,12 @@ void servo(void* args){
         // TIM16->CCR1 |= 14000; 
         // TIM16->CCR1 = TIM16->ARR - get_global_tick() % TIM16->ARR;
     }
+}
+
+uint8_t* get_meas_pair(void){
+    measure_pair[0] = motor_data[motor_data_i%DATA_BUF_SIZE];
+    measure_pair[1] = motor_data[(lcd_i-1)%DATA_BUF_SIZE]; 
+    return measure_pair;
 }
 
 void motor_wrapper(void* args){

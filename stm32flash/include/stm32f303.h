@@ -23,5 +23,7 @@
 #include "i2c.h"
 #include "motors.h"
 #include "usart.h"
+#include "semaphore.h"
+#include "parser.h"
 
 #endif

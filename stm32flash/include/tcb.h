@@ -29,6 +29,7 @@ enum states{
 };
 
 void worker_function(void);
+void producer_function(sem_t* s);
 
 extern TCB _stcb[TCB_ARRAY_SIZE];
 

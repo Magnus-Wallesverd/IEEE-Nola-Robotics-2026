@@ -1,6 +1,5 @@
 
 #include "stm32f303.h"
-#include "rcc.h"
 #include <stdint.h>
 
 void systeminit(void){
@@ -32,14 +31,12 @@ void systeminit(void){
     
     ready_queue_init();
     priority_queue_init();
-    
 
     // init_servo_TIM();
     // servo(0);
-    //
     // enable timer 16 interrupt
     // NVIC->ISER0 |= (1 << 25);
- 
+
     usart_init(USART1, GPIOC,PC4|PC5,115200);
-    camera_setup();
+    // camera_setup();
 }
