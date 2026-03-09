@@ -152,7 +152,7 @@ void lcd_print(void* args){
             move_cursor(0, 9);
             stringify(usart_rx_buffer[0], buffer_3);
             move_cursor(1, 0);
-            stringify(usart_rx_buffer[1], buffer_2);
+            stringify(usart_rx_buffer[1] - 128, buffer_2);
             move_cursor(1, 9);
             stringify(measure_h, buffer_4);
             // move_cursor(1, 7);
