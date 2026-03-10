@@ -4,7 +4,6 @@
 #include <stdint.h>
 #include "i2c.h"
 #include "lcd.h"
-#include "motors.h"
 
 #define TASK_QUEUE_SIZE 5 
 #define FUNC_POOL_SIZE 4
@@ -33,6 +32,7 @@ typedef struct {
 
 extern queue_t* task_queue_ptr;
 extern queue_t* ready_queue_ptr;
+extern work_item_t producer_item;
 
 void enqueue(queue_t* q, void* args);
 void* dequeue(queue_t* q);

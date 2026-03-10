@@ -1,5 +1,13 @@
 #include "semaphore.h"
 
+sem_t parser_sem;
+sem_t* parser_sem_p = &parser_sem;
+
+void sem_init(sem_t* s, void* item){
+    s->flag = 0;
+    s->item = item;
+}
+
 void signal(sem_t* s){
     s->flag++;
 }

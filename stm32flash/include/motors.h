@@ -31,9 +31,13 @@
 #define INR2 PA10
 #define INR4 PB5
 
-extern uint32_t flag_register;
+#define DATA_BUF_SIZE 64
+
 extern uint8_t i2c_rx_buffer[I2C_BUFFER_SIZE];
-extern uint8_t usart_rx_buffer[USART_BUF_SIZE];
+extern uint32_t* motor_data_i_p;
+extern uint8_t motor_data[DATA_BUF_SIZE];
+
+uint8_t* get_meas_pair(void);
 
 void input_timer_init(void);
 

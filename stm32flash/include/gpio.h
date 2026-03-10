@@ -123,4 +123,7 @@ void AlternateFunctionSet(GPIO_TypeDef *port, uint32_t function, uint32_t pins);
 // dummy function
 void blink_led(void*);
 
+// turns camera on
+void camera_setup(void);
+
 #endif

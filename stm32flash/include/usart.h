@@ -5,7 +5,11 @@
 #include "gpio.h"
 #include "rcc.h"
 #include "backend.h"
-#include "i2c.h"
+#include "parser.h"
+#include "semaphore.h"
+#include "queue.h"
+#include "tcb.h"
+#include "motors.h"
 
 #define UE      (1<<0)
 #define RE      (1<<2)
@@ -31,7 +35,11 @@
 
 #define RATE 115200
 #define USART_BRR FCLK/RATE
-#define USART_BUF_SIZE 2
+#define USART_TX_BUF_SIZE 1
+#define USART_RX_BUF_SIZE 64
+
+#define USART_SIGNAL 0xAA
+#define USART_FRAME_SIZE 3
 
 #define CR1_SETUP UE|TE|RE
 
@@ -53,6 +61,8 @@ typedef struct{
     USART_Typedef* USARTx;
     uint8_t* tx_buffer_p;
     uint8_t* rx_buffer_p;
+    parser_t* parser;
+    sem_t* sem;
 } usart_t;
 
 #define USART1 ((USART_Typedef *) 0x40013800)
@@ -68,5 +78,6 @@ void usart_init(USART_Typedef* USARTx, GPIO_TypeDef* port, uint32_t pins, uint32
 void load_tx(void);
 void usart_begin(void* args);
 usart_t* get_usart_t(void);
+
 
 #endif // !USART_H

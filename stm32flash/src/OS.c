@@ -6,9 +6,11 @@
 #include "stm32f303.h"
 #include <stdint.h>
 
+work_item_t producer_item;
+
 uint32_t kernel_unblock_counter = 0;
 uint32_t global_tick = 0;
-uint32_t  task_flag = 0;
+uint32_t task_flag = 0;
 
 TCB _stcb[TCB_ARRAY_SIZE];
 TCB *current_tcb;
@@ -16,8 +18,6 @@ TCB *next_tcb;
 
 static void* ready_array[TCB_ARRAY_SIZE];
 static queue_t ready_q;
-
-sem_t sem_blocked[TCB_ARRAY_SIZE];
 
 uint32_t get_global_tick(void){
     return global_tick;
@@ -35,21 +35,25 @@ void tcbinit(void){
     }
 }
 
+void producer_function(sem_t* s){
+    enqueue(task_queue_ptr,s->item);
+}
+
 void worker_function(void){
     while(1){
 
-        work_item_t* item;
+        work_item_t* consumer_item;
         
         // take item off queue
         if(lock(&task_flag) == 1){
-            item = (work_item_t*)dequeue(task_queue_ptr);
+            consumer_item = (work_item_t*)dequeue(task_queue_ptr);
             unlock(&task_flag);
         } else { yield(); }
         
-        if(item == (void*)0){
+        if(consumer_item == (void*)0){
             yield();
         } else {
-            item->fn(item->args);
+            consumer_item->fn(consumer_item->args);
             yield();
         }
     }   

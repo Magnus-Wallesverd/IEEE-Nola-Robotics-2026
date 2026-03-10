@@ -2,6 +2,10 @@
 #include "queue.h"
 #include "tcb.h"
 #include "usart.h"
+#include "lcd.h"
+#include "i2c.h"
+#include "motors.h"
+#include "parser.h"
 
 queue_t task_queue;
 queue_t* task_queue_ptr = &task_queue;
@@ -18,7 +22,7 @@ void* priority_queue_array[TASK_QUEUE_SIZE];
 // should start thinking of easier ways to get functions in here
 const func_t fn_table[] = {
     lcd_print,
-    motor_wrapper,
+    // motor_wrapper,
     Sensor_Read_Wrapper,
     usart_begin
 };
@@ -41,6 +45,7 @@ void task_queue_init(void){
     for(unsigned int i = 0; i < sizeof(fn_table)/4; i++){
         enqueue(task_queue_ptr, &task_pool[i]);
     }
+
 }
 
 void ready_queue_init(void){
