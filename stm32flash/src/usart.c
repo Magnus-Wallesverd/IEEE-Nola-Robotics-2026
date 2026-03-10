@@ -24,7 +24,7 @@ void USART1_IRQHandler(void){
     }
     
     if((USART1->ISR & USART_RXNE) && (USART1->CR1 & USART_RXNEIE)){
-        usart.rx_buffer_p[usart_rx_i++%USART_RX_BUF_SIZE] = usart.USARTx->RDR;
+        usart_rx_buffer[usart_rx_i++%USART_RX_BUF_SIZE] = USART1->RDR;
         if(wait(usart.sem)){
             producer_function(usart.sem);
         }

@@ -148,23 +148,12 @@ void lcd_print(void* args){
     while(1){
         t0 = get_global_tick();
         while((t0-t1) > REFRESH_RATE){
-<<<<<<< HEAD
-            move_cursor(0,0);
-            stringify((i2c_rx_buffer[HEADING_MSB] << 8 | i2c_rx_buffer[HEADING_LSB]), buffer_1);
-            move_cursor(0, 9);
-            stringify(usart_rx_buffer[0], buffer_3);
-            move_cursor(1, 0);
-            stringify(usart_rx_buffer[1] - 128, buffer_2);
-            move_cursor(1, 9);
-            stringify(measure_h, buffer_4);
-=======
             // stringify((i2c_rx_buffer[HEADING_MSB] << 8 | i2c_rx_buffer[HEADING_LSB]), buffer_1);
             // stringify(get_meas_pair()[0], buffer_1);
             // move_cursor(1, 0);
             // stringify(get_meas_pair()[1], buffer_2);
             // move_cursor(0, 9);
             // stringify(measure_h, buffer_4);
->>>>>>> uartfix
             // move_cursor(1, 7);
             // signed_stringify((*(get_i2c_buffer()+3)<<8) + *(get_i2c_buffer()+2),buffer_1);
             // move_cursor(2, 7);

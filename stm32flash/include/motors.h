@@ -37,6 +37,10 @@ extern uint8_t i2c_rx_buffer[I2C_BUFFER_SIZE];
 extern uint32_t* motor_data_i_p;
 extern uint8_t motor_data[DATA_BUF_SIZE];
 
+typedef struct{
+    
+} movement_t;
+
 uint8_t* get_meas_pair(void);
 
 void input_timer_init(void);
