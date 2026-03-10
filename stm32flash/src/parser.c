@@ -1,5 +1,17 @@
 #include "parser.h"
 
+// this function should know about a semaphore for neat scheduling
+// if this function knows aout semaphores then it can call producer
+// parse_array doesnt know about semaphores
+
+void parse
+
+void parser_logic(sem_t* s){
+    if(wait(usart.sem)){
+        producer_function(s);
+    }
+}
+
 void parse_array(void* args){
     parser_t* parser = (parser_t*)args;
     uint8_t buffer_size = parser->buffer_size;

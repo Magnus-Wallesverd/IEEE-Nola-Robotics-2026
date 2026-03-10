@@ -14,6 +14,7 @@ typedef struct{
     uint8_t  ID;
     uint8_t* src;
     uint8_t* dst;
+    sem_t* work_sem_p;
 }parser_t;
 
 void parse_array(void* args);

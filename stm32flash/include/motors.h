@@ -6,22 +6,6 @@
 #include "i2c.h"
 #include "usart.h"
 
-/* *
- * ENA - 
- * ENB - 
- * IN1 - 
- * IN2 - 
- * IN3 - 
- * IN4 - 
- *
- * ENA - 
- * ENB - 
- * IN1 - 
- * IN2 - 
- * IN3 - 
- * IN4 - 
- * */
-
 #define INL1 PC8
 #define INL2 PC9
 #define INL3 PC11
@@ -32,6 +16,10 @@
 #define INR4 PB5
 
 #define DATA_BUF_SIZE 64
+
+typedef struct {
+    parser_t* parser;
+ motor_t;
 
 extern uint8_t i2c_rx_buffer[I2C_BUFFER_SIZE];
 extern uint32_t* motor_data_i_p;
