@@ -15,8 +15,6 @@ TCB* motor_tcb;
 
 Heading_Typedef heading_t;
 
-motor_t motor;
-
 uint8_t motor_data[DATA_BUF_SIZE];
 uint32_t motor_data_i;
 uint32_t* motor_data_i_p = &motor_data_i;

@@ -17,10 +17,6 @@
 
 #define DATA_BUF_SIZE 64
 
-typedef struct {
-    parser_t* parser;
-}motor_t;
-
 extern uint8_t i2c_rx_buffer[I2C_BUFFER_SIZE];
 extern uint32_t* motor_data_i_p;
 extern uint8_t motor_data[DATA_BUF_SIZE];

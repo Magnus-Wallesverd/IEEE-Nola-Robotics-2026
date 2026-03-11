@@ -12,7 +12,7 @@ typedef struct {
 // probably the array of semaphores
 // probably individual special instances
 
-void sem_init(sem_t* s, void* item);
+void sem_init(sem_t* s, void* item, int init_flag);
 
 void signal(sem_t* s);
 

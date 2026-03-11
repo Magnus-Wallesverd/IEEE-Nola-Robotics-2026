@@ -25,8 +25,8 @@ void USART1_IRQHandler(void){
     
     if((USART1->ISR & USART_RXNE) && (USART1->CR1 & USART_RXNEIE)){
         usart_rx_buffer[usart_rx_i++%USART_RX_BUF_SIZE] = USART1->RDR;
-        if(wait(usart.sem)){
-            producer_function(usart.sem);
+        if(wait(usart.parser->work_sem_p)){
+            producer_function(usart.parser->work_sem_p);
         }
         // call producer
         // rx_i -= (usart_rx_buffer[0] >> 6 == 0b10);
@@ -95,19 +95,16 @@ void usart_init(USART_Typedef* USARTx, GPIO_TypeDef* port, uint32_t pins, uint32
     usart.parser = &usart_parser;
     usart.parser->src = usart_rx_buffer;
     usart.parser->src_i = &usart_rx_i;
-    usart.parser->dst = motor_data;
-    usart.parser->dst_i = motor_data_i_p; 
     usart.parser->buffer_size = USART_RX_BUF_SIZE;
     usart.parser->frame_size = USART_FRAME_SIZE;
     usart.parser->ID = CAMERA_ID;
 
-    usart.sem = parser_sem_p; 
+    usart.parser->work_sem_p = parser_sem_p; 
 
-    sem_init(usart.sem,(void*)&producer_item);  
-    usart.sem->flag = 1;
+    sem_init(usart.parser->work_sem_p,(void*)&producer_item,1);  
 
-    ((work_item_t*)usart.sem->item)->fn = parse_array;
-    ((work_item_t*)usart.sem->item)->args = usart.parser;
+    ((work_item_t*)usart.parser->work_sem_p->item)->fn = parse_array;
+    ((work_item_t*)usart.parser->work_sem_p->item)->args = usart.parser;
 
     USARTx->CR1 |= CR1_SETUP;
     USARTx->BRR = CLK_64Mhz/baud;

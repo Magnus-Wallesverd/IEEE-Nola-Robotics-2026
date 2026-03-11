@@ -39,7 +39,7 @@
 #define USART_RX_BUF_SIZE 64
 
 #define USART_SIGNAL 0xAA
-#define USART_FRAME_SIZE 3
+#define USART_FRAME_SIZE 4
 
 #define CR1_SETUP UE|TE|RE
 

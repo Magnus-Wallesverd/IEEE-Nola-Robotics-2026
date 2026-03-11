@@ -4,7 +4,9 @@
 #include <stdint.h>
 #include "semaphore.h"
 
-#define CAMERA_ID 0x80
+#define CAMERA_ID 0xAA
+
+#define PARSER_BUFFER_SIZE 64
 
 typedef struct{
     uint32_t* src_i;
@@ -16,6 +18,12 @@ typedef struct{
     uint8_t* dst;
     sem_t* work_sem_p;
 }parser_t;
+
+typedef struct {
+    uint32_t ID;
+    uint8_t* src;
+    
+}dispatcher_t;
 
 void parse_array(void* args);
 
