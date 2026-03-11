@@ -54,7 +54,7 @@ int16_t error2 = 0;
 int16_t error3 = 0;
 int16_t error4 = 0;
 int16_t error8 = 0;
-int16_t target = 0;
+int16_t target = 48 * 10*3;
 uint8_t dir = 0;
 uint32_t counter;
 uint8_t Kp = 1;
@@ -62,6 +62,10 @@ uint8_t Kp = 1;
 uint16_t A = 100;
 uint16_t B = 100;
 uint16_t C = 30;
+
+uint8_t lateral_Kd = 6;
+uint8_t lateral_Kp = 3;
+uint8_t lateral_Ki = 4;
 
 uint16_t hA = 100;
 uint16_t hB = 70;
@@ -238,99 +242,107 @@ void steps(int8_t target_cm, int16_t target_h){
 
 }
 
-// R = ch1,4 & L = ch 2,3 
-void heading_correction(int16_t target_h){
-    curr_h = (i2c_rx_buffer[HEADING_MSB] << 8 | i2c_rx_buffer[HEADING_LSB]);
-    measure_h = curr_h - prev_h;
-    if((!measure_h) & bno_flag){
-        return;
-    }
-    if(curr_h > HEADING_MAX_VALUE - 160 && prev_h < 160 ){
-        //undf
-        // decrement right side wheels
-        error_h = target_h - (HEADING_MAX_VALUE - measure_h);
-        TIM1->CCR1 += Kp_h*error_h;
-        TIM1->CCR4 += Kp_h*error_h;
-        
-    } else if(curr_h < 160 && prev_h > HEADING_MAX_VALUE - 160){
-        //ovf
-        // decrement left side wheels
-        error_h = target_h - twos_compl16(HEADING_MAX_VALUE + measure_h);
-        TIM1->CCR2 += Kp_h*error_h;
-        TIM1->CCR3 += Kp_h*error_h;
-    } else {
-        error_h = target_h - measure_h;
-        if(measure_h < 0){
-            // error_h is positive
-            // decrement right side wheels
-            error_h*=-1;
-            TIM1->CCR1 += Kp_h*error_h;
-            TIM1->CCR4 += Kp_h*error_h;
-        } else {
-            // decrement left side wheels
-            // error_h is negative
-            Kp_h*error_h;
-            TIM1->CCR2 += Kp_h*error_h;
-            TIM1->CCR3 += Kp_h*error_h;
+void zero_timers(){
+    TIM2->CNT = 0;
+    TIM3->CNT = 0;
+    TIM4->CNT = 0;
+    TIM8->CNT = 0;
+
+    TIM1->CCR1 = 0;
+    TIM1->CCR2 = 0;
+    TIM1->CCR3 = 0;
+    TIM1->CCR4 = 0;
+}
+
+void turn_off_motors(void){
+    GPIOC->BSRR |= (INL1|INL2|INL3|INL4|INR3)<<16;
+    GPIOB->BSRR |= (INR1|INR4) << 16;
+    GPIOA->BSRR |= INR2 << 16;
+}
+
+void lateral_left(void){
+    
+    // turn_off_motors();
+    // zero_counters();
+
+    GPIOB->BSRR |= INR1|INR4;    
+    GPIOC->BSRR |= INL2|INL4;
+    
+    curr2 = TIM2->CNT;
+    curr3 = abs(TIM3->CNT);
+    curr4 = TIM4->CNT;
+    curr8 = abs(TIM8->CNT);
+    
+    error2+= (target-curr2)/lateral_Ki;
+    error3+= (target-curr3)/lateral_Ki;
+    error4+= (target-curr4)/lateral_Ki;
+    error8+= (target-curr8)/lateral_Ki;
+
+    int16_t output2 = lateral_Kd*(curr2-prev2) + lateral_Kp*(target - curr2) + (error2);
+    int16_t output3 = lateral_Kd*(curr3-prev3) + lateral_Kp*(target - curr3) + (error3);
+    int16_t output4 = lateral_Kd*(curr4-prev4) + lateral_Kp*(target - curr4) + (error4);
+    int16_t output8 = lateral_Kd*(curr8-prev8) + lateral_Kp*(target - curr8) + (error8);
+
+    if(target - curr2 < 0){
+        while(1){
+            TIM1->CCR1 = 0;
+            TIM1->CCR2 = 0;
+            TIM1->CCR3 = 0;
+            TIM1->CCR4 = 0;
         }
+    }else {
+        TIM1->CCR1 = output2;
+        TIM1->CCR2 = output3;
+        TIM1->CCR3 = output4;
+        TIM1->CCR4 = output8;
     }
-    prev_h = curr_h;
+    
+    prev2 = curr2;
+    prev3 = curr3;
+    prev4 = curr4;
+    prev8 = curr8;
+
+
 }
 
-void correct_heading(int16_t target_h){
-    curr_h = (i2c_rx_buffer[HEADING_MSB] << 8 | i2c_rx_buffer[HEADING_LSB]);
-    measure_h = curr_h - prev_h;
-    if(measure_h <= HEADING_MAX_VALUE/2) measure_h+=HEADING_MAX_VALUE;
-    if(measure_h > HEADING_MAX_VALUE/2) measure_h-=HEADING_MAX_VALUE;
+void lateral_right(void){
+    GPIOC->BSRR |= INL1|INL3|INR3;    
+    GPIOA->BSRR |= INL2|INR2;
     
-    error_h = measure_h;
+    curr2 = abs(TIM2->CNT);
+    curr3 = TIM3->CNT;
+    curr4 = abs(TIM4->CNT);
+    curr8 = TIM8->CNT;
+    
+    error2+= (target-curr2)/lateral_Ki;
+    error3+= (target-curr3)/lateral_Ki;
+    error4+= (target-curr4)/lateral_Ki;
+    error8+= (target-curr8)/lateral_Ki;
 
-    if(abs(error_h) < 16){
-        return;
-    } else if(error_h < 0){
-        TIM1->CCR2 += Kp_h*error_h;
-        TIM1->CCR3 += Kp_h*error_h;
-    } else {
-        TIM1->CCR1 += Kp_h*error_h;
-        TIM1->CCR4 += Kp_h*error_h;
+    int16_t output2 = lateral_Kd*(curr2-prev2) + lateral_Kp*(target - curr2) + (error2);
+    int16_t output3 = lateral_Kd*(curr3-prev3) + lateral_Kp*(target - curr3) + (error3);
+    int16_t output4 = lateral_Kd*(curr4-prev4) + lateral_Kp*(target - curr4) + (error4);
+    int16_t output8 = lateral_Kd*(curr8-prev8) + lateral_Kp*(target - curr8) + (error8);
+
+    if(target - curr2 < 0){
+        while(1){
+            TIM1->CCR1 = 0;
+            TIM1->CCR2 = 0;
+            TIM1->CCR3 = 0;
+            TIM1->CCR4 = 0;
+        }
+    }else {
+        TIM1->CCR1 = output2;
+        TIM1->CCR2 = output3;
+        TIM1->CCR3 = output4;
+        TIM1->CCR4 = output8;
     }
-    prev_h = curr_h;
-}
-
-void set_speed(uint16_t target){
     
-    int16_t curr2 = TIM2->CNT;
-    int16_t curr3 = TIM3->CNT;
-    int16_t curr4 = TIM4->CNT;
-    int16_t curr8 = TIM8->CNT;
+    prev2 = curr2;
+    prev3 = curr3;
+    prev4 = curr4;
+    prev8 = curr8;
 
-    measure2 = curr2 - prev2;
-    measure3 = curr3 - prev3;
-    //measure4 = curr4 - prev4;
-    //measure8 = curr8 - prev8;
-
-    prev2  = curr2; 
-    prev3  = curr3;
-    //prev4  = curr4;
-    //prev8  = curr8;
-    
-    error2 = target - measure2;
-    error3 = target - measure3;
-    //error4 = target - measure4;
-    //error8 = target - measure8;
-    
-    TIM1->CCR1 += (Kp*error2) * !(measure2 < -200 ||measure2 > 400);
-    //TIM1->CCR2 += (Kp*error8) * !(measure8 < -200 ||measure8 > 400);
-    //TIM1->CCR3 += Kp*error4   * !(measure4 < -200 ||measure4 > 200);
-    //TIM1->CCR4 += Kp*error3   * !(measure3 < -200 ||measure3 > 200);
-}
-
-void servo(void* args){
-    (void) args;
-    while(1){
-        // TIM16->CCR1 |= 14000; 
-        // TIM16->CCR1 = TIM16->ARR - get_global_tick() % TIM16->ARR;
-    }
 }
 
 uint8_t* get_meas_pair(void){
@@ -342,6 +354,7 @@ uint8_t* get_meas_pair(void){
 void motor_wrapper(void* args){
     (void) args;
     motor_tcb = current_tcb;
+    input_timer_init();
     output_timer_init();
     // while(i2c_rx_buffer[1]== 0){
     //     yield();
@@ -353,7 +366,8 @@ void motor_wrapper(void* args){
     // GPIOA->BSRR |= INR3;
     for(int i = 0; i <0x50000;i++);
     while(1){
-        steps(0, target_h);
+        lateral_left();
+        // steps(0, target_h);
         block();
     // GPIOC->BSRR |= (INL1|INL4)<<16;
     // GPIOB->BSRR |= (INR4)<<16;

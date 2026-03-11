@@ -19,7 +19,7 @@
 
 typedef struct {
     parser_t* parser;
- motor_t;
+}motor_t;
 
 extern uint8_t i2c_rx_buffer[I2C_BUFFER_SIZE];
 extern uint32_t* motor_data_i_p;
