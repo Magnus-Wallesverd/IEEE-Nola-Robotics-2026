@@ -131,7 +131,7 @@ void lcd_print(void* args){
     char entry_5[] = {"H"};
 
     char buffer_1[BUFFER_SIZE] = {0};
-    char buffer_2[10] = {0};
+    char buffer_2[BUFFER_SIZE] = {0};
     char buffer_3[BUFFER_SIZE] = {0};
     char buffer_4[BUFFER_SIZE] = {0};
     char buffer_5[BUFFER_SIZE] = {0};
@@ -140,16 +140,16 @@ void lcd_print(void* args){
     uint32_t t0 = 0;
     uint32_t t1 = 0;
     
-    move_cursor(0,0);
-    print(entry_1);
-    move_cursor(1,0);
-    print(entry_2);
-
     while(1){
         t0 = get_global_tick();
         while((t0-t1) > REFRESH_RATE){
             // stringify((i2c_rx_buffer[HEADING_MSB] << 8 | i2c_rx_buffer[HEADING_LSB]), buffer_1);
-            // stringify(get_meas_pair()[0], buffer_1);
+            move_cursor(0, 0);
+            stringify(get_usart_rx()[0], buffer_1);
+            move_cursor(0, 5);
+            stringify(get_usart_rx()[1], buffer_2);
+            move_cursor(0, 10);
+            stringify(get_usart_rx()[2], buffer_3);
             // move_cursor(1, 0);
             // stringify(get_meas_pair()[1], buffer_2);
             // move_cursor(0, 9);

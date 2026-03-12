@@ -1,49 +1,65 @@
 #include "parser.h"
 #include "tcb.h"
+#include "queue.h"
+#include "motors.h"
+#include <semaphore.h>
+
+work_item_t dispatch_item;
+sem_t dispatch_sem;
 
 uint8_t parser_buffer[PARSER_BUFFER_SIZE];
 uint32_t p_dst_i = 0;
+// dispatcher_t global_dispatch;
 
-// this function should know about a semaphore for neat scheduling
-// if this function knows aout semaphores then it can call producer
-// parse_array doesnt know about semaphores
+const func_t dispatch_table[] = {
+    step,
+    rotate,
+    lateral_left,
+    lateral_right
+};
 
-// void parse
+void parser_dispatcher(parser_t* parser){
 
-void parser_logic(parser_t* parser){
+    dispatcher_t local_dispatch;
 
+    local_dispatch.sem = &dispatch_sem;
+    sem_init(local_dispatch.sem, &dispatch_item,1);
+
+    local_dispatch.src = parser->dst;
+    local_dispatch.ID = parser->ID;
+
+    enum codes function_code = local_dispatch.src[1]; 
+
+    ((work_item_t*)local_dispatch.sem->item)->fn = dispatch_table[function_code];
+    ((work_item_t*)local_dispatch.sem->item)->args = &local_dispatch.src[parser->frame_size-1];
     
-    // if(wait(parser->work_sem_p)){
-    //     producer_function(parser->work_sem_p);
-    // }
+    producer_function(local_dispatch.sem);
+    
 }
+    
+// {0xAA, 1, 2, 3}
 
 void parse_array(void* args){
     parser_t* parser = (parser_t*)args;
     uint8_t buffer_size = parser->buffer_size;
     uint32_t frame_size = parser->frame_size;
-    uint32_t* dst_i_p = &p_dst_i;
     parser->dst = parser_buffer;
     uint32_t src_i = *(parser->src_i);
     uint8_t f_ID = parser->ID;
-    uint32_t parser_i = 0;
     
-    if((src_i - *dst_i_p) <= (frame_size)){
+    if((src_i - p_dst_i) < (frame_size)){
         signal(parser_sem_p);
         return;
     }
-    while (*dst_i_p != src_i) {
-        if(parser->src[(*dst_i_p)%buffer_size] != f_ID){
-            (*dst_i_p)++;
-        } else if(parser->src[((*dst_i_p) + frame_size)%buffer_size] == f_ID){
-            for(uint32_t i = 0; i < frame_size; i++){
-                parser->dst[parser_i % buffer_size] = parser->src[((*dst_i_p+parser_i))%buffer_size];
-                parser_i++;
-            }
-            parser_i = 0;
-            parser_logic(parser);
+    while (p_dst_i != src_i) {
+        if(parser->src[p_dst_i%buffer_size] != f_ID){
+            p_dst_i++;
         } else {
-           (*dst_i_p)++;
+            for(uint32_t i = 0; i < frame_size; i++) {
+                parser->dst[i] = parser->src[((p_dst_i + i)) % buffer_size];
+            }
+            parser_dispatcher(parser);
+            p_dst_i+=frame_size;
         }
     }
     signal(parser_sem_p);

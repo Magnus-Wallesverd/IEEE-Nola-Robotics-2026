@@ -39,7 +39,7 @@
 #define USART_RX_BUF_SIZE 64
 
 #define USART_SIGNAL 0xAA
-#define USART_FRAME_SIZE 4
+#define USART_FRAME_SIZE 3
 
 #define CR1_SETUP UE|TE|RE
 
@@ -78,6 +78,7 @@ void usart_init(USART_Typedef* USARTx, GPIO_TypeDef* port, uint32_t pins, uint32
 void load_tx(void);
 void usart_begin(void* args);
 usart_t* get_usart_t(void);
+uint8_t* get_usart_rx(void);
 
 
 #endif // !USART_H

@@ -8,6 +8,13 @@
 
 #define PARSER_BUFFER_SIZE 64
 
+enum codes{
+    STEP = 0,
+    ROTATE,
+    LATERAL_LEFT,
+    LATERAL_RIGHT,
+};
+
 typedef struct{
     uint32_t* src_i;
     uint32_t* dst_i;
@@ -22,8 +29,9 @@ typedef struct{
 typedef struct {
     uint32_t ID;
     uint8_t* src;
-    
+    sem_t* sem;
 }dispatcher_t;
+
 
 void parse_array(void* args);
 

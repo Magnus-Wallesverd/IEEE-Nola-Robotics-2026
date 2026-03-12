@@ -39,5 +39,12 @@ void motor_wrapper(void* args);
 
 void init_servo_TIM(void);
 
+void lateral_left(void* args);
+void lateral_right(void* args);
+
 void servo(void* args);
+
+void step(void* args);
+
+void rotate(void* args);
 #endif // !MOTORS_H

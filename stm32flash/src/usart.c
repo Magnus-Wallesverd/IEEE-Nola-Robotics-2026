@@ -125,6 +125,10 @@ void usart_begin(void* args){
     usart.USARTx->CR1 |= USART_TXEIE;
 }
 
+uint8_t* get_usart_rx(void){
+    return usart_rx_buffer;
+}
+
 usart_t* get_usart_t(void){
     return &usart;
 }
