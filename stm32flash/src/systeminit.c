@@ -14,15 +14,9 @@ void systeminit(void){
     SCB->SHPR3 |= 0xE0F00000;
      
     RCC->APB1ENR |= (1 << 21);
-    // RCC->APB1ENR |= (1 << 2) | (1 << 21);               // Enable TIM4
-    // RCC->APB2ENR |= (1 << 11);              // Enable TIM1
     
     RCC->AHBENR |= 0xE0000;                   // enable GPIO ABC  clock 
 
-
-    // enable timer 16 and 17 interrupt
-    // NVIC->ISER0 |= (1 << 25) | 1 << 26;
- 
     // enable i2c interrupt
     NVIC->ISER0 |= 1<<31;
 
@@ -32,11 +26,8 @@ void systeminit(void){
     ready_queue_init();
     priority_queue_init();
 
-    // init_servo_TIM();
-    // servo(0);
-    // enable timer 16 interrupt
-    // NVIC->ISER0 |= (1 << 25);
     SetPinOutput(GPIOA,PA5);
     usart_init(USART1, GPIOC,PC4|PC5,115200);
-    // camera_setup();
+    input_timer_init();
+    output_timer_intit();
 }

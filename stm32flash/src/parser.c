@@ -30,10 +30,10 @@ void parser_dispatcher(parser_t* parser){
 
     enum codes function_code = local_dispatch.src[1]; 
 
-    ((work_item_t*)local_dispatch.sem->item)->fn = dispatch_table[function_code];
-    ((work_item_t*)local_dispatch.sem->item)->args = &local_dispatch.src[parser->frame_size-1];
+    ((transport_item_t*)local_dispatch.sem->item)->fn = dispatch_table[function_code];
+    ((transport_item_t*)local_dispatch.sem->item)->args = &local_dispatch.src[parser->frame_size-1];
     
-    producer_function(local_dispatch.sem);
+    transport_producer_function(local_dispatch.sem);
     
 }
     

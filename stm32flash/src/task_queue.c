@@ -9,13 +9,19 @@
 
 queue_t task_queue;
 queue_t* task_queue_ptr = &task_queue;
+
+queue_t transport_queue;
+queue_t* transport_queue_ptr = &transport_queue;
+
 queue_t ready_queue;
 queue_t* ready_queue_ptr = &ready_queue;
+
 queue_t priority_queue;
 queue_t* priority_queue_ptr = &priority_queue;
 
 work_item_t task_pool[TASK_QUEUE_SIZE];
 void* task_queue_array[TASK_QUEUE_SIZE];
+void* transport_queue_array[TASK_QUEUE_SIZE];
 void* ready_queue_array[TASK_QUEUE_SIZE];
 void* priority_queue_array[TASK_QUEUE_SIZE];
 
@@ -44,6 +50,29 @@ void task_queue_init(void){
     for(unsigned int i = 0; i < sizeof(fn_table)/4; i++){
         enqueue(task_queue_ptr, &task_pool[i]);
     }
+
+}
+
+void transport_queue_init(void){
+
+    transport_queue_ptr->array = transport_queue_array;
+    transport_queue_ptr->count = 0;
+    transport_queue_ptr->size  = TRANSPORT_QUEUE_SIZE;
+
+    transport_queue_ptr->front = transport_queue_ptr->array;
+    transport_queue_ptr->end   = transport_queue_ptr->array;
+    
+    // use  to test
+    // load a function pointers into a work item array
+    //for(unsigned int i = 0; i < sizeof(fn_table)/4; i++){
+    //    task_pool[i].fn = fn_table[i];
+    //    task_pool[i].args = (void*)0;
+    //}
+    //
+    // need to enqueue the address of the task
+    //for(unsigned int i = 0; i < sizeof(fn_table)/4; i++){
+    //    enqueue(task_queue_ptr, &task_pool[i]);
+    //}
 
 }
 

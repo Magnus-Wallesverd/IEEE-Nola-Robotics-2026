@@ -11,6 +11,7 @@ work_item_t producer_item;
 uint32_t kernel_unblock_counter = 0;
 uint32_t global_tick = 0;
 uint32_t task_flag = 0;
+uint32_t transport_flag = 0;
 
 TCB _stcb[TCB_ARRAY_SIZE];
 TCB *current_tcb;
@@ -39,6 +40,10 @@ void producer_function(sem_t* s){
     enqueue(task_queue_ptr,s->item);
 }
 
+void transport_producer_function(sem_t* s){
+    enqueue(transport_queue_ptr,s->item);
+}
+
 void worker_function(void){
     while(1){
 
@@ -55,6 +60,31 @@ void worker_function(void){
         } else {
             consumer_item->fn(consumer_item->args);
             yield();
+        }
+    }   
+}
+
+
+void transport_handler(void){
+    while(1){
+
+        transport_item_t* transport_item;
+        
+        // take item off queue
+        if(lock(&transport_flag) == 1){
+            transport_item = (transport_item_t*)dequeue(transport_queue_ptr);
+            unlock(&transport_flag);
+        } else { yield(); }
+        
+        if(transport_item == (void*)0){
+            return;
+        } else {
+            if(transport_item->fn(transport_item->args)){
+                
+            } else {
+
+            }
+            
         }
     }   
 }

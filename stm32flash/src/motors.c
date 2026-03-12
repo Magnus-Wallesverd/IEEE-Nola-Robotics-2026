@@ -160,13 +160,15 @@ void output_timer_init(void){
     TIM20->CR1   |= 0b10000001;
 }
 
-void step(void* args){
+int step(void* args){
     (void) args;
+    return 1;
 }
 
-void rotate(void* args){
+int rotate(void* args){
     uint8_t data = *((uint8_t*)args);
     // int rotate1 = *data; 
+    return 1;
 }
 
 void steps(int8_t target_cm, int16_t target_h){
@@ -267,7 +269,7 @@ void turn_off_motors(void){
     GPIOA->BSRR |= INR2 << 16;
 }
 
-void lateral_left(void* args){
+int lateral_left(void* args){
 
     uint8_t target = *((uint8_t*)args);
     
@@ -313,7 +315,7 @@ void lateral_left(void* args){
 
 }
 
-void lateral_right(void* args){
+int lateral_right(void* args){
 
     uint8_t target = *((uint8_t*)args);
 
