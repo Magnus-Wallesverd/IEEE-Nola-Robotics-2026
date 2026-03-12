@@ -272,56 +272,58 @@ void turn_off_motors(void){
 int lateral_left(void* args){
 
     uint8_t target = *((uint8_t*)args);
+    motor_tcb = current_tcb;
     
     // turn_off_motors();
     // zero_counters();
 
     GPIOC->BSRR |= INL2|INL4;
     GPIOB->BSRR |= INR1|INR4;    
-    
-    curr2 = TIM2->CNT;
-    curr3 = abs(TIM3->CNT);
-    curr4 = TIM4->CNT;
-    curr8 = abs(TIM8->CNT);
-    
-    error2+= (target-curr2)/lateral_Ki;
-    error3+= (target-curr3)/lateral_Ki;
-    error4+= (target-curr4)/lateral_Ki;
-    error8+= (target-curr8)/lateral_Ki;
+    while(1){
 
-    int16_t output2 = lateral_Kd*(curr2-prev2) + lateral_Kp*(target - curr2) + (error2);
-    int16_t output3 = lateral_Kd*(curr3-prev3) + lateral_Kp*(target - curr3) + (error3);
-    int16_t output4 = lateral_Kd*(curr4-prev4) + lateral_Kp*(target - curr4) + (error4);
-    int16_t output8 = lateral_Kd*(curr8-prev8) + lateral_Kp*(target - curr8) + (error8);
+        curr2 = TIM2->CNT;
+        curr3 = abs(TIM3->CNT);
+        curr4 = TIM4->CNT;
+        curr8 = abs(TIM8->CNT);
+        
+        error2+= (target-curr2)/lateral_Ki;
+        error3+= (target-curr3)/lateral_Ki;
+        error4+= (target-curr4)/lateral_Ki;
+        error8+= (target-curr8)/lateral_Ki;
 
-    if(target - curr2 < 0){
-        TIM1->CCR1 = 0;
-        TIM1->CCR2 = 0;
-        TIM1->CCR3 = 0;
-        TIM1->CCR4 = 0;
-        return;
-    } else {
-        TIM1->CCR1 = output2;
-        TIM1->CCR2 = output3;
-        TIM1->CCR3 = output4;
-        TIM1->CCR4 = output8;
-    }
-    
-    prev2 = curr2;
-    prev3 = curr3;
-    prev4 = curr4;
-    prev8 = curr8;
+        int16_t output2 = lateral_Kd*(curr2-prev2) + lateral_Kp*(target - curr2) + (error2);
+        int16_t output3 = lateral_Kd*(curr3-prev3) + lateral_Kp*(target - curr3) + (error3);
+        int16_t output4 = lateral_Kd*(curr4-prev4) + lateral_Kp*(target - curr4) + (error4);
+        int16_t output8 = lateral_Kd*(curr8-prev8) + lateral_Kp*(target - curr8) + (error8);
 
-
+        if(target - curr2 < 0){
+            TIM1->CCR1 = 0;
+            TIM1->CCR2 = 0;
+            TIM1->CCR3 = 0;
+            TIM1->CCR4 = 0;
+            return 1;
+        } else {
+            TIM1->CCR1 = output2;
+            TIM1->CCR2 = output3;
+            TIM1->CCR3 = output4;
+            TIM1->CCR4 = output8;
+        }
+        
+        prev2 = curr2;
+        prev3 = curr3;
+        prev4 = curr4;
+        prev8 = curr8;
+        block();
+    }   
 }
 
 int lateral_right(void* args){
 
     uint8_t target = *((uint8_t*)args);
+    motor_tcb = current_tcb;
 
     GPIOA->BSRR |= INR2;
     GPIOC->BSRR |= INL1|INL3|INR3;    
-    motor_tcb = current_tcb;
     
     while(1){
         curr2 = abs(TIM2->CNT);
@@ -344,7 +346,7 @@ int lateral_right(void* args){
             TIM1->CCR2 = 0;
             TIM1->CCR3 = 0;
             TIM1->CCR4 = 0;
-            return;
+            return 1;
         }else {
             TIM1->CCR1 = output2;
             TIM1->CCR2 = output3;

@@ -80,11 +80,10 @@ void transport_handler(void){
             return;
         } else {
             if(transport_item->fn(transport_item->args)){
-                
+                usart_load_tx(1);
             } else {
-
+                usart_load_tx(0);
             }
-            
         }
     }   
 }

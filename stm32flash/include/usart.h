@@ -38,8 +38,9 @@
 #define USART_TX_BUF_SIZE 1
 #define USART_RX_BUF_SIZE 64
 
-#define USART_SIGNAL 0xAA
-#define USART_FRAME_SIZE 3
+#define USART_HEADER 0xAA
+#define USART_FOOTER 0xFF
+#define USART_FRAME_SIZE 4
 
 #define CR1_SETUP UE|TE|RE
 
@@ -63,6 +64,7 @@ typedef struct{
     uint8_t* rx_buffer_p;
     parser_t* parser;
     sem_t* sem;
+    dispatcher_t* dispatch;
 } usart_t;
 
 #define USART1 ((USART_Typedef *) 0x40013800)
@@ -75,7 +77,7 @@ extern int16_t target_h;
 extern int16_t target;
 
 void usart_init(USART_Typedef* USARTx, GPIO_TypeDef* port, uint32_t pins, uint32_t baud);
-void load_tx(void);
+void usart_load_tx(int status);
 void usart_begin(void* args);
 usart_t* get_usart_t(void);
 uint8_t* get_usart_rx(void);

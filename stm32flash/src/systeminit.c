@@ -29,5 +29,5 @@ void systeminit(void){
     SetPinOutput(GPIOA,PA5);
     usart_init(USART1, GPIOC,PC4|PC5,115200);
     input_timer_init();
-    output_timer_intit();
+    output_timer_init();
 }

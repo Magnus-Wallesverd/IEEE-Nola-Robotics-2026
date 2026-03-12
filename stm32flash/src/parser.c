@@ -11,7 +11,7 @@ uint8_t parser_buffer[PARSER_BUFFER_SIZE];
 uint32_t p_dst_i = 0;
 // dispatcher_t global_dispatch;
 
-const func_t dispatch_table[] = {
+const transport_t dispatch_table[] = {
     step,
     rotate,
     lateral_left,
@@ -40,6 +40,7 @@ void parser_dispatcher(parser_t* parser){
 // {0xAA, 1, 2, 3}
 
 void parse_array(void* args){
+
     parser_t* parser = (parser_t*)args;
     uint8_t buffer_size = parser->buffer_size;
     uint32_t frame_size = parser->frame_size;

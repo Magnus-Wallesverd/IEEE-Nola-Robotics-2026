@@ -5,6 +5,8 @@
 usart_t usart;
 parser_t usart_parser;
 
+dispatcher_t usart_dispatcher;
+
 uint32_t usart_tx_i = 0;
 uint32_t usart_rx_i = 0;
 
@@ -89,7 +91,7 @@ void usart_init(USART_Typedef* USARTx, GPIO_TypeDef* port, uint32_t pins, uint32
     }
 
     usart.USARTx = USARTx;
-    usart.tx_buffer_p = &usart_tx_buffer[0];
+    usart.tx_buffer_p = parser_buffer;
     usart.rx_buffer_p = &usart_rx_buffer[0];
 
     usart.parser = &usart_parser;
@@ -98,10 +100,14 @@ void usart_init(USART_Typedef* USARTx, GPIO_TypeDef* port, uint32_t pins, uint32
     usart.parser->buffer_size = USART_RX_BUF_SIZE;
     usart.parser->frame_size = USART_FRAME_SIZE;
     usart.parser->ID = CAMERA_ID;
-
     usart.parser->work_sem_p = parser_sem_p; 
 
     sem_init(usart.parser->work_sem_p,(void*)&producer_item,1);  
+
+    usart.dispatch = &usart_dispatcher;
+    usart.dispatch->header = USART_HEADER;
+    usart.dispatch->footer = USART_FOOTER;
+
 
     ((work_item_t*)usart.parser->work_sem_p->item)->fn = parse_array;
     ((work_item_t*)usart.parser->work_sem_p->item)->args = usart.parser;
@@ -112,17 +118,16 @@ void usart_init(USART_Typedef* USARTx, GPIO_TypeDef* port, uint32_t pins, uint32
     USARTx->CR3 |= (1<<12);
 }
 
-void load_tx(void){
-    data[0] = USART_SIGNAL; 
-    usart.tx_buffer_p = data; 
+void usart_load_tx(int status){
+    usart.dispatch->ID = status;
+    usart.USARTx->CR1 |= USART_TXEIE;
+    
 }
 
 void usart_begin(void* args){
     (void) args;
     // usart.USARTx->CR1 |= USART_RXNEIE;
     usart.USARTx->CR1 |= USART_RXNEIE;
-    load_tx();
-    usart.USARTx->CR1 |= USART_TXEIE;
 }
 
 uint8_t* get_usart_rx(void){
