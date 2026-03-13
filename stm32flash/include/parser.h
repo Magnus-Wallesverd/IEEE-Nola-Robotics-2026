@@ -31,11 +31,11 @@ typedef struct {
     uint32_t ID;
     uint8_t data;
     uint8_t footer;
-    uint8_t* src;
     sem_t* sem;
 } dispatcher_t;
 
 extern uint8_t parser_buffer[PARSER_BUFFER_SIZE];
 void parse_array(void* args);
+void dispatcher_init(void);
 
 #endif // !PARSER_H

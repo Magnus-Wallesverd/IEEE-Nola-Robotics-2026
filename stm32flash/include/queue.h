@@ -9,8 +9,8 @@
 #define TRANSPORT_QUEUE_SIZE 5 
 #define FUNC_POOL_SIZE 4
 
-typedef void (*func_t)(void* args);
-typedef int  (*transport_t)(void* args);
+typedef void (*func_t)(void*);
+typedef int  (*transport_t)(void*);
 
 typedef struct{
     uint32_t size;
@@ -27,9 +27,8 @@ typedef struct {
 }work_item_t;
 
 typedef struct {
-    void* peripheral;
-    transport_t fn;
     void* args;
+    transport_t fn;
 }transport_item_t;
 
 extern queue_t* task_queue_ptr;

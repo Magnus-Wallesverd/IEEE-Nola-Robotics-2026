@@ -4,12 +4,18 @@
 #include "motors.h"
 #include <semaphore.h>
 
+transport_item_t transport_item;
+
 work_item_t dispatch_item;
+
 sem_t dispatch_sem;
+sem_t transport_sem;
+
 
 uint8_t parser_buffer[PARSER_BUFFER_SIZE];
 uint32_t p_dst_i = 0;
-// dispatcher_t global_dispatch;
+
+dispatcher_t global_dispatch;
 
 const transport_t dispatch_table[] = {
     step,
@@ -18,23 +24,35 @@ const transport_t dispatch_table[] = {
     lateral_right
 };
 
+void dispatcher_init(void){
+    
+    global_dispatch.sem = &dispatch_sem;
+    sem_init(global_dispatch.sem, &dispatch_item,1);
+    sem_init(&transport_sem, &transport_item,1);
+
+    ((work_item_t*)global_dispatch.sem->item)->fn = transport_handler;
+    ((work_item_t*)global_dispatch.sem->item)->args = (void*) 0 ;
+}
+
 void parser_dispatcher(parser_t* parser){
 
-    dispatcher_t local_dispatch;
+    global_dispatch.ID = parser->ID;
 
-    local_dispatch.sem = &dispatch_sem;
-    sem_init(local_dispatch.sem, &dispatch_item,1);
+    enum codes function_code = parser->dst[1]; 
 
-    local_dispatch.src = parser->dst;
-    local_dispatch.ID = parser->ID;
+    ((transport_item_t*)transport_sem.item)->fn = dispatch_table[function_code];
+    ((transport_item_t*)transport_sem.item)->args = &parser->dst[parser->frame_size-2];
 
-    enum codes function_code = local_dispatch.src[1]; 
-
-    ((transport_item_t*)local_dispatch.sem->item)->fn = dispatch_table[function_code];
-    ((transport_item_t*)local_dispatch.sem->item)->args = &local_dispatch.src[parser->frame_size-1];
     
-    transport_producer_function(local_dispatch.sem);
+    if(wait(global_dispatch.sem)){
+        producer_function(global_dispatch.sem);
+    }
     
+    if(wait(&transport_sem)){
+        transport_producer_function(&transport_sem);
+    }
+    
+    signal(&transport_sem);
 }
     
 // {0xAA, 1, 2, 3}

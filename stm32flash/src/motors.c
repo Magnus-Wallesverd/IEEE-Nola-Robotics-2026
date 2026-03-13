@@ -61,7 +61,7 @@ uint16_t A = 100;
 uint16_t B = 100;
 uint16_t C = 30;
 
-uint8_t lateral_Kd = 6;
+uint8_t lateral_Kd = 60;
 uint8_t lateral_Kp = 3;
 uint8_t lateral_Ki = 4;
 
@@ -245,6 +245,7 @@ void steps(int8_t target_cm, int16_t target_h){
         TIM3->CNT = 0;
         TIM4->CNT = 0;
         TIM8->CNT = 0;
+            move_cursor(0, 0);
         prev4=0;
     }
     //set_speed(measure8);
@@ -319,8 +320,10 @@ int lateral_left(void* args){
 
 int lateral_right(void* args){
 
-    uint8_t target = *((uint8_t*)args);
+    uint8_t data = *((uint8_t*)args);
     motor_tcb = current_tcb;
+    
+    uint32_t target = data * 48;
 
     GPIOA->BSRR |= INR2;
     GPIOC->BSRR |= INL1|INL3|INR3;    

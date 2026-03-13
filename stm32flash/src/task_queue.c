@@ -21,7 +21,7 @@ queue_t* priority_queue_ptr = &priority_queue;
 
 work_item_t task_pool[TASK_QUEUE_SIZE];
 void* task_queue_array[TASK_QUEUE_SIZE];
-void* transport_queue_array[TASK_QUEUE_SIZE];
+void* transport_queue_array[TRANSPORT_QUEUE_SIZE];
 void* ready_queue_array[TASK_QUEUE_SIZE];
 void* priority_queue_array[TASK_QUEUE_SIZE];
 

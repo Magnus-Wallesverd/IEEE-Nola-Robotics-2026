@@ -25,9 +25,11 @@ void systeminit(void){
     
     ready_queue_init();
     priority_queue_init();
+    transport_queue_init();
 
     SetPinOutput(GPIOA,PA5);
     usart_init(USART1, GPIOC,PC4|PC5,115200);
     input_timer_init();
     output_timer_init();
+    dispatcher_init();
 }

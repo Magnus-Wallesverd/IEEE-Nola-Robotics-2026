@@ -64,10 +64,8 @@ void worker_function(void){
     }   
 }
 
-
-void transport_handler(void){
-    while(1){
-
+void transport_handler(void* args){
+        (void) args;
         transport_item_t* transport_item;
         
         // take item off queue
@@ -79,13 +77,12 @@ void transport_handler(void){
         if(transport_item == (void*)0){
             return;
         } else {
-            if(transport_item->fn(transport_item->args)){
-                usart_load_tx(1);
-            } else {
-                usart_load_tx(0);
-            }
+        if(transport_item->fn(transport_item->args)){
+            usart_load_tx(1);
+        } else {
+            usart_load_tx(0);
         }
-    }   
+    }
 }
 
 void kernel_tcb_unblock(TCB tcb[]){

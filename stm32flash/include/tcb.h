@@ -28,6 +28,7 @@ enum states{
     IDLE
 };
 
+void transport_handler(void* args);
 void worker_function(void);
 void producer_function(sem_t* s);
 void transport_producer_function(sem_t* s);
