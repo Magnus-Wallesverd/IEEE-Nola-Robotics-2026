@@ -44,6 +44,11 @@
 
 #define CR1_SETUP UE|TE|RE
 
+enum usart_state{
+    USART_INACTIVE=0,
+    USART_ACTIVE
+};
+
 typedef struct{
     volatile uint32_t CR1;    //0x00
     volatile uint32_t CR2;    //0x04
