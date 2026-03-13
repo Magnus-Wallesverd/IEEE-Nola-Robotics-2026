@@ -30,11 +30,6 @@ void USART1_IRQHandler(void){
         if(wait(usart.parser->work_sem_p)){
             producer_function(usart.parser->work_sem_p);
         }
-        // call producer
-        // rx_i -= (usart_rx_buffer[0] >> 6 == 0b10);
-        // int8_t theta = usart_rx_buffer[0];
-        // target = usart_rx_buffer[1];
-        // target_h = (*get_i2c_buffer()|*(get_i2c_buffer()+1)<<8) + (theta*16);
     }
 
     if(USART1->ISR & USART_ORE){

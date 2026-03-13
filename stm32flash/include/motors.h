@@ -33,13 +33,12 @@ void output_timer_init(void);
 
 void set_speed(uint16_t target);
 
-void steps(int8_t target_cm, int16_t target_h);
-
 void motor_wrapper(void* args);
 
 void init_servo_TIM(void);
 
 int lateral_left(void* args);
+
 int lateral_right(void* args);
 
 void servo(void* args);

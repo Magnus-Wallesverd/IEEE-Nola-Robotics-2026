@@ -18,10 +18,11 @@ uint32_t p_dst_i = 0;
 dispatcher_t global_dispatch;
 
 const transport_t dispatch_table[] = {
+    uart_blink_led,
     step,
     rotate,
     lateral_left,
-    lateral_right
+    lateral_right,
 };
 
 void dispatcher_init(void){
@@ -52,6 +53,7 @@ void parser_dispatcher(parser_t* parser){
         transport_producer_function(&transport_sem);
     }
     
+    signal(global_dispatch.sem);
     signal(&transport_sem);
 }
     
@@ -78,7 +80,7 @@ void parse_array(void* args){
                 parser->dst[i] = parser->src[((p_dst_i + i)) % buffer_size];
             }
             parser_dispatcher(parser);
-            p_dst_i+=frame_size;
+            p_dst_i++;
         }
     }
     signal(parser_sem_p);

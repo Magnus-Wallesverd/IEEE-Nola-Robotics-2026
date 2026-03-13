@@ -29,14 +29,13 @@ void* priority_queue_array[TASK_QUEUE_SIZE];
 const func_t fn_table[] = {
     lcd_print,
     Sensor_Read_Wrapper,
-    usart_begin
+    usart_begin,
 };
 
 void task_queue_init(void){
     task_queue_ptr->array = task_queue_array;
     task_queue_ptr->count = 0;
     task_queue_ptr->size  = TASK_QUEUE_SIZE;
-    /*task_queue_ptr->max_time = 0;*/
     task_queue_ptr->front = task_queue_ptr->array;
     task_queue_ptr->end   = task_queue_ptr->array;
     
@@ -58,22 +57,9 @@ void transport_queue_init(void){
     transport_queue_ptr->array = transport_queue_array;
     transport_queue_ptr->count = 0;
     transport_queue_ptr->size  = TRANSPORT_QUEUE_SIZE;
-
     transport_queue_ptr->front = transport_queue_ptr->array;
     transport_queue_ptr->end   = transport_queue_ptr->array;
     
-    // use  to test
-    // load a function pointers into a work item array
-    //for(unsigned int i = 0; i < sizeof(fn_table)/4; i++){
-    //    task_pool[i].fn = fn_table[i];
-    //    task_pool[i].args = (void*)0;
-    //}
-    //
-    // need to enqueue the address of the task
-    //for(unsigned int i = 0; i < sizeof(fn_table)/4; i++){
-    //    enqueue(task_queue_ptr, &task_pool[i]);
-    //}
-
 }
 
 void ready_queue_init(void){

@@ -167,6 +167,18 @@ void blink_led(void* args){
     for(volatile int i = 0; i < 5000; i++);
 }
 
+// flicker led
+int uart_blink_led(void* args){
+    int data = *((uint8_t*)args);
+    while(data-- > 0){
+        PinWrite(GPIOA, PA5);
+        for(volatile int i = 0; i < 0x1FFFF; i++);
+        ResetPins(GPIOA, PA5);
+        for(volatile int i = 0; i < 0x1FFFF; i++);
+    }
+    return 1;
+}
+
 void camera_setup(void){
     SetPinOutput(GPIOB, PB1);
     PinWrite(GPIOB, PB1);

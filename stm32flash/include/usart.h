@@ -35,7 +35,7 @@
 
 #define RATE 115200
 #define USART_BRR FCLK/RATE
-#define USART_TX_BUF_SIZE 1
+#define USART_TX_BUF_SIZE 4
 #define USART_RX_BUF_SIZE 64
 
 #define USART_HEADER 0xAA
