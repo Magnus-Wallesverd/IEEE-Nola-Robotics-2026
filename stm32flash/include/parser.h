@@ -6,7 +6,7 @@
 
 #define CAMERA_ID 0xAA
 
-#define PARSER_BUFFER_SIZE 64
+#define PARSER_BUFFER_SIZE 4
 
 enum codes{
     STEP = 0,
@@ -37,5 +37,6 @@ typedef struct {
 extern uint8_t parser_buffer[PARSER_BUFFER_SIZE];
 void parse_array(void* args);
 void dispatcher_init(void);
+void parser_dispatcher(void* args);
 
 #endif // !PARSER_H

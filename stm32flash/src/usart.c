@@ -5,7 +5,16 @@
 usart_t usart;
 parser_t usart_parser;
 
+work_item_t usart_item;
+
+int overun_flag;
+int frame_error_flag;
+
+enum usart_state u_state_machine = USART_INACTIVE;
+
 dispatcher_t usart_dispatcher;
+
+sem_t usart_sem;
 
 uint32_t usart_tx_i = 0;
 uint32_t usart_rx_i = 0;
@@ -21,21 +30,34 @@ void USART1_IRQHandler(void){
     
     if(USART1->ISR & USART_FE){
         USART1->ICR |= USART_FECF;
-        usart.rx_buffer_p[0] = 0;
-        usart.rx_buffer_p[1] = 0;
+        frame_error_flag++;
     }
     
     if((USART1->ISR & USART_RXNE) && (USART1->CR1 & USART_RXNEIE)){
-        usart_rx_buffer[usart_rx_i++%USART_RX_BUF_SIZE] = USART1->RDR;
-        if(wait(usart.parser->work_sem_p)){
-            producer_function(usart.parser->work_sem_p);
+        uint8_t data = USART1->RDR;
+        if(data == USART_HEADER){
+            u_state_machine = USART_ACTIVE;
+        }
+        switch(u_state_machine){
+            case USART_INACTIVE:
+                return;
+            case USART_ACTIVE:
+                parser_buffer[usart_rx_i++] = data;
+                if(usart_rx_i == USART_FRAME_SIZE){
+                    usart_rx_i = 0;
+                    u_state_machine = USART_INACTIVE;
+                    if(wait(usart.sem)){
+                        producer_function(usart.sem);
+                        signal(usart.sem);
+                    }
+                }
+                return;
         }
     }
 
     if(USART1->ISR & USART_ORE){
         USART1->ICR |= USART_ORECF;
-        usart.rx_buffer_p[0] = 0;
-        usart.rx_buffer_p[1] = 0;
+        overun_flag++;
     }
 
     if((USART1->ISR & USART_TXE) && (USART1->CR1 & USART_TXEIE)){
@@ -88,24 +110,16 @@ void usart_init(USART_Typedef* USARTx, GPIO_TypeDef* port, uint32_t pins, uint32
     usart.USARTx = USARTx;
     usart.tx_buffer_p = parser_buffer;
     usart.rx_buffer_p = &usart_rx_buffer[0];
+    
+    usart.sem = &usart_sem;
 
-    usart.parser = &usart_parser;
-    usart.parser->src = usart_rx_buffer;
-    usart.parser->src_i = &usart_rx_i;
-    usart.parser->buffer_size = USART_RX_BUF_SIZE;
-    usart.parser->frame_size = USART_FRAME_SIZE;
-    usart.parser->ID = CAMERA_ID;
-    usart.parser->work_sem_p = parser_sem_p; 
-
-    sem_init(usart.parser->work_sem_p,(void*)&producer_item,1);  
+    sem_init(usart.sem,(void*)&usart_item,1);  
 
     usart.dispatch = &usart_dispatcher;
-    usart.dispatch->header = USART_HEADER;
-    usart.dispatch->footer = USART_FOOTER;
+    // usart.dispatch->header = USART_HEADER;
+    // usart.dispatch->footer = USART_FOOTER;
 
-
-    ((work_item_t*)usart.parser->work_sem_p->item)->fn = parse_array;
-    ((work_item_t*)usart.parser->work_sem_p->item)->args = usart.parser;
+    ((work_item_t*)usart.sem->item)->fn = parser_dispatcher;
 
     USARTx->CR1 |= CR1_SETUP;
     USARTx->BRR = CLK_64Mhz/baud;

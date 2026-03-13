@@ -144,8 +144,8 @@ void lcd_print(void* args){
         t0 = get_global_tick();
         while((t0-t1) > REFRESH_RATE){
             // stringify((i2c_rx_buffer[HEADING_MSB] << 8 | i2c_rx_buffer[HEADING_LSB]), buffer_1);
-            move_cursor(0, 0);
-            stringify(TIM1->CCR1, buffer_1);
+            // move_cursor(0, 0);
+            // stringify(TIM1->CCR1, buffer_1);
             // move_cursor(1, 0);
             // stringify(get_meas_pair()[1], buffer_2);
             // move_cursor(0, 9);

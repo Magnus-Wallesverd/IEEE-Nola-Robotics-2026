@@ -39,10 +39,15 @@
 #define USART_RX_BUF_SIZE 64
 
 #define USART_HEADER 0xAA
-#define USART_FOOTER 0xFF
+#define USART_FOOTER 0x55
 #define USART_FRAME_SIZE 4
 
 #define CR1_SETUP UE|TE|RE
+
+enum usart_state{
+    USART_INACTIVE=0,
+    USART_ACTIVE
+};
 
 typedef struct{
     volatile uint32_t CR1;    //0x00

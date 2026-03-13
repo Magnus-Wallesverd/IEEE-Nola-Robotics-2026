@@ -26,7 +26,6 @@ const transport_t dispatch_table[] = {
 };
 
 void dispatcher_init(void){
-    
     global_dispatch.sem = &dispatch_sem;
     sem_init(global_dispatch.sem, &dispatch_item,1);
     sem_init(&transport_sem, &transport_item,1);
@@ -35,14 +34,13 @@ void dispatcher_init(void){
     ((work_item_t*)global_dispatch.sem->item)->args = (void*) 0 ;
 }
 
-void parser_dispatcher(parser_t* parser){
+void parser_dispatcher(void* args){
+    (void) args;
 
-    global_dispatch.ID = parser->ID;
-
-    enum codes function_code = parser->dst[1]; 
+    enum codes function_code = parser_buffer[1]; 
 
     ((transport_item_t*)transport_sem.item)->fn = dispatch_table[function_code];
-    ((transport_item_t*)transport_sem.item)->args = &parser->dst[parser->frame_size-2];
+    ((transport_item_t*)transport_sem.item)->args = &parser_buffer[2];
 
     
     if(wait(global_dispatch.sem)){

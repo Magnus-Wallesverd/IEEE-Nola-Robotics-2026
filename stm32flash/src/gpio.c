@@ -172,9 +172,9 @@ int uart_blink_led(void* args){
     int data = *((uint8_t*)args);
     while(data-- > 0){
         PinWrite(GPIOA, PA5);
-        for(volatile int i = 0; i < 0x1FFFF; i++);
+        for(volatile int i = 0; i < 0xFFFF; i++);
         ResetPins(GPIOA, PA5);
-        for(volatile int i = 0; i < 0x1FFFF; i++);
+        for(volatile int i = 0; i < 0xFFFF; i++);
     }
     return 1;
 }
