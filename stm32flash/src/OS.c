@@ -61,6 +61,8 @@ void worker_function(void){
     }   
 }
 
+// add semaphore to gate scheduler overload
+
 void transport_handler(void* args){
         (void) args;
         transport_item_t* transport_item;
