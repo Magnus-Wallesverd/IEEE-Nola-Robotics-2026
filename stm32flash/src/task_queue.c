@@ -20,6 +20,7 @@ queue_t priority_queue;
 queue_t* priority_queue_ptr = &priority_queue;
 
 work_item_t task_pool[TASK_QUEUE_SIZE];
+transport_item_t transport_pool[TRANSPORT_QUEUE_SIZE];
 void* task_queue_array[TASK_QUEUE_SIZE];
 void* transport_queue_array[TRANSPORT_QUEUE_SIZE];
 void* ready_queue_array[TASK_QUEUE_SIZE];
@@ -30,6 +31,10 @@ const func_t fn_table[] = {
     lcd_print,
     Sensor_Read_Wrapper,
     usart_begin,
+    rotate2
+};
+const transport_t fn_table2[]={
+    rotate
 };
 
 void task_queue_init(void){
@@ -60,6 +65,15 @@ void transport_queue_init(void){
     transport_queue_ptr->front = transport_queue_ptr->array;
     transport_queue_ptr->end   = transport_queue_ptr->array;
     
+    for(unsigned int i = 0; i < sizeof(fn_table2)/4; i++){
+        transport_pool[i].fn = fn_table2[i];
+        transport_pool[i].args = (void*)0;
+    }
+
+    // need to enqueue the address of the transport
+    for(unsigned int i = 0; i < sizeof(fn_table2)/4; i++){
+        enqueue(transport_queue_ptr, &transport_pool[i]);
+    }
 }
 
 void ready_queue_init(void){

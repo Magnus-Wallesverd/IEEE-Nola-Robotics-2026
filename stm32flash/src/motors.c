@@ -238,8 +238,7 @@ int step(void* args){
 int rotate(void* args){
     motor_tcb = current_tcb;
 
-    const int8_t data = *((uint8_t *) args);
-
+    const int8_t data =  30;
     int16_t curr_h = (i2c_rx_buffer[HEADING_MSB] << 8 | i2c_rx_buffer[HEADING_LSB]);
     int16_t target = curr_h + data*16;
     int16_t measure_h = 0;
@@ -266,13 +265,19 @@ int rotate(void* args){
         if((measure_h < 2*16 && measure_h > -2*16) && measure8 ==0){
             zero_timers();
             turn_off_motors();
+        }
+        TIM1->CCR3 = pwm;
+        TIM1->CCR2 = pwm;
+        TIM1->CCR1 = pwm;
+        TIM1->CCR4 = pwm;
+        if((error < 48 && error > -48) && derr ==0){
+            zero_timers();
+            turn_off_motors();
             return 1;
         }
         block();
     }
 }
-
-
 int lateral_left(void* args){
 
     motor_tcb = current_tcb;
