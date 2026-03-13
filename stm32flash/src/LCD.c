@@ -149,25 +149,14 @@ void lcd_print(void* args){
         while((t0-t1) > REFRESH_RATE){
             move_cursor(0,0);
             stringify((i2c_rx_buffer[HEADING_MSB] << 8 | i2c_rx_buffer[HEADING_LSB]), buffer_1);
-            move_cursor(0, 9);
-            stringify(usart_rx_buffer[0], buffer_3);
-            move_cursor(1, 0);
-            stringify(usart_rx_buffer[1] - 128, buffer_2);
-            move_cursor(1, 9);
-            stringify(measure_h, buffer_4);
-            // move_cursor(1, 7);
-            // signed_stringify((*(get_i2c_buffer()+3)<<8) + *(get_i2c_buffer()+2),buffer_1);
-            // move_cursor(2, 7);
-            // signed_stringify((*(get_i2c_buffer()+5)<<8) + *(get_i2c_buffer()+4),buffer_1);
-            //move_cursor(2, 7);
-            // putchar(get_usart_t()->rx_buffer_p[i++%8]);
-            // move_cursor(0,0);
-            // signed_stringify(((*(get_i2c_buffer()+1)<<8)+*(get_i2c_buffer())),buffer_5);
-            // move_cursor(0, 7); 
-            // stringify(TIM4->CNT, buffer_1);
-            // move_cursor(1,0);
-            // stringify(TIM3->CNT, buffer_2);
-            // stringify(get_global_tick(), buffer_1);
+            // move_cursor(0, 9);
+            // stringify(usart_rx_buffer[0], buffer_3);
+            // move_cursor(1, 0);
+            // stringify(usart_rx_buffer[1] - 128, buffer_2);
+            // move_cursor(1, 9);
+            // stringify(measure_h, buffer_4);
+            move_cursor(1,0);
+            stringify(TIM2->CNT, buffer_2);
             t1=t0;
         }
     }

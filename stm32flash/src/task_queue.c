@@ -20,7 +20,8 @@ const func_t fn_table[] = {
     lcd_print,
     motor_wrapper,
     Sensor_Read_Wrapper,
-    usart_begin
+    usart_begin,
+    rotate
 };
 
 void task_queue_init(void){

@@ -41,7 +41,9 @@ void output_timer_init(void);
 
 void set_speed(uint16_t target);
 
-void steps(int8_t target_cm, int16_t target_h);
+void steps(void* args);
+
+void rotate(void* args);
 
 void motor_wrapper(void* args);
 

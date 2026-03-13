@@ -32,7 +32,9 @@ void systeminit(void){
     
     ready_queue_init();
     priority_queue_init();
+    input_timer_init();
     
+    output_timer_init();
 
     // init_servo_TIM();
     // servo(0);
