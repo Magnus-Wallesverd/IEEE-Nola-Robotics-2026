@@ -47,7 +47,6 @@ int16_t measure2 = 0;
 int16_t measure3 = 0;
 int16_t measure4 = 0;
 int16_t measure8 = 0;
-
 int16_t error2 = 0;
 int16_t error3 = 0;
 int16_t error4 = 0;
@@ -160,99 +159,7 @@ void output_timer_init(void){
     TIM20->CR1   |= 0b10000001;
 }
 
-int step(void* args){
-    (void) args;
-    return 1;
-}
-
-int rotate(void* args){
-    uint8_t data = *((uint8_t*)args);
-    // int rotate1 = *data; 
-    return 1;
-}
-
-void steps(int8_t target_cm, int16_t target_h){
-    target = 48*(target_cm); // convert cm to encoder counts
-    curr_h = (i2c_rx_buffer[HEADING_MSB] << 8 | i2c_rx_buffer[HEADING_LSB]);
-    measure_h = target_h - curr_h;
-    if(measure_h <= HEADING_MAX_VALUE/2) measure_h+=HEADING_MAX_VALUE;
-    if(measure_h > HEADING_MAX_VALUE/2) measure_h-=HEADING_MAX_VALUE;
-    uint8_t dir = !((measure_h < 16*2 && measure_h > -16*2) && (measure8 < 2 && measure8 > -2));
-    curr2 = TIM2->CNT;
-    curr3 = TIM3->CNT;
-    curr4 = TIM4->CNT;
-    curr8 = TIM8->CNT;
-
-    int16_t curr_avg = 0;
-    curr_avg = (curr4+curr8+curr2)/3;
-
-    
-    pwm = 0;
-    measure8 = (curr_avg - prev4)*(!dir) - dir * (measure_h - prev_h);
-    prev4 = curr_avg;
-    prev_h = measure_h;
-    int32_t error = (target - curr_avg)*(!dir) + measure_h*(dir);
-    ierr += (error*(!dir) + dir*measure_h)/(C*(!dir)+ hC*dir);
-    pwm = error*(A*(!dir)+ hA*dir) - (B*(!dir)+hB*dir)*measure8 + ierr;
-
-
-
-
-    if((pwm<0) & (!dir) ){ //reverse rotation
-        GPIOC->BSRR |= INL3|INL2|INR3 | ((INL4|INL1)<<16);
-        GPIOB->BSRR |= ((INR4)<<16) | INR1;
-        GPIOA->BSRR |= INR2 << 16;
-        pwm *=-1;
-        //GPIOC -> BSRR |= INL3;
-
-    }
-    else if((pwm>0 )& (!dir)){ //forward rotation
-        GPIOC->BSRR |= INL4|INL1 | ((INL3|INL2|INR3) << 16) ;
-        GPIOB->BSRR |= INR4|(INR1 <<16);
-        GPIOA->BSRR |= INR2;
-        // GPIOC->BSRR |= INL1 ;
-        // GPIOC->BSRR |= INL2 << 16;
-    }
-
-    if((pwm <0) & (dir)){
-        pwm*=-1;
-        GPIOC->BSRR |= ((INL4|INL1|INR3) << 16) | INL3|INL2;
-        GPIOB->BSRR |= (INR1 <<16) | INR4;
-        GPIOA->BSRR |= INR2;
-
-
-    }
-    else if((pwm >0) & (dir)){
-
-        GPIOC->BSRR |= INL4|INL1|INR3 |((INL3|INL2)<<16);
-        GPIOB->BSRR |= (INR1) | (INR4 << 16);
-        GPIOA->BSRR |= INR2 << 16;
-        // GPIOC->BSRR |= (INL3|INL2 )<< 16;
-
-
-    }
-    if((pwm > TIM1->ARR)){
-        pwm = (TIM1->ARR)/4;
-    }
-    TIM1->CCR3 = pwm;
-    TIM1->CCR2 = pwm;
-    TIM1->CCR1 = pwm;
-    TIM1->CCR4 = pwm;
-
-    if(dir){
-        
-        TIM2->CNT= 0;
-        TIM3->CNT = 0;
-        TIM4->CNT = 0;
-        TIM8->CNT = 0;
-            move_cursor(0, 0);
-        prev4=0;
-    }
-    //set_speed(measure8);
-
-}
-
-void zero_timers(){
+void zero_timers(void){
     TIM2->CNT = 0;
     TIM3->CNT = 0;
     TIM4->CNT = 0;
@@ -270,10 +177,106 @@ void turn_off_motors(void){
     GPIOA->BSRR |= INR2 << 16;
 }
 
+void zerocounter(){
+        
+    TIM2->CNT = 0;
+    TIM3->CNT = 0;
+    TIM4->CNT = 0;
+    TIM8->CNT = 0;
+}
+int step(void* args){
+    motor_tcb = current_tcb;
+
+    int8_t data = *((uint8_t*) args);
+    int32_t error = 0;
+
+    zerocounter();
+
+    const int16_t target2 = 48*(data); // convert cm to encoder counts
+    int16_t curr_avg = 0;
+    error = 0;
+    int16_t derr = 0;
+    int16_t prev =0;
+    while(1){
+        curr2 = TIM2->CNT;
+        curr3 = TIM3->CNT;
+        curr4 = TIM4->CNT;
+        curr8 = TIM8->CNT;
+        curr_avg = (curr3+curr4+curr8+curr2)/4;
+        error = (target2 - curr_avg);
+        derr = error - prev;
+        ierr += error /C;
+        pwm = error*A + B*derr + ierr;
+        if(pwm<0){ //backward
+            GPIOC->BSRR |= INL3|INL2|INR3 | ((INL4|INL1)<<16);
+            GPIOB->BSRR |= ((INR4)<<16) | INR1;
+            GPIOA->BSRR |= INR2 << 16;
+            pwm *=-1;
+        }
+        else if(pwm>0){ //forward 
+            GPIOC->BSRR |= INL4|INL1 | ((INL3|INL2|INR3) << 16) ;
+            GPIOB->BSRR |= INR4|(INR1 <<16);
+            GPIOA->BSRR |= INR2;
+        }
+        if(pwm > TIM1->ARR){
+            pwm = (TIM1->ARR)/4;
+        }
+        TIM1->CCR3 = pwm;
+        TIM1->CCR2 = pwm;
+        TIM1->CCR1 = pwm;
+        TIM1->CCR4 = pwm;
+        prev = error;
+        if((error < 48 && error > -48) && derr ==0){
+            zero_timers();
+            turn_off_motors();
+            return 1;
+        }
+        block();
+    }
+}
+
+int rotate(void* args){
+    motor_tcb = current_tcb;
+
+    const int8_t data = *((uint8_t *) args);
+
+    int16_t curr_h = (i2c_rx_buffer[HEADING_MSB] << 8 | i2c_rx_buffer[HEADING_LSB]);
+    int16_t target = curr_h + data*16;
+    int16_t measure_h = 0;
+    while(1){
+        curr_h = (i2c_rx_buffer[HEADING_MSB] << 8 | i2c_rx_buffer[HEADING_LSB]);
+        measure_h = target - curr_h;
+        if(measure_h <= HEADING_MAX_VALUE/2) measure_h+=HEADING_MAX_VALUE;
+        if(measure_h > HEADING_MAX_VALUE/2) measure_h-=HEADING_MAX_VALUE;   
+        measure8 = (measure_h - prev_h);
+        ierr += measure_h/(hC*dir);
+        pwm = measure_h*hA + hB*measure8 + ierr;
+        prev_h = measure_h;
+        if(pwm <0){
+            pwm*=-1;
+            GPIOC->BSRR |= ((INL4|INL1|INR3) << 16) | INL3|INL2;
+            GPIOB->BSRR |= (INR1 <<16) | INR4;
+            GPIOA->BSRR |= INR2;
+        }
+        else{
+            GPIOC->BSRR |= INL4|INL1|INR3 |((INL3|INL2)<<16);
+            GPIOB->BSRR |= (INR1) | (INR4 << 16);
+            GPIOA->BSRR |= INR2 << 16;
+        }
+        if((measure_h < 2*16 && measure_h > -2*16) && measure8 ==0){
+            zero_timers();
+            turn_off_motors();
+            return 1;
+        }
+        block();
+    }
+}
+
+
 int lateral_left(void* args){
 
-    uint8_t target = *((uint8_t*)args);
     motor_tcb = current_tcb;
+    uint8_t target = *((uint8_t*)args);
     
     // turn_off_motors();
     // zero_counters();
@@ -298,10 +301,8 @@ int lateral_left(void* args){
         int16_t output8 = lateral_Kd*(curr8-prev8) + lateral_Kp*(target - curr8) + (error8);
 
         if(target - curr2 < 0){
-            TIM1->CCR1 = 0;
-            TIM1->CCR2 = 0;
-            TIM1->CCR3 = 0;
-            TIM1->CCR4 = 0;
+            zero_timers();
+            turn_off_motors();
             return 1;
         } else {
             TIM1->CCR1 = output2;
@@ -320,8 +321,8 @@ int lateral_left(void* args){
 
 int lateral_right(void* args){
 
-    uint8_t data = *((uint8_t*)args);
     motor_tcb = current_tcb;
+    uint8_t data = *((uint8_t*)args);
     
     uint32_t target = data * 48;
 
@@ -349,6 +350,8 @@ int lateral_right(void* args){
             TIM1->CCR2 = 0;
             TIM1->CCR3 = 0;
             TIM1->CCR4 = 0;
+            zero_timers();
+            turn_off_motors();
             return 1;
         }else {
             TIM1->CCR1 = output2;
@@ -364,34 +367,4 @@ int lateral_right(void* args){
         block();
     }
 
-}
-
-uint8_t* get_meas_pair(void){
-    measure_pair[0] = motor_data[motor_data_i%DATA_BUF_SIZE];
-    measure_pair[1] = motor_data[(lcd_i-1)%DATA_BUF_SIZE]; 
-    return measure_pair;
-}
-
-void motor_wrapper(void* args){
-    (void) args;
-    motor_tcb = current_tcb;
-    input_timer_init();
-    output_timer_init();
-    // while(i2c_rx_buffer[1]== 0){
-    //     yield();
-    // }
-    ref_h = (i2c_rx_buffer[HEADING_MSB] << 8 | i2c_rx_buffer[HEADING_LSB]);
-    prev_h = ref_h;
-    // GPIOC->BSRR |= INL1|INL4;
-    // GPIOB->BSRR |= INR4;
-    // GPIOA->BSRR |= INR3;
-    for(int i = 0; i <0x50000;i++);
-    while(1){
-        // lateral_right();
-        // steps(0, target_h);
-        block();
-    // GPIOC->BSRR |= (INL1|INL4)<<16;
-    // GPIOB->BSRR |= (INR4)<<16;
-    // GPIOA->BSRR |= (INR3)<<16;
-    }
 }
