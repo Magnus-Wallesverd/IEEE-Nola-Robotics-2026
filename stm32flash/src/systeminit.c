@@ -33,4 +33,6 @@ void systeminit(void){
 
     input_timer_init();
     output_timer_init();
+
+    SetPinOutput(GPIOA,PA5);
 }

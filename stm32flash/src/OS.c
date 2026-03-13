@@ -17,9 +17,6 @@ TCB _stcb[TCB_ARRAY_SIZE];
 TCB *current_tcb;
 TCB *next_tcb;
 
-static void* ready_array[TCB_ARRAY_SIZE];
-static queue_t ready_q;
-
 uint32_t get_global_tick(void){
     return global_tick;
 }

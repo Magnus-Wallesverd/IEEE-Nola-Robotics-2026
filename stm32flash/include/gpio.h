@@ -123,6 +123,9 @@ void AlternateFunctionSet(GPIO_TypeDef *port, uint32_t function, uint32_t pins);
 // dummy function
 void blink_led(void*);
 
+// uart version
+int uart_blink_led(void* args);
+
 // turns camera on
 void camera_setup(void);
 

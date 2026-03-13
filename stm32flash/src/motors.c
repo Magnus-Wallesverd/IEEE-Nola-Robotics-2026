@@ -218,7 +218,7 @@ int step(void* args){
             GPIOB->BSRR |= INR4|(INR1 <<16);
             GPIOA->BSRR |= INR2;
         }
-        if(pwm > TIM1->ARR){
+        if(pwm > (uint16_t)TIM1->ARR){
             pwm = (TIM1->ARR)/4;
         }
         TIM1->CCR3 = pwm;
@@ -324,7 +324,7 @@ int lateral_right(void* args){
     motor_tcb = current_tcb;
     uint8_t data = *((uint8_t*)args);
     
-    uint32_t target = data * 48;
+    int16_t target = data * 48;
 
     GPIOA->BSRR |= INR2;
     GPIOC->BSRR |= INL1|INL3|INR3;    
