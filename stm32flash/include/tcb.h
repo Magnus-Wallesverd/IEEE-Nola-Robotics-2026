@@ -33,6 +33,7 @@ void worker_function(void);
 void producer_function(sem_t* s);
 void transport_producer_function(sem_t* s);
 
+extern uint32_t transport_handler_counter;
 extern TCB _stcb[TCB_ARRAY_SIZE];
 
 uint32_t get_global_tick(void);

@@ -124,20 +124,22 @@ void lcd_init(void){
 
 void lcd_print(void* args){
     (void)args;
-    char entry_0[] = {"Waiting"};
+    char entry_0[] = {"Wait  "};
     char entry_1[] = {"Step  "};
     char entry_2[] = {"Rotate"};
     char entry_3[] = {"Left  "};
     char entry_4[] = {"Right "};
-    char entry_5[] = {""};
+    char entry_5[] = {"Cntr  "};
     char* lu_table[] = {entry_1,entry_2,entry_3,entry_4};
-    char buffer_1[BUFFER_SIZE] = {0};
+    char buffer_1[BYTE_BUFFER] = {0};
     char buffer_2[BYTE_BUFFER] = {0};
     char buffer_3[BYTE_BUFFER] = {0};
     char buffer_4[BYTE_BUFFER] = {0};
     char buffer_5[BYTE_BUFFER] = {0};
     char buffer_6[BYTE_BUFFER] = {0};
-
+    
+    move_cursor(1, 0);
+    print()
 
     uint32_t t0 = 0;
     uint32_t t1 = 0;
@@ -149,9 +151,9 @@ void lcd_print(void* args){
             move_cursor(0, 0);
             print(lu_table[parser_buffer[1]]);
             move_cursor(0, 8);
-            stringify(parser_buffer[2], buffer_2);
-            move_cursor(1, 0);
-            stringify(package[1], buffer_2);
+            stringify(parser_buffer[2], buffer_1);
+            move_cursor(1, 8);
+            stringify(transport_handler_counter, buffer_2);
             // move_cursor(1, 0);
             // stringify(get_meas_pair()[1], buffer_2);
             // move_cursor(0, 9);

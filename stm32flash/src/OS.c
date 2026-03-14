@@ -12,6 +12,7 @@ uint32_t kernel_unblock_counter = 0;
 uint32_t global_tick = 0;
 uint32_t task_flag = 0;
 uint32_t transport_flag = 0;
+uint32_t transport_handler_counter = 0;
 
 TCB _stcb[TCB_ARRAY_SIZE];
 TCB *current_tcb;
@@ -81,6 +82,7 @@ void transport_handler(void* args){
         } else {
             usart_load_tx(0);
         }
+        transport_handler_counter++;
     }
 }
 
