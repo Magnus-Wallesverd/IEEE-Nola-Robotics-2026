@@ -129,6 +129,7 @@ void usart_init(USART_Typedef* USARTx, GPIO_TypeDef* port, uint32_t pins, uint32
 }
 
 void usart_load_tx(int status){
+
     package[1] = status;
     usart.USARTx->CR1 |= USART_TXEIE;
     

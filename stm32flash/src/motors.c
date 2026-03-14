@@ -78,7 +78,6 @@ void TIM20_UP_IRQHandler(void){
     if(motor_tcb->state == BLOCKED){
         unblock(motor_tcb);
     }     
-
 }
 
 void input_timer_init(void){
@@ -222,7 +221,7 @@ int step(void* args){
         TIM1->CCR1 = pwm;
         TIM1->CCR4 = pwm;
         prev = error;
-        if((error < 48 && error > -48) && derr ==0){
+        if((error < 70 && error > -70) && derr ==0){
             zero_timers();
             turn_off_motors();
             return 1;
@@ -234,7 +233,7 @@ int step(void* args){
 int rotate(void* args){
     motor_tcb = current_tcb;
 
-    const int8_t data =  30;
+    int8_t data = *((uint8_t*) args);
     int16_t curr_h = (i2c_rx_buffer[HEADING_MSB] << 8 | i2c_rx_buffer[HEADING_LSB]);
     int16_t target = curr_h + data*16;
     int16_t measure_h = 0;
@@ -258,9 +257,8 @@ int rotate(void* args){
             GPIOB->BSRR |= (INR1) | (INR4 << 16);
             GPIOA->BSRR |= INR2 << 16;
         }
-        if((measure_h < 2*16 && measure_h > -2*16) && measure8 ==0){
-            zero_timers();
-            turn_off_motors();
+        if(pwm > 30000 || pwm < -30000){
+            pwm = TIM1->ARR;
         }
         TIM1->CCR3 = pwm;
         TIM1->CCR2 = pwm;

@@ -78,8 +78,7 @@ typedef struct{
 #define UART4  ((USART_Typedef *) 0x40004C00)
 #define UART5  ((USART_Typedef *) 0x40005000)
 
-extern int16_t target_h;
-extern int16_t target;
+extern uint8_t package[USART_TX_BUF_SIZE];
 
 void usart_init(USART_Typedef* USARTx, GPIO_TypeDef* port, uint32_t pins, uint32_t baud);
 void usart_load_tx(int status);
