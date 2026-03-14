@@ -19,6 +19,7 @@ sem_t usart_sem;
 uint32_t usart_tx_i = 0;
 uint32_t usart_rx_i = 0;
 
+uint8_t package[] = {USART_HEADER,0,0,USART_FOOTER};
 uint8_t usart_tx_buffer[USART_TX_BUF_SIZE];
 uint8_t usart_rx_buffer[USART_RX_BUF_SIZE];
 uint8_t data[USART_TX_BUF_SIZE];
@@ -108,7 +109,7 @@ void usart_init(USART_Typedef* USARTx, GPIO_TypeDef* port, uint32_t pins, uint32
     }
 
     usart.USARTx = USARTx;
-    usart.tx_buffer_p = parser_buffer;
+    usart.tx_buffer_p = package;
     usart.rx_buffer_p = &usart_rx_buffer[0];
     
     usart.sem = &usart_sem;
@@ -128,7 +129,7 @@ void usart_init(USART_Typedef* USARTx, GPIO_TypeDef* port, uint32_t pins, uint32
 }
 
 void usart_load_tx(int status){
-    usart.dispatch->ID = status;
+    package[1] = status;
     usart.USARTx->CR1 |= USART_TXEIE;
     
 }

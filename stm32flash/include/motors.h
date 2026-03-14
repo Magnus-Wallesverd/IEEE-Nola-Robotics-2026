@@ -47,5 +47,4 @@ int step(void* args);
 
 int rotate(void* args);
 
-void rotate2(void* args);
 #endif // !MOTORS_H

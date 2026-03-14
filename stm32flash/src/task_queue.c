@@ -31,8 +31,8 @@ const func_t fn_table[] = {
     lcd_print,
     Sensor_Read_Wrapper,
     usart_begin,
-    rotate2
 };
+
 const transport_t fn_table2[]={
     rotate
 };
@@ -65,15 +65,6 @@ void transport_queue_init(void){
     transport_queue_ptr->front = transport_queue_ptr->array;
     transport_queue_ptr->end   = transport_queue_ptr->array;
     
-    for(unsigned int i = 0; i < sizeof(fn_table2)/4; i++){
-        transport_pool[i].fn = fn_table2[i];
-        transport_pool[i].args = (void*)0;
-    }
-
-    // need to enqueue the address of the transport
-    for(unsigned int i = 0; i < sizeof(fn_table2)/4; i++){
-        enqueue(transport_queue_ptr, &transport_pool[i]);
-    }
 }
 
 void ready_queue_init(void){

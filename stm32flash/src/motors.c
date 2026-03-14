@@ -194,9 +194,8 @@ int step(void* args){
 
     const int16_t target2 = 48*(data); // convert cm to encoder counts
     int16_t curr_avg = 0;
-    error = 0;
     int16_t derr = 0;
-    int16_t prev =0;
+    int16_t prev = 0;
     while(1){
         curr2 = TIM2->CNT;
         curr3 = TIM3->CNT;
@@ -207,7 +206,7 @@ int step(void* args){
         derr = error - prev;
         ierr += error /C;
         pwm = error*A + B*derr + ierr;
-        if(pwm<0){ //backward
+        if(pwm<0){ 
             GPIOC->BSRR |= INL3|INL2|INR3 | ((INL4|INL1)<<16);
             GPIOB->BSRR |= ((INR4)<<16) | INR1;
             GPIOA->BSRR |= INR2 << 16;
@@ -217,9 +216,6 @@ int step(void* args){
             GPIOC->BSRR |= INL4|INL1 | ((INL3|INL2|INR3) << 16) ;
             GPIOB->BSRR |= INR4|(INR1 <<16);
             GPIOA->BSRR |= INR2;
-        }
-        if(pwm > (uint16_t)TIM1->ARR){
-            pwm = (TIM1->ARR)/4;
         }
         TIM1->CCR3 = pwm;
         TIM1->CCR2 = pwm;
@@ -270,7 +266,7 @@ int rotate(void* args){
         TIM1->CCR2 = pwm;
         TIM1->CCR1 = pwm;
         TIM1->CCR4 = pwm;
-        if((error < 48 && error > -48) && derr ==0){
+        if((measure_h < 48 && measure_h > -48) && measure8 ==0){
             zero_timers();
             turn_off_motors();
             return 1;
