@@ -4,6 +4,12 @@ int twos_complement(int val){
 	val = ~val + 1;
 	return val;
 }
+
+uint8_t twos_complement_8(uint8_t val){
+    val = ~val+1;
+    return val;
+}
+
 int32_t int32(int16_t val){
     int32_t temp;
     if(val>>16){
@@ -81,6 +87,27 @@ static void signed_stringify(uint32_t num, char buffer[]){
     }
 }
 
+static void signed_stringify_8(uint8_t num, char buffer[]){
+    char temp = 0;
+    if(num>>7){
+		byte2LCD('-', RS_PIN);
+		num = twos_complement(num);
+	} else {
+		byte2LCD(' ', RS_PIN);
+	}
+
+    for(int i = 0;i<BUFFER_SIZE;i++){
+        temp = num % 10;
+        num /= 10;
+        buffer[BUFFER_SIZE-1-i] = temp + NUM_BASE;
+    }
+
+    for(uint8_t i = 0;i<BUFFER_SIZE; i++){
+        putchar(buffer[i]);
+        buffer[i] = 0;
+    }
+}
+
 
 static void print(char buffer[]){
     for(int i = 0; buffer[i] != '\0'; i++){
@@ -139,7 +166,7 @@ void lcd_print(void* args){
     char buffer_6[BYTE_BUFFER] = {0};
     
     move_cursor(1, 0);
-    print()
+    print(entry_5);
 
     uint32_t t0 = 0;
     uint32_t t1 = 0;
@@ -151,9 +178,11 @@ void lcd_print(void* args){
             move_cursor(0, 0);
             print(lu_table[parser_buffer[1]]);
             move_cursor(0, 8);
-            stringify(parser_buffer[2], buffer_1);
+            signed_stringify_8(parser_buffer[2], buffer_1);
             move_cursor(1, 8);
-            stringify(transport_handler_counter, buffer_2);
+            stringify(tx_counter, buffer_2);
+            move_cursor(1, 12);
+            stringify(get_global_tick()>>10, buffer_3);
             // move_cursor(1, 0);
             // stringify(get_meas_pair()[1], buffer_2);
             // move_cursor(0, 9);

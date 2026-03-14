@@ -6,7 +6,7 @@
 #include "lcd.h"
 
 #define TASK_QUEUE_SIZE 5 
-#define TRANSPORT_QUEUE_SIZE 5 
+#define TRANSPORT_QUEUE_SIZE 1 
 #define FUNC_POOL_SIZE 4
 
 typedef void (*func_t)(void*);

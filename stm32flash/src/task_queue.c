@@ -21,6 +21,7 @@ queue_t* priority_queue_ptr = &priority_queue;
 
 work_item_t task_pool[TASK_QUEUE_SIZE];
 transport_item_t transport_pool[TRANSPORT_QUEUE_SIZE];
+
 void* task_queue_array[TASK_QUEUE_SIZE];
 void* transport_queue_array[TRANSPORT_QUEUE_SIZE];
 void* ready_queue_array[TASK_QUEUE_SIZE];
@@ -31,10 +32,6 @@ const func_t fn_table[] = {
     lcd_print,
     Sensor_Read_Wrapper,
     usart_begin,
-};
-
-const transport_t fn_table2[]={
-    rotate
 };
 
 void task_queue_init(void){

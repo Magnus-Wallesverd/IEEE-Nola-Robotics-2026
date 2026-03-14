@@ -9,6 +9,7 @@ work_item_t usart_item;
 
 int overun_flag;
 int frame_error_flag;
+int tx_counter = 0;
 
 enum usart_state u_state_machine = USART_INACTIVE;
 
@@ -72,6 +73,7 @@ void USART1_IRQHandler(void){
 
     if((USART1->ISR & USART_TC) && (USART1->CR1 & USART_TCIE)){
             USART1->CR1 &=  ~USART_TCIE;
+            tx_counter++;
     }
 }
 

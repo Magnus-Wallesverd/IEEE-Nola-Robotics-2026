@@ -66,7 +66,7 @@ uint8_t lateral_Ki = 4;
 
 uint16_t hA = 100;
 uint16_t hB = 70;
-uint16_t hC =  20;
+uint16_t hC =  10;
 
 void TIM1_UP_TIM16_IRQHandler(void){
     TIM16->SR = 0;  // clear flags
