@@ -165,8 +165,8 @@ void lcd_print(void* args){
     char buffer_5[BYTE_BUFFER] = {0};
     char buffer_6[BYTE_BUFFER] = {0};
     
-    move_cursor(1, 0);
-    print(entry_5);
+    // move_cursor(1, 0);
+    // print(entry_5);
 
     uint32_t t0 = 0;
     uint32_t t1 = 0;
@@ -174,32 +174,20 @@ void lcd_print(void* args){
     while(1){
         t0 = get_global_tick();
         while((t0-t1) > REFRESH_RATE){
+
+            move_cursor(0, 0);
             // stringify((i2c_rx_buffer[HEADING_MSB] << 8 | i2c_rx_buffer[HEADING_LSB]), buffer_1);
+            // stringify(TIM3->CNT, buffer_1);
+            // move_cursor(0, 7);
+            // stringify(TIM2->CNT, buffer_2);
             move_cursor(0, 0);
             print(lu_table[parser_buffer[1]]);
-            move_cursor(0, 8);
-            signed_stringify_8(parser_buffer[2], buffer_1);
+            move_cursor(0, 7);
+            stringify(parser_buffer[2], buffer_1);
             move_cursor(1, 8);
             stringify(tx_counter, buffer_2);
             move_cursor(1, 12);
             stringify(get_global_tick()>>10, buffer_3);
-            // move_cursor(1, 0);
-            // stringify(get_meas_pair()[1], buffer_2);
-            // move_cursor(0, 9);
-            // stringify(measure_h, buffer_4);
-            // move_cursor(1, 7);
-            // signed_stringify((*(get_i2c_buffer()+3)<<8) + *(get_i2c_buffer()+2),buffer_1);
-            // move_cursor(2, 7);
-            // signed_stringify((*(get_i2c_buffer()+5)<<8) + *(get_i2c_buffer()+4),buffer_1);
-            //move_cursor(2, 7);
-            // putchar(get_usart_t()->rx_buffer_p[i++%8]);
-            // move_cursor(0,0);
-            // signed_stringify(((*(get_i2c_buffer()+1)<<8)+*(get_i2c_buffer())),buffer_5);
-            // move_cursor(0, 7); 
-            // stringify(TIM4->CNT, buffer_1);
-            // move_cursor(1,0);
-            // stringify(TIM3->CNT, buffer_2);
-            // stringify(get_global_tick(), buffer_1);
             t1=t0;
         }
     }
