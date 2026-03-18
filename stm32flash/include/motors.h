@@ -38,8 +38,9 @@ int lateral_right(void* args);
 void servo(void* args);
 
 int step(void* args);
-void step2(void* args);
+void step2(int16_t args);
 
 int rotate(void* args);
-void rotate2(void* args);
+void rotate2(int16_t args);
+void global_pos(void* args);
 #endif // !MOTORS_H
