@@ -525,3 +525,24 @@ void global_pos(void* args){
     }
 
 }
+
+// delta distance this tick
+int16_t delta_dist = curr_avg - prev_avg;
+
+// grab heading, same way rotate() does it
+int16_t heading = (i2c_rx_buffer[HEADING_MSB] << 8 | i2c_rx_buffer[HEADING_LSB]);
+
+// heading is in 1/16 degree units (0 to 5760)
+// dot product heading unit vector with delta distance
+// this is your line integral accumulating each tick
+pos_x += (delta_dist * cos_fixed(heading)) >> FIXED_SHIFT;
+pos_y += (delta_dist * sin_fixed(heading)) >> FIXED_SHIFT;
+
+prev_avg = curr_avg;
+
+// waypoint is where you intended to end up
+int32_t err_x = target_x - pos_x;
+int32_t err_y = target_y - pos_y;
+
+// magnitude of drift from intended path
+int32_t path_error = isqrt(err_x*err_x + err_y*err_y);
