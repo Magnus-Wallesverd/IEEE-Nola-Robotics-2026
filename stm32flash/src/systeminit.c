@@ -27,7 +27,7 @@ void systeminit(void){
     priority_queue_init();
     transport_queue_init();
 
-    dispatcher_init();
+    ispatcher_init();
     
     usart_init(USART1, GPIOC,PC4|PC5,115200);
 
