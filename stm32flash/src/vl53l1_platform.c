@@ -24,6 +24,7 @@ int8_t VL53L1_WriteMulti( uint16_t dev, uint16_t index, uint8_t *pdata, uint32_t
 	return status;
 }
 
+//need 
 int8_t VL53L1_ReadMulti(uint16_t dev, uint16_t index, uint8_t *pdata, uint32_t count){
 	uint8_t status = 255;
 	
@@ -33,6 +34,7 @@ int8_t VL53L1_ReadMulti(uint16_t dev, uint16_t index, uint8_t *pdata, uint32_t c
 	return status;
 }
 
+//need
 int8_t VL53L1_WrByte(uint16_t dev, uint16_t index, uint8_t data) {
 	uint8_t status = 255;
 	
@@ -42,6 +44,7 @@ int8_t VL53L1_WrByte(uint16_t dev, uint16_t index, uint8_t data) {
 	return status;
 }
 
+//need
 int8_t VL53L1_WrWord(uint16_t dev, uint16_t index, uint16_t data) {
 	uint8_t status = 255;
 	
@@ -51,6 +54,7 @@ int8_t VL53L1_WrWord(uint16_t dev, uint16_t index, uint16_t data) {
 	return status;
 }
 
+//need
 int8_t VL53L1_WrDWord(uint16_t dev, uint16_t index, uint32_t data) {
 	uint8_t status = 255;
 	
@@ -60,6 +64,7 @@ int8_t VL53L1_WrDWord(uint16_t dev, uint16_t index, uint32_t data) {
 	return status;
 }
 
+//need
 int8_t VL53L1_RdByte(uint16_t dev, uint16_t index, uint8_t *data) {
 	uint8_t status = 255;
 	
@@ -69,6 +74,7 @@ int8_t VL53L1_RdByte(uint16_t dev, uint16_t index, uint8_t *data) {
 	return status;
 }
 
+//Need
 int8_t VL53L1_RdWord(uint16_t dev, uint16_t index, uint16_t *data) {
 	uint8_t status = 255;
 	
@@ -78,6 +84,7 @@ int8_t VL53L1_RdWord(uint16_t dev, uint16_t index, uint16_t *data) {
 	return status;
 }
 
+//need
 int8_t VL53L1_RdDWord(uint16_t dev, uint16_t index, uint32_t *data) {
 	uint8_t status = 255;
 	
