@@ -15,6 +15,7 @@
 int ovf17 = 0;
 int bno_ready = 0;
 
+uint8_t 
 
 I2C_Dev  Dev;
 I2C_Dev* Current_Dev = &Dev;

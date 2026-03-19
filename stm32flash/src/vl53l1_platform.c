@@ -41,6 +41,7 @@ int8_t VL53L1_ReadMulti(uint16_t dev, uint16_t index, uint8_t *pdata, uint32_t c
 int8_t VL53L1_WrByte(uint16_t dev, uint16_t index, uint8_t data) {
 	uint8_t status = 255;
 	
+    
     Sensor_Write(I2C1, dev, index, data);   
 
 	return status;
