@@ -16,12 +16,8 @@ int ovf17 = 0;
 int bno_ready = 0;
 
 
-I2C_Dev  BNO055_dev;
-I2C_Dev  VL53L1X_dev;
-
-I2C_Dev*  BNO055 = &BNO055_dev;
-I2C_Dev*  VL53L1X = &VL53L1X_dev;
-I2C_Dev* Current_Dev;
+I2C_Dev  Dev;
+I2C_Dev* Current_Dev = &Dev;
 
 void TIM1_TRG_TIM17_IRQHandler(void){
     ovf17++;
@@ -66,42 +62,41 @@ void I2C_Init(I2C_TypeDef* I2Cx, uint8_t mode){
 
     }
 
-    Sensor_Init();
 }
 
-void Sensor_Init(void){
-    BNO055_dev.addr = BNO055_ADDR;
-    VL53L1X_dev.addr = VL53L1X_ADDR;
-}
+// void Sensor_Init(void){
+//     BNO055_dev.addr = BNO055_ADDR;
+//     VL53L1X_dev.addr = VL53L1X_ADDR;
+// }
 
-void Sensor_Read(I2C_TypeDef* I2Cx, I2C_Dev* dev, uint8_t* tx_buf, uint16_t tx_len, uint8_t* rx_buf, uint16_t rx_len){
+void Sensor_Read(I2C_TypeDef* I2Cx, uint16_t dev, uint8_t* tx_buf, uint16_t tx_len, uint8_t* rx_buf, uint16_t rx_len){
 
-    dev->tx_buffer = tx_buf;
-    dev->tx_len = tx_len;
-    dev->rx_buffer = rx_buf;
-    dev->rx_len = rx_len;
-    Current_Dev = dev;
+    Current_Dev->addr = dev;
+    Current_Dev->tx_buffer = tx_buf;
+    Current_Dev->tx_len = tx_len;
+    Current_Dev->rx_buffer = rx_buf;
+    Current_Dev->rx_len = rx_len;
 
-    I2Cx->CR2 = (dev->tx_len << 16)|(dev->addr << 1);
+    I2Cx->CR2 = (Current_Dev->tx_len << 16)|(Current_Dev->addr << 1);
     I2Cx->CR2 &= AUTOEND_OFF;
     I2Cx->CR2 &= WRITE;
     I2Cx->CR2 |= START;   //start
 
 }
 
-void Sensor_Write(I2C_TypeDef* I2Cx, I2C_Dev* dev, uint8_t* tx_buf, uint16_t tx_len, uint8_t* rx_buf, uint16_t rx_len){
+void Sensor_Write(I2C_TypeDef* I2Cx, uint16_t dev, uint8_t* tx_buf, uint16_t tx_len, uint8_t* rx_buf, uint16_t rx_len){
+
+    Current_Dev->addr = dev;
+    Current_Dev->tx_buffer = tx_buf;
+    Current_Dev->tx_len = tx_len;
+    Current_Dev->rx_buffer = rx_buf;
+    Current_Dev->rx_len = rx_len;
     
     for(int i = 0; i < tx_len; i++){
         i2c_tx_buffer[i] = tx_buf[i];
     }
 
-    dev->tx_buffer = tx_buf;
-    dev->tx_len = tx_len;
-    dev->rx_buffer = rx_buf;
-    dev->rx_len = rx_len;
-    Current_Dev = dev;
-    
-    I2Cx->CR2 = (dev->tx_len << 16)|(dev->addr << 1);
+    I2Cx->CR2 = (Current_Dev->tx_len << 16)|(Current_Dev->addr << 1);
     I2Cx->CR2 &= AUTOEND_ON;
     I2Cx->CR2 &= WRITE;
     I2Cx->CR2 |= START;   //start

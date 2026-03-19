@@ -11,9 +11,12 @@
   */
 
 #include "vl53l1_platform.h"
+#include "i2c.h"
 #include <string.h>
 #include <time.h>
 #include <math.h>
+
+uint8_t ToF_tx_buffer[256];
 
 int8_t VL53L1_WriteMulti( uint16_t dev, uint16_t index, uint8_t *pdata, uint32_t count) {
 	uint8_t status = 255;
@@ -38,9 +41,8 @@ int8_t VL53L1_ReadMulti(uint16_t dev, uint16_t index, uint8_t *pdata, uint32_t c
 int8_t VL53L1_WrByte(uint16_t dev, uint16_t index, uint8_t data) {
 	uint8_t status = 255;
 	
-	/* To be filled by customer. Return 0 if OK */
-	/* Warning : For big endian platforms, fields 'RegisterAdress' and 'value' need to be swapped. */
-	
+    Sensor_Write(I2C1, dev, index, data);   
+
 	return status;
 }
 
