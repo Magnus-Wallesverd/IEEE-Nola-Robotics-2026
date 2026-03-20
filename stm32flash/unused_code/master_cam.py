@@ -75,8 +75,8 @@ FY = (2.8/2.952) * 120 * 1.36
 #FX = (2.8 / 3.984) * 656 * 0.51
 #FY = (2.8 / 2.952) * 488 * 0.51
 
-# Set CAM_FRONT_FLIP = -1 if the front camera is mounted mirrored/upside-down
-CAM_FRONT_FLIP = 1    # 1 = normal,  -1 = mirrored
+# Set to -1 if the front camera is mounted mirrored/upside-down
+CAM_FRONT_FLIP = 1
 
 Tc = 0.0159
 Ts = 1.0 / 13.3
@@ -106,8 +106,6 @@ def proc_front(img):
         img.draw_rectangle(tag.rect, color=(255, 0, 0))
         img.draw_cross(tag.cx, tag.cy, color=(0, 255, 0))
 
-        # x = tag.x_translation
-        z = abs(tag.z_translation)
         front_id = tag.id
 
         # Depth via pinhole formula
@@ -116,30 +114,30 @@ def proc_front(img):
             continue
         raw_depth_in = TAG_SIZE_IN * FX / tag_w_px
 
-        # IIR smoother (from another.py)
+        # IIR smoother
         z  = abs(raw_depth_in)
         y1 = y_prev.get(front_id, z)
         y  = (Ts * z + Tc * y1) / (Tc + Ts)
         y_prev[front_id] = y
 
         # Bearing from pixel column
-        # positive = right of image centre
-        x_trans     = tag.x_translation
+        x_trans     = CAM_FRONT_FLIP * tag.x_translation
         z_trans     = abs(tag.z_translation)
         bearing_deg = math.degrees(math.atan2(x_trans, z_trans))
 
         yaw = int(math.degrees(tag.y_rotation))
-        deg = int(bearing_deg)
-        dist = int(y*2.54)
-
         if yaw >= 180:
             yaw = yaw - 360
 
+        deg = int(bearing_deg)
+        dist = int(y*2.54)
+
         print("id=%d dist=%f bearing_deg=%f yaw=%f"  % (front_id, dist, deg, yaw))
         front_buf[front_id] = (dist,deg,yaw)
-        return front_buf[front_id]
-    led1.off()
-    return 0x00
+
+    if not front_buf:
+        led1.off()
+
 
 # SLAVE UART READER ============================================
 def proc_rear():
@@ -172,48 +170,26 @@ def proc_rear():
 # receive requests from STM
 def receive_request():
     """ scans for instruction from STM """
-    while uart_stm.any() >= 4:
+    while uart_stm.any() >= 5:
         b = uart_stm.read(1)
         if b is None:
-            return None, None
+            return None, None, None
         if b[0] != STM_HEADER:
             continue    # discard misaligned bytes
-        if uart_stm.any() < 3:
-            return None, None
-        rest = uart_stm.read(3)
-        if rest is None or len(rest) < 3:
-            return None, None
+        if uart_stm.any() < 4:
+            return None, None, None
+        rest = uart_stm.read(4)
+        if rest is None or len(rest) < 4:
+            return None, None, None
         if rest[3] != STM_FOOTER:
             continue
         return rest[0], rest[1], rest[2] #function id, arg1, arg2
-    return None, None
-
-def process_request(function, arg1, arg2):
-    if function is None:
-        return
-    if function == FN_SEE_TAG:
-        cmd_see_tag()
-    elif function == FN_ID:
-        cmd_id(arg1)
-    elif function == FN_DIST:
-        cmd_dist(arg1)
-    elif function == FN_ANG:
-        cmd_ang(arg1)
-    elif function == FN_YAW:
-        cmd_yaw(arg1)
-    elif function == FN_SQRT:
-        cmd_sqrt(arg1,arg2)
-    elif function == FN_ATAN:
-        cmd_atan(arg1,arg2)
-    else:
-        return
+    return None, None, None
 
 #  UART HELPERS  (STM32)
 def _send_pkt(value):
     val1 = value & 0xFF
-
-    if value > 0xFF:
-        val2 = (value >> 8) & 0xFF
+    val2 = (value >> 8) & 0xFF if value > 0xFF else 0
 
     pkt    = bytearray(4)
     pkt[0] = STM_HEADER
@@ -261,19 +237,40 @@ def cmd_ang(tag):
 
 def cmd_yaw(tag):
     if tag == 1 and front_id is not None and front_id in front_buf:
-        _send_pkt(front_buf[front_id][1])
+        _send_pkt(front_buf[front_id][2])
     elif tag == 2 and rear_id is not None and rear_id in rear_buf:
-        _send_pkt(rear_buf[rear_id][1])
+        _send_pkt(rear_buf[rear_id][2])
     else:
         _send_pkt(0)
 
 def cmd_sqrt(lo,hi):
     value = _unpack_int16(lo,hi)
-    _send_pkt(int(math.sqrt(value)))
+    _send_pkt(int(math.sqrt(abs(value))))
 
 def cmd_atan(lo,hi):
     value = _unpack_int16(lo,hi)
-    _send_pkt(int(math.atan2(value)))
+    _send_pkt(int(math.degrees(math.atan(value))))
+
+# process request from STM
+def process_request(function, arg1, arg2):
+    if function is None:
+        return
+    if function == FN_SEE_TAG:
+        cmd_see_tag()
+    elif function == FN_ID:
+        cmd_id(arg1)
+    elif function == FN_DIST:
+        cmd_dist(arg1)
+    elif function == FN_ANG:
+        cmd_ang(arg1)
+    elif function == FN_YAW:
+        cmd_yaw(arg1)
+    elif function == FN_SQRT:
+        cmd_sqrt(arg1,arg2)
+    elif function == FN_ATAN:
+        cmd_atan(arg1,arg2)
+    else:
+        return
 
 #  MAIN LOOP
 while True:
@@ -289,4 +286,3 @@ while True:
     process_request(fn, arg1, arg2)
 
     Ts = 1.0/clock.fps()
-
