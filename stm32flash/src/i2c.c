@@ -94,6 +94,7 @@ void Sensor_Write(I2C_TypeDef* I2Cx, uint16_t dev, uint8_t* tx_buf, uint16_t tx_
     Current_Dev->rx_buffer = rx_buf;
     Current_Dev->rx_len = rx_len;
     
+
     for(int i = 0; i < tx_len; i++){
         i2c_tx_buffer[i] = tx_buf[i];
     }
