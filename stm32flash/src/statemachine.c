@@ -74,6 +74,107 @@ Vec2 GEO_BOX = {6370,731};
 #define LATERAL_DIST_MAX    731
 #define MAX_GRAB_ATTEMPTS   3
 
+/* ── Camera UART protocol ────────────────────────────────────── */
+#define CAM_FN_SEE_TAG  0x00    // 0=none, 1=front, 2=back, 3=both
+#define CAM_FN_ID       0x01    // arg1: 1=front, 2=back
+#define CAM_FN_DIST     0x02    // arg1: 1=front, 2=back
+#define CAM_FN_ANG      0x03    // arg1: 1=front, 2=back
+#define CAM_FN_YAW      0x04    // arg1: 1=front, 2=back
+#define CAM_FRONT       0x01
+#define CAM_BACK        0x02
+
+/* Send [0xAA][fn][arg1][arg2][0x55], receive [0xAA][val][?][0x55].
+ * Disables RX interrupt during transaction to avoid IRQ consuming bytes.
+ * Returns the value byte (resp[1]), or 0xFF on timeout/bad frame. */
+static uint8_t cam_request(uint8_t fn, uint8_t arg1, uint8_t arg2) {
+    /* disable RX interrupt — we're polling directly */
+    USART1->CR1 &= ~USART_RXNEIE;
+
+    /* send 5-byte request */
+    uint8_t pkt[5] = {0xAA, fn, arg1, arg2, 0x55};
+    for (int i = 0; i < 5; i++) {
+        while (!(USART1->ISR & USART_TXE));
+        USART1->TDR = pkt[i];
+    }
+    while (!(USART1->ISR & USART_TC));
+    USART1->ICR |= (1 << 6);    // clear TC flag
+
+    /* receive 4-byte response */
+    uint8_t resp[4] = {0};
+    for (int i = 0; i < 4; i++) {
+        uint32_t timeout = 200000;
+        while (!(USART1->ISR & USART_RXNE) && --timeout);
+        if (!timeout) {
+            USART1->CR1 |= USART_RXNEIE;
+            return 0xFF;    // timeout
+        }
+        resp[i] = (uint8_t)USART1->RDR;
+    }
+
+    USART1->CR1 |= USART_RXNEIE;
+
+    if (resp[0] != 0xAA || resp[3] != 0x55) return 0xFF;
+    return resp[1];
+}
+
+/* ── Integer math (no stdlib) ────────────────────────────────── */
+
+/* Integer square root via Newton's method */
+static uint16_t isqrt32(uint32_t n) {
+    if (n == 0) return 0;
+    uint32_t x = n;
+    uint32_t y = (x + 1) >> 1;
+    while (y < x) {
+        x = y;
+        y = (x + n / x) >> 1;
+    }
+    return (uint16_t)x;
+}
+
+/* Integer atan2 — returns bearing in degrees [-180, 180].
+ * Coordinate convention: +x = east, +y = north (same as field).
+ * Returns compass bearing: 0 = north, 90 = east, etc.
+ * Max error ~9 degrees, sufficient for navigation. */
+static int16_t atan2_bearing(int32_t dy, int32_t dx) {
+    if (dx == 0 && dy == 0) return 0;
+
+    /* scale down to prevent overflow while keeping ratio */
+    while (dx > 1000 || dx < -1000 || dy > 1000 || dy < -1000) {
+        dx >>= 1;
+        dy >>= 1;
+    }
+
+    int32_t abs_dx = dx < 0 ? -dx : dx;
+    int32_t abs_dy = dy < 0 ? -dy : dy;
+    int32_t angle;
+
+    /* atan approximation: atan(t) ≈ 45*t for |t| <= 1 */
+    if (abs_dx >= abs_dy) {
+        /* use atan(dy/dx), result near 0 or ±180 */
+        angle = (45 * dy) / (dx == 0 ? 1 : dx);
+        if (dx < 0) angle += (dy >= 0) ? 180 : -180;
+    } else {
+        /* use 90 - atan(dx/dy) */
+        angle = 90 - (45 * dx) / (dy == 0 ? 1 : dy);
+        if (dy < 0) angle -= 180;
+    }
+
+    /* convert from math convention (east=0) to compass (north=0) */
+    angle = 90 - angle;
+    if (angle > 180)  angle -= 360;
+    if (angle <= -180) angle += 360;
+
+    return (int16_t)angle;
+}
+
+/* Normalize heading error to [-180, 180] */
+static int16_t heading_error(int16_t target, int16_t current) {
+    int16_t err = target - current;
+    if (err > 180)  err -= 360;
+    if (err <= -180) err += 360;
+    return err;
+}
+
 /* ══════════════════════════════════════════════════════════════
    INIT
    ══════════════════════════════════════════════════════════════ */
@@ -128,12 +229,14 @@ void nav_to(RobotCtx *ctx, uint16_t tx, uint16_t ty) {
     int32_t dx = (int32_t)tx - (int32_t)ctx->x;
     int32_t dy = (int32_t)ty - (int32_t)ctx->y;
 
-    int32_t adx = dx < 0 ? -dx : dx;
-    int32_t ady = dy < 0 ? -dy : dy;
-    ctx->nav_dist = (int16_t)(adx + ady);
+    /* true distance */
+    ctx->nav_dist = (int16_t)isqrt32((uint32_t)(dx*dx + dy*dy));
 
-    /* TODO: ctx->nav_angle = norm_deg(atan2(dy, dx) * 180 / PI - ctx->heading); */
-    ctx->nav_angle = 0;  // REPLACE THIS
+    /* bearing to target (compass degrees, 0=north, 90=east) */
+    int16_t bearing = atan2_bearing(dy, dx);
+
+    /* angle error: how far we need to rotate from current heading */
+    ctx->nav_angle = heading_error(bearing, ctx->heading);
 }
 
 int nav_drive(RobotCtx *ctx) {
@@ -173,14 +276,30 @@ int nav_drive(RobotCtx *ctx) {
    ══════════════════════════════════════════════════════════════ */
 
 static Mission handle_telemetry(RobotCtx *ctx) {
-    /* rotate to face west wall, read april tag for drop-off pad */
-    int8_t rot = 90;
+    /* rotate to face west wall (tags 0-4 are all at x=0, mid-field) */
+    int8_t rot = -90;   // -90 = turn left to face west
     rotate((void*)&rot);
 
-    uint8_t tag = camera_check_apriltag();
-    if (tag > 0 && tag <= 5) ctx->telemetry_pad = tag - 1;
+    /* ask camera if it sees a tag */
+    uint8_t sees = cam_request(CAM_FN_SEE_TAG, 0, 0);
 
-    int8_t rot_back = -90;
+    if (sees == 1 || sees == 3) {
+        /* front camera sees a tag — get its ID */
+        uint8_t tag_id = cam_request(CAM_FN_ID, CAM_FRONT, 0);
+        if (tag_id <= 4) {
+            ctx->telemetry_pad = tag_id; // tag 0-4 maps to RENDEZVOUS[0-4]
+        }
+    } else if (sees == 2) {
+        /* only back camera sees it */
+        uint8_t tag_id = cam_request(CAM_FN_ID, CAM_BACK, 0);
+        if (tag_id <= 4) {
+            ctx->telemetry_pad = tag_id;
+        }
+    }
+    /* else: no tag seen, keep default pad 2 */
+
+    /* rotate back to face north */
+    int8_t rot_back = 90;
     rotate((void*)&rot_back);
 
     return MISSION_GRAB_NEB;
@@ -335,12 +454,12 @@ void robot_main(void *args) {
 }
 
 /* ══════════════════════════════════════════════════════════════
-   STUBS — replace with real hardware implementations
+   CAMERA API — thin wrappers over cam_request()
    ══════════════════════════════════════════════════════════════ */
 
+/* Returns 0=none, 1=front, 2=back, 3=both */
 uint8_t camera_check_apriltag(void) {
-    /* TODO: talk to camera over I2C/UART, return tag ID or 0 */
-    return 0;
+    return cam_request(CAM_FN_SEE_TAG, 0, 0);
 }
 
 int16_t get_heading(void) {
