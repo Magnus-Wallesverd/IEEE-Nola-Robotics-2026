@@ -1,52 +1,9 @@
-#include <cstdint>
-#include <stdint.h> 
-
-typedef struct{ 
-    uin8t_t WAITING; 
-    uin8t_t NAVIGATING; 
-    uint8_t MECHANICS;
-}Active_State;
-
-typedef struct{
-    uin8t_t WAITING;
-}Passive_State;
-
-typedef struct{
-    Global_State SLEEP;
-    Global_State WAKEUP;
-    Global_State GOALS;
-    Global_State ROAMING;
-    Global_State COMPLETE;
-}Context;
-
-typedef enum{
-    EVT_APRILTAG = 0,
-    EVT_ITEMFOUND,
-    EVT_ITEMGRABBED,
-    EVT_GRABFAILED
-}Event;
-
-typedef enum{
-    TELEMETRY = 0,
-    GRAB_NEB,
-    GRAB_GEO,
-    SWEEP,
-    DUMP_NEB,
-    DUMP_GEO,
-    DONE
-}Mission;
-
-typedef enum{
-    IDLE = 0,
-    ROTATING,
-    STEPPING
-}Nav_State;
-
-typedef struct { uint16_t x, y; } Vec2;
+#include "statemachine.h"
 
 // all distance and coordinates are in jiawei's units
 // just divide by 48 to get cm
-const Vec2 TAG_WORLD[8] = {
+
+const Vec2 TAG_WORLD[8] = { // where the tags are located
     [0] = {0,2743},
     [1] = {0,2743},
     [2] = {0,2743},
@@ -57,7 +14,7 @@ const Vec2 TAG_WORLD[8] = {
     [7] = {11338,2743}
 };
 
-const Vec2 RENDEZVOUS[5] = {
+const Vec2 RENDEZVOUS[5] = { // where the drop off points are located
     [0] = {731,518},
     [1] = {731,1646},
     [2] = {731,2743},
@@ -65,34 +22,29 @@ const Vec2 RENDEZVOUS[5] = {
     [4] = {731,4968}
 };
 
-#define NEB_BOX_X   3200
-#define NEB_BOX_Y   4754
-#define GEO_BOX_X   6370
-#define GEO_BOX_Y   731
-
-const Vec2 WAYPOINTS[] = {
-    {1097,1097},
+const Vec2 WAYPOINTS[] = { // will probs need to change
+    {1097,1097}, // perimeter outside cave
     {1097,4389},
     {5638,4389},
     {5638,1097},
 
-    {1097,2194},
+    {1097,2194}, // lawnmower outside cave
     {5638,2194},
     {5638,3353},
     {1097,3353},
     {1097,1097},
     {5638,1097},
  
-    {5638,2743},
+    {5638,2743}, // going into cave
     {8625,2743},
 
-    {8625,1097},
+    {8625,1097}, // perimeter in cave
     {10241,1097},
     {10241,4389},
     {8625,4389},
     {8625,2743},
 
-    {10241,2743},
+    {10241,2743}, // lawnmower in cave
     {10241,1097},
     {8625,1097},
     {8625,4389},
@@ -102,28 +54,35 @@ const Vec2 WAYPOINTS[] = {
 
 #define NUM_WP (sizeof(WAYPOINTS)/sizeof(WAYPOINTS[0]))
 
-uint16_t robot_x = 3810;
-uint16_t robot_y = 731;
-int8_t robot_theta = 90; // facing north, degrees
-int8_t telemetry_pad = 2;
-Vec2 drop_target = RENDEZVOUS[2];
+#define START_X     3810
+#define START_Y     731
+#define START_THETA 90  // facing north, degrees
 
-Mission mission = TELEMETRY;
+Vec2 NEB_BOX = {3200,4754};
+Vec2 GEO_BOX = {6370,731};
+
+uint16_t robot_x = START_X;
+uint16_t robot_y = START_Y;
+int8_t robot_theta = START_THETA;   // facing north, degrees
+
+int8_t telemetry_pad = 2;           // default pad is in the middle
+Vec2 drop_target = RENDEZVOUS[2]; 
+
+Mission mission = TELEMETRY;        // starting mission
 uint32_t wp_index = 0;
 Nav_State navState = IDLE;
-
 
 Global_State ROBOT_STATE;
 Global_State* ROBOT_STATE_P = &ROBOT_STATE;
 
-// function to update these things
-// gyroscope, encoders, cameras (apriltags)
+// functions to update these things
+// gyroscope, encoders, cameras (apriltags), ToF
 
 // navigation
-void nav_to(uint16_t tx, uint16_t ty, int8_t *ang, int16_t *dist){
+void nav_to(uint16_t tx, uint16_t ty, int8_t *ang, int16_t *dist){ // calculates distance and angle
     uint16_t dx = tx - robot_x;
     uint16_t dy = ty - robot_y;
-    // get these calculation from the camera
+    // get sqrt/atan function from the camera
     //*dist = sqrt(dx*dx + dy*dy);
     //*ang = norm_deg((atan2(dy,dx) - robot_theta));
 }
@@ -131,12 +90,14 @@ void nav_to(uint16_t tx, uint16_t ty, int8_t *ang, int16_t *dist){
 void dispatch(int8_t ang, int16_t dist){
     if (dist < 70 || navState != IDLE) return;
 
-    if (ang < )
+    if (ang < 0) {
+        ang = -ang;
+    }
 
-    if (abs_a < 5) {
+    if (ang < 5) {
         // motor step
         navState = STEPPING;
-    } else if (abs_a <= 15 && dist <= 731) {
+    } else if (ang <= 15 && dist <= 731) {
         navState = STEPPING;
         // move laterally
     } else {
@@ -153,39 +114,47 @@ void missions(void){
     switch(mission) {
         case TELEMETRY:
             // find west wall tag, read drop off point
+            // could probably just rotate -45 degrees to read it
+            // mission = GRAB_NEB;
             break;
         case GRAB_NEB:
             // drive to nebulite container and pick it up
+            mission = GRAB_GEO;
             break;
         case GRAB_GEO:
             // drive to geodinium container and pick it up
+            // mission = SWEEP;
             break;
         case SWEEP:
-            if (wp_index >= NUM_WP) {
+            if (wp_index >= NUM_WP) { // after pathing complete
                 mission = DUMP_NEB;
                 return;
             }
 
             nav_to(WAYPOINTS[wp_index].x, WAYPOINTS[wp_index].y, &ang, &dist);
 
-            if (dist < 244) {
+            if (dist < 100) { // if distance is small enough to reach wp
                 wp_index++;
                 return;
             }
+
             dispatch(ang,dist);
             break;
         case DUMP_NEB:
             // drop off nebulite
+            mission = DUMP_GEO;
             break;
         case DUMP_GEO:
             // drop off geodinium
+            mission = DONE;
             break;
         case DONE:
             // end all processes
             break;
     }
 }
-// goal is to manage states Start in the WAIT State WAIT STATE FUNCTIONS
+
+// goal is to manage states, Start in the WAIT State, WAIT STATE FUNCTIONS
 
  /* 
  * * * Acess Camera * * *
@@ -196,24 +165,25 @@ void missions(void){
  *    
  */
 
-void main(void* args){
+// should wait for the start LED
+// should know when 3 mins are about to be up
+// update stuff from gyro
+// update stuff from encoders
+// update stuff from camera
+// update stuff from ToF
+// sorting stuff, passive
+// mission state machine
 
-    // should wait for the start LED
-    // should know when 3 mins are about to be up
-    // update position from gyro
-    // update position from encoders
-    // parse camera stuff
-    // sorting stuff
-    // mission state machine
-
-    if(ROBOT_STATE_P->WAITING){
-      
-    } else if(ROBOT_STATE_P->NAVIGATING){
-
-    } else if(ROBOT_STATE_P->MECHANICS){
-        
-    } else {
-        return;
-    }
-    
-}
+// void main(void* args){
+//
+//     if(ROBOT_STATE_P->WAITING){
+//
+//     } else if(ROBOT_STATE_P->NAVIGATING){
+//
+//     } else if(ROBOT_STATE_P->MECHANICS){
+//
+//     } else {
+//         return;
+//     }
+//
+// }
