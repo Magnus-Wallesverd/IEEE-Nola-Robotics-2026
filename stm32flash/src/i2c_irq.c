@@ -26,7 +26,7 @@ void I2C1_EV_IRQHandler(void){
         I2C1->TXDR = Current_Dev->tx_buffer[i2c_tx_i++];
     } else if(I2C1->ISR & TC){
         I2C1->CR2 = 0;
-        I2C1->CR2 |= AUTOEND_ON|(Current_Dev->rx_len << 16)|READ|(Current_Dev->addr << 1)|START;
+        I2C1->CR2 |= AUTOEND_ON|(Current_Dev->data_len << 16)|Current_Dev->Op|(Current_Dev->addr << 1)|START;
     } else if(I2C1->ISR & NACKF){
         nack_counter++;
         I2C1->ICR |= NACKCF;

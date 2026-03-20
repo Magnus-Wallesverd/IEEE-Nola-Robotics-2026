@@ -62,6 +62,7 @@ typedef struct {
 
 typedef struct {
     uint8_t  addr; 
+    uint16_t Op;
     uint8_t* tx_buffer;
     uint16_t tx_len;
     uint8_t* rx_buffer;

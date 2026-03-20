@@ -62,7 +62,6 @@ void I2C_Init(I2C_TypeDef* I2Cx, uint8_t mode){
             break;
 
     }
-
 }
 
 // void Sensor_Init(void){
@@ -73,6 +72,7 @@ void I2C_Init(I2C_TypeDef* I2Cx, uint8_t mode){
 void Sensor_Read(I2C_TypeDef* I2Cx, uint16_t dev, uint8_t* tx_buf, uint16_t tx_len, uint8_t* rx_buf, uint16_t rx_len){
 
     Current_Dev->addr = dev;
+    Current_Dev->Op = READ;
     Current_Dev->tx_buffer = tx_buf;
     Current_Dev->tx_len = tx_len;
     Current_Dev->rx_buffer = rx_buf;
@@ -85,9 +85,10 @@ void Sensor_Read(I2C_TypeDef* I2Cx, uint16_t dev, uint8_t* tx_buf, uint16_t tx_l
 
 }
 
-void Sensor_Write(I2C_TypeDef* I2Cx, uint16_t dev, uint8_t* tx_buf, uint16_t tx_len, uint8_t* rx_buf, uint16_t rx_len){
+void Sensor_Write(I2C_TypeDef* I2Cx, uint16_t dev, uint8_t* tx_buf, uint16_t tx_len){
 
     Current_Dev->addr = dev;
+    Current_Dev->Op = WRITE;
     Current_Dev->tx_buffer = tx_buf;
     Current_Dev->tx_len = tx_len;
     Current_Dev->rx_buffer = rx_buf;
