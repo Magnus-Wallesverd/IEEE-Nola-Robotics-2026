@@ -15,7 +15,7 @@
 TCB* motor_tcb;
 
 uint32_t motor_timeout_counter = 0;
-uint32_t MAXTIMEOUT = 70;
+uint32_t MAXTIMEOUT = 40;
 
 Gen_TIM_TypeDef1* input_timers[] = {TIM2, TIM3, TIM4};
 int32_t ierr = 0;
@@ -38,7 +38,7 @@ uint8_t Kp_h = 2;
 int16_t x =0;
 int16_t y = 0;
 int32_t pwm=0;
-
+int16_t devi = 0;
 int16_t measure2 = 0;
 int16_t measure3 = 0;
 int16_t measure4 = 0;
@@ -254,8 +254,9 @@ void step2(int16_t args){
     int16_t derr = 0;
     int16_t prev = 0;
     while(1){
+        curr_h = (i2c_rx_buffer[HEADING_MSB] << 8 | i2c_rx_buffer[HEADING_LSB]);
         if(motor_timeout_counter > MAXTIMEOUT){
-            // zero_timers();
+            zero_timers();
             turn_off_motors();
             return ;
         }
@@ -269,7 +270,6 @@ void step2(int16_t args){
         ierr += error /C;
         pwm = error*A + B*derr + ierr;
         if(pwm<0){ 
-
             GPIOC->BSRR |= ((INL4|INL1|INR3)<<16)|((INL3|INL2)) ;
             GPIOB->BSRR |= INR3<<16|(INR1);
             GPIOA->BSRR |= INR2<<16;
@@ -290,18 +290,18 @@ void step2(int16_t args){
         TIM1->CCR4 = pwm;
         prev = error;
         if((error < 70 && error > -70) && derr ==0){
-            // zero_timers();
+            zero_timers();
             turn_off_motors();
         }
         motor_timeout_counter++;
-        x = curr_avg;
+        devi += (target_h - curr_h)*derr; //endyne per second;
         block();
     }
 }
 void rotate2(int16_t args){
     motor_tcb = current_tcb;
     motor_timeout_counter = 0;
-
+    //T =  1/40
     int16_t curr_h = (i2c_rx_buffer[HEADING_MSB] << 8 | i2c_rx_buffer[HEADING_LSB]);
     int16_t measure_h = 0;
     while(1){
@@ -508,21 +508,21 @@ int lateral_right(void* args){
 
 }
 
-
 void global_pos(void* args){
     // one endyne is 1/48 cm
-    uint8_t target = *((uint8_t*)args);
     // magneometer (0 to 5760) -> (0,2pi)
-    // 1440   ->  90 degree -> +x directtion 
+    // 1440   ->
     // 4320    -> -90 degree -> -x direction
     //  0  ->   0 degree -> +y direction
     //  5760 -.  180 degree   -y direction
     int16_t x1 = 9999;
     int16_t arg =0;
     int16_t dispx = x1 -x;
-    uint16_t anglex = 1440*(dispx > 0) + 4320*(dispx < 0 );
-    for(int i = 0; i < x1/11 + 1 ; i--){
-        rotate2(anglex);
+    devi = 0;
+    // target_h = 1440*(dispx > 0) + 4320*(dispx < 0 );
+    target_h =0;
+    for(int i = 0; i < x1/11 + 1 ; i++){
+        rotate2(target_h + (devi)/(40*9));
         step2(11);
     }
 
