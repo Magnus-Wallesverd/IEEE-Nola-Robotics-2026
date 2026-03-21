@@ -4,7 +4,7 @@
 
 void systeminit(void){
 
-    set_clock_64Mhz();
+    //set_clock_64Mhz();
 
     // systic interrupt init
     STK->CTRL |= 0x6;
@@ -13,9 +13,9 @@ void systeminit(void){
     // priority set
     SCB->SHPR3 |= 0xE0F00000;
      
-    RCC->APB1ENR |= (1 << 21);
+    RCC->APB1ENR1 |= (1 << 21);
     
-    RCC->AHBENR |= 0xE0000;                   // enable GPIO ABC  clock 
+    RCC->AHB2ENR |= 0x7;                   // enable GPIO ABC  clock 
 
     // enable i2c interrupt
     NVIC->ISER0 |= 1<<31;

@@ -74,7 +74,7 @@ void TIM20_UP_IRQHandler(void){
 }
 
 void input_timer_init(void){
-    RCC->APB1ENR |= 0x7;        // Enable TIM 2, 3, 4
+    RCC->APB1ENR1 |= 0x7;        // Enable TIM 2, 3, 4
     RCC->APB2ENR |= (1 << 13);  // Enable TIM 8
     
     SetPinAlternate(GPIOA, 0x18C3);

@@ -89,22 +89,22 @@ void usart_init(USART_Typedef* USARTx, GPIO_TypeDef* port, uint32_t pins, uint32
             SetOutputSpeed(port, pins, 1);
             break;
         case (uint32_t)USART2:
-            RCC->APB1ENR |= USART2_EN;
+            RCC->APB1ENR1 |= USART2_EN;
             NVIC->ISER1  |= NVIC_USART2;
             SetOutputSpeed(port, pins, 1);
             break;
         case (uint32_t)USART3:
-            RCC->APB1ENR |= USART3_EN;
+            RCC->APB1ENR1 |= USART3_EN;
             NVIC->ISER1  |= NVIC_USART3;
             SetOutputSpeed(port, pins, 1);
             break;
         case(uint32_t) UART4:
-            RCC->APB1ENR |= UART4_EN;
+            RCC->APB1ENR1 |= UART4_EN;
             NVIC->ISER1  |= NVIC_UART4;
             SetOutputSpeed(port, pins, 1);
             break;
         case(uint32_t) UART5:
-            RCC->APB1ENR |= UART5_EN;
+            RCC->APB1ENR1 |= UART5_EN;
             NVIC->ISER1  |= NVIC_UART5;
             SetOutputSpeed(port, pins, 1);
             break;

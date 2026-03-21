@@ -33,10 +33,10 @@ void spi_reset(SPI_TypeDef* SPIx){
             RCC->APB2RSTR |= (1 << 12);
             break;
         case (uint32_t)SPI2:
-            RCC->APB1RSTR |= (1 << 14);
+            RCC->APB1RSTR1 |= (1 << 14);
             break;
         case (uint32_t)SPI3:
-            RCC->APB1RSTR |= (1 << 15);
+            RCC->APB1RSTR1 |= (1 << 15);
             break;
         case (uint32_t)SPI4:
             RCC->APB2RSTR |= (1 << 15);
@@ -120,10 +120,10 @@ void spi_init(SPI_TypeDef* SPIx, uint8_t ssm, uint16_t baud, uint8_t master, uin
             RCC->APB2ENR |= (1 << 12);
             break;
         case (uint32_t)SPI2:
-            RCC->APB1ENR |= (1 << 14);
+            RCC->APB1ENR1 |= (1 << 14);
             break;
         case (uint32_t)SPI3:
-            RCC->APB1ENR |= (1 << 15);
+            RCC->APB1ENR1 |= (1 << 15);
             break;
         case (uint32_t)SPI4:
             RCC->APB2ENR |= (1 << 15);

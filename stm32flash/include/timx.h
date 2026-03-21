@@ -29,12 +29,16 @@ volatile uint32_t CCR2;     //0x38
 volatile uint32_t CCR3;     //0x3C
 volatile uint32_t CCR4;     //0x40
 volatile uint32_t BDTR;     //0x44
-volatile uint32_t DCR;      //0x48
-volatile uint32_t DMAR;     //0x4C
-volatile uint32_t OR;       //0x50
+volatile uint32_t CCR5;
+volatile uint32_t CCR6;
 volatile uint32_t CCMR3;    //0x54
-volatile uint32_t CCR5;     //0x58
-volatile uint32_t CCR6;     //0x5C
+volatile uint32_t DTR2;      //0x48
+volatile uint32_t ECR;     //0x4C
+volatile uint32_t TISEL;       //0x50
+volatile uint32_t AF1;     //0x58
+volatile uint32_t AF2;     //0x5C
+volatile uint32_t DCR;     //0x5C
+volatile uint32_t DMAR;     //0x5C
 } Adv_TIM_TypeDef;
 
 
