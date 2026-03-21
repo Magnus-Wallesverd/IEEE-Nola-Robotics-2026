@@ -180,14 +180,7 @@ void lcd_print(void* args){
             // stringify(TIM3->CNT, buffer_1);
             // move_cursor(0, 7);
             // stringify(TIM2->CNT, buffer_2);
-            move_cursor(0, 0);
-            print(lu_table[parser_buffer[1]]);
-            move_cursor(0, 7);
-            stringify(parser_buffer[2], buffer_1);
-            move_cursor(1, 8);
-            stringify(tx_counter, buffer_2);
-            move_cursor(1, 12);
-            stringify(get_global_tick()>>10, buffer_3);
+
             t1=t0;
         }
     }

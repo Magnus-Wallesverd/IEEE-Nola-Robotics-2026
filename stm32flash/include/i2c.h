@@ -89,21 +89,17 @@ extern I2C_Dev* Current_Dev;
 
 void I2C_Init(I2C_TypeDef* I2Cx, uint8_t mode);
 
-void I2C_Write(I2C_TypeDef* I2Cx, uint8_t nbytes);
+void Sensor_Write(I2C_TypeDef* I2Cx, uint16_t dev, uint8_t* tx_buf, uint16_t tx_len);
 
-void I2C_Read(I2C_TypeDef* I2Cx, uint8_t slave_addr, uint8_t nbytes);
-
-void I2C_Write_Read(I2C_TypeDef* I2Cx, uint8_t slave_addr, uint8_t nbytes, uint8_t reg);
-
-void Sensor_Write(I2C_TypeDef* I2Cx, I2C_Dev* dev, uint8_t* tx_buf, uint16_t tx_len);
-
-void Sensor_Read(I2C_TypeDef* I2Cx, I2C_Dev* dev, uint8_t* tx_buf, uint16_t tx_lex, uint8_t* rx_buf, uint16_t rx_lex);
+void Sensor_Read(I2C_TypeDef* I2Cx, uint16_t dev, uint8_t* tx_buf, uint16_t tx_len, uint8_t* rx_buf, uint16_t rx_len);
 
 void Sensor_Read_Wrapper(void* args);
 
 void Sensor_Write_Wrapper(void* args);
  
 void Sensor_Init(void);
+
+void I2C_Wait(I2C_TypeDef* I2Cx);
 
 uint8_t* get_i2c_buffer();
 #endif // I2C_H

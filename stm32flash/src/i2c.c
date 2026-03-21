@@ -11,11 +11,12 @@
 #include "lock.h"
 #include "tcb.h"
 #include "backend.h"
+#include "vl53l1_platform.h"
+#include "VL53L1X_api.h"
 
 int ovf17 = 0;
 int bno_ready = 0;
-
-uint8_t 
+int i2c_wait_counter = 0;
 
 I2C_Dev  Dev;
 I2C_Dev* Current_Dev = &Dev;
@@ -62,12 +63,28 @@ void I2C_Init(I2C_TypeDef* I2Cx, uint8_t mode){
             break;
 
     }
+
+    Sensor_Init();
 }
 
-// void Sensor_Init(void){
-//     BNO055_dev.addr = BNO055_ADDR;
-//     VL53L1X_dev.addr = VL53L1X_ADDR;
-// }
+void I2C_Wait(I2C_TypeDef* I2Cx){
+    i2c_wait_counter++;
+    while(I2Cx->ISR & BUSY);
+}
+
+void Sensor_Init(void){
+    uint16_t dev = VL53L1X_ADDR;
+    uint8_t state = 0;
+    int8_t status = VL53L1X_BootState(VL53L1X_ADDR, &state);
+    I2C_Wait(I2C1);
+    if(state){
+        status = VL53L1X_SensorInit(dev);
+    } else {
+        __asm volatile("bkpt #0");
+
+    }
+
+}
 
 void Sensor_Read(I2C_TypeDef* I2Cx, uint16_t dev, uint8_t* tx_buf, uint16_t tx_len, uint8_t* rx_buf, uint16_t rx_len){
 
@@ -91,16 +108,9 @@ void Sensor_Write(I2C_TypeDef* I2Cx, uint16_t dev, uint8_t* tx_buf, uint16_t tx_
     Current_Dev->Op = WRITE;
     Current_Dev->tx_buffer = tx_buf;
     Current_Dev->tx_len = tx_len;
-    Current_Dev->rx_buffer = rx_buf;
-    Current_Dev->rx_len = rx_len;
-    
-
-    for(int i = 0; i < tx_len; i++){
-        i2c_tx_buffer[i] = tx_buf[i];
-    }
 
     I2Cx->CR2 = (Current_Dev->tx_len << 16)|(Current_Dev->addr << 1);
-    I2Cx->CR2 &= AUTOEND_ON;
+    I2Cx->CR2 |= AUTOEND_ON;
     I2Cx->CR2 &= WRITE;
     I2Cx->CR2 |= START;   //start
     
@@ -108,14 +118,14 @@ void Sensor_Write(I2C_TypeDef* I2Cx, uint16_t dev, uint8_t* tx_buf, uint16_t tx_
 
 void Sensor_Read_Wrapper(void* args){
     (void) args;
-    uint8_t tx_buf[2];
-    uint8_t rx_buf[2];
-    tx_buf[0] = VL53L1X_ID >> 8;
-    tx_buf[1] = VL53L1X_ID & 0xFF;
-    Sensor_Read(I2C1, VL53L1X,tx_buf, 2, rx_buf, 1);
+    uint32_t pdata;
+    int8_t x = VL53L1_RdDWord(VL53L1X_ADDR, VL53L1X_ID, &pdata);
     while(1);
 }
 
 void Sensor_Write_Wrapper(void* args){
     (void) args;
+    uint8_t data = 0;
+    VL53L1_WrByte(VL53L1X_ADDR,0x2D, 0);
+
 }

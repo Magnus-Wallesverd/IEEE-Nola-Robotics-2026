@@ -12,19 +12,33 @@
 
 #include "vl53l1_platform.h"
 #include "i2c.h"
+#include "tcb.h"
+#include "lock.h"
 #include <string.h>
 #include <time.h>
 #include <math.h>
 
-uint8_t ToF_tx_buffer[8];
-uint8_t ToF_rx_buffer[8];
+uint8_t ToF_tx_buffer[256];
+uint8_t ToF_rx_buffer[256];
 
-int8_t VL53L1_WriteMulti( uint16_t dev, uint16_t index, uint8_t *pdata, uint32_t count) {
+int8_t VL53L1_WriteMulti(uint16_t dev, uint16_t index, uint8_t *pdata, uint32_t count) {
 	uint8_t status = 255;
 	
-	/* To be filled by customer. Return 0 if OK */
-	/* Warning : For big endian platforms, fields 'RegisterAdress' and 'value' need to be swapped. */
+    if(sizeof(index)+count > 255){
+        return status;
+    }
+
+    ToF_tx_buffer[0] = index >> 8;
+    ToF_tx_buffer[1] = index & 0xFF;
 	
+    for(uint32_t i = 0; i < count; i++){
+        ToF_tx_buffer[i+sizeof(index)] = pdata[i];
+    }
+
+    Sensor_Write(I2C1, dev, ToF_tx_buffer, count);
+
+    VL53L1_WaitMs(dev, 1);
+
 	return status;
 }
 
@@ -32,9 +46,21 @@ int8_t VL53L1_WriteMulti( uint16_t dev, uint16_t index, uint8_t *pdata, uint32_t
 int8_t VL53L1_ReadMulti(uint16_t dev, uint16_t index, uint8_t *pdata, uint32_t count){
 	uint8_t status = 255;
 	
-	/* To be filled by customer. Return 0 if OK */
-	/* Warning : For big endian platforms, fields 'RegisterAdress' and 'value' need to be swapped. */
+    if(sizeof(index)+count > 255){
+        return status;
+    }
+
+    ToF_tx_buffer[0] = index >> 8;
+    ToF_tx_buffer[1] = index & 0xFF;
 	
+    for(uint32_t i = 0; i < count; i++){
+        ToF_tx_buffer[i+sizeof(index)] = pdata[i];
+    }
+
+    Sensor_Write(I2C1, dev, ToF_tx_buffer, count);
+
+    VL53L1_WaitMs(dev, 1);
+
 	return status;
 }
 
@@ -49,7 +75,9 @@ int8_t VL53L1_WrByte(uint16_t dev, uint16_t index, uint8_t data) {
 
     Sensor_Write(I2C1, dev, ToF_tx_buffer, sizeof(index)+sizeof(data));   
 
-	uint8_t status = 0;
+    VL53L1_WaitMs(dev, 1);
+
+	status = 0;
 
 	return status;
 }
@@ -66,7 +94,9 @@ int8_t VL53L1_WrWord(uint16_t dev, uint16_t index, uint16_t data) {
 
     Sensor_Write(I2C1, dev, ToF_tx_buffer, sizeof(index)+sizeof(data));   
 
-	uint8_t status = 0;
+    VL53L1_WaitMs(dev, 1);
+
+	status = 0;
 	
 	return status;
 }
@@ -86,7 +116,9 @@ int8_t VL53L1_WrDWord(uint16_t dev, uint16_t index, uint32_t data) {
 
     Sensor_Write(I2C1, dev, ToF_tx_buffer, sizeof(index)+sizeof(data));   
 
-	uint8_t status = 0;
+    VL53L1_WaitMs(dev, 1);
+
+	status = 0;
 	
 	return status;
 }
@@ -99,8 +131,11 @@ int8_t VL53L1_RdByte(uint16_t dev, uint16_t index, uint8_t *data) {
     ToF_tx_buffer[1] = index & 0xFF;
 
     Sensor_Read(I2C1, dev, ToF_tx_buffer, sizeof(index), ToF_rx_buffer, 1);   
+    VL53L1_WaitMs(dev, 1);
 
-	uint8_t status = 0;
+    *data = ToF_rx_buffer[0];
+	
+    status = 0;
 	
 	return status;
 }
@@ -114,7 +149,10 @@ int8_t VL53L1_RdWord(uint16_t dev, uint16_t index, uint16_t *data) {
 
     Sensor_Read(I2C1, dev, ToF_tx_buffer, sizeof(index), ToF_rx_buffer, sizeof(uint16_t));   
 
-	uint8_t status = 0;
+    VL53L1_WaitMs(dev, 1);
+
+    *data = ToF_rx_buffer[0]<<8 | ToF_rx_buffer[1];
+	status = 0;
 	
 	return status;
 }
@@ -123,15 +161,16 @@ int8_t VL53L1_RdWord(uint16_t dev, uint16_t index, uint16_t *data) {
 int8_t VL53L1_RdDWord(uint16_t dev, uint16_t index, uint32_t *data) {
 	uint8_t status = 255;
 	
-	/* To be filled by customer. Return 0 if OK */
-	/* Warning : For big endian platforms, fields 'RegisterAdress' and 'value' need to be swapped. */
-	
     ToF_tx_buffer[0] = index >> 8;
     ToF_tx_buffer[1] = index & 0xFF;
 
     Sensor_Read(I2C1, dev, ToF_tx_buffer, sizeof(index), ToF_rx_buffer, sizeof(uint32_t));   
 
-	uint8_t status = 0;
+    VL53L1_WaitMs(dev, 1);
+
+    *data = ToF_rx_buffer[0]<<24 | ToF_rx_buffer[1]<<16 | ToF_rx_buffer[2] << 8 | ToF_rx_buffer[3];
+
+	status = 0;
 
 	return status;
 }
@@ -139,8 +178,9 @@ int8_t VL53L1_RdDWord(uint16_t dev, uint16_t index, uint32_t *data) {
 int8_t VL53L1_WaitMs(uint16_t dev, int32_t wait_ms){
 	uint8_t status = 255;
 	
-	/* To be filled by customer. Return 0 if OK */
-	/* Warning : For big endian platforms, fields 'RegisterAdress' and 'value' need to be swapped. */
+    I2C_Wait(I2C1);
+
+    status = 0;
 	
 	return status;
 }
