@@ -95,7 +95,7 @@ void I2C_Read(I2C_TypeDef* I2Cx, uint8_t slave_addr, uint8_t nbytes);
 
 void I2C_Write_Read(I2C_TypeDef* I2Cx, uint8_t slave_addr, uint8_t nbytes, uint8_t reg);
 
-void Sensor_Write(I2C_TypeDef* I2Cx, I2C_Dev* dev, uint8_t* tx_buf, uint16_t tx_len, uint8_t* rx_buf, uint16_t rx_len);
+void Sensor_Write(I2C_TypeDef* I2Cx, I2C_Dev* dev, uint8_t* tx_buf, uint16_t tx_len);
 
 void Sensor_Read(I2C_TypeDef* I2Cx, I2C_Dev* dev, uint8_t* tx_buf, uint16_t tx_lex, uint8_t* rx_buf, uint16_t rx_lex);
 

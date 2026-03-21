@@ -8,7 +8,7 @@ uint16_t tx_buffer[TX_BUFFER_SIZE];
 uint16_t rx_buffer[RX_BUFFER_SIZE];
 
 void enable_dma(void){
-    RCC->AHBENR |= 1;
+    // RCC->AHBENR |= 1;
 }
 
 void configure_spi(SPI_TypeDef* SPIx){
