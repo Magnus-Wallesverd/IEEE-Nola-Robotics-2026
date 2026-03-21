@@ -13,7 +13,7 @@ CFLAGS = -mcpu=cortex-m4 -mthumb -mfpu=fpv4-sp-d16 -mfloat-abi=hard -Wall -Wextr
 FLASH = st-flash
 
 # Linker
-LD_SCRIPT = linker/stm32f303.ld
+LD_SCRIPT = linker/stm32l432.ld
 LD_FLAGS = -T$(LD_SCRIPT) -Wl,-Map=build/build.map,--gc-sections -g 
 LIBS = -lc -lm -lgcc
 
@@ -66,7 +66,7 @@ debug:
 	@tmux send-keys -t debug:main 'nvim' C-m
 	@tmux send-keys -t debug:main ':e. ' C-m
 	@tmux split-window -h -t debug:main
-	@tmux send-keys -t debug:main.1 'openocd -f interface/stlink.cfg -f target/stm32f3x.cfg' C-m
+	@tmux send-keys -t debug:main.1 'openocd -f interface/stlink.cfg -f target/stm32l4x.cfg' C-m
 	@tmux split-window -v -t debug:main.1
 	@tmux send-keys -t debug:main.2 'arm-none-eabi-gdb $(ELF)' C-m
 	@tmux send-keys -t debug:main.2 'c' C-m
