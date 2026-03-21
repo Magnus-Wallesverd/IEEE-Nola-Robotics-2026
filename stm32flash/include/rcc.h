@@ -8,85 +8,70 @@
 
 #include <stdint.h>
 
-#define FCLK 8000000
 
-#define CLK_8Mhz   8000000
-#define CLK_16Mhz 16000000
-#define CLK_32Mhz 32000000
-#define CLK_64Mhz 64000000
+#define HSION (1<<8)
+#define HSIRDY (1<<10)
 
-#define RCC_HSION (1<<0)
-#define RCC_HSIRDY (1<<1)
+#define HSI16_SEL (1<<0)
+#define HSI16_STATUS (1<<2)
 
-#define RCC_PLLON   (1<<24)
-#define RCC_PLLRDY  (1<<25)
+#define DMA1_EN (1<<0)
+#define DMA2_EN (1<<1)
 
-#define RCC_PLL_8x      (6<<18)
-
-#define RCC_PPRE2_DIV2  (4<<11)
-#define RCC_PPRE2_DIV4  (5<<11)
-#define RCC_PPRE2_DIV8  (6<<11)
-#define RCC_PPRE2_DIV16 (7<<11)
-
-#define RCC_PPRE1_DIV2  (4<<8)
-#define RCC_PPRE1_DIV4  (5<<8)
-#define RCC_PPRE1_DIV8  (6<<8)
-#define RCC_PPRE1_DIV16 (7<<8)
-
-#define RCC_PLLSRC_HSI  (1<<15)
-
-#define RCC_SW_PLL      (1<<1)
-#define RCC_SWS_PLL     (1<<3)
-
-#define DMA1_EN     (1<<0)
-#define DMA2_EN     (1<<1)
-
-#define GPIOA_EN (1<<17)
-#define GPIOB_EN (1<<18)
-#define GPIOC_EN (1<<19)
-#define GPIOD_EN (1<<20)
+#define GPIOA_EN (1<<0)
+#define GPIOB_EN (1<<1)
 
 #define TIM1_EN  (1<<11)
-#define TIM8_EN  (1<<13)
+#define TIM2_EN  (1<<0)
 #define TIM15_EN (1<<16)
 #define TIM16_EN (1<<17)
-#define TIM17_EN (1<<18)
-#define TIM20_EN (1<<20)
 
 #define USART1_EN (1<<14)
-#define USART2_EN (1<<17)
-#define USART3_EN (1<<18)
-#define UART4_EN  (1<<19)
-#define UART5_EN  (1<<20)
+
+#define SPI1_EN (1<<12)
 
 typedef struct{
-    volatile uint32_t CR;       //0x00
-    volatile uint32_t CFGR;     //0x04
-    volatile uint32_t CIR;      //0x08
-    volatile uint32_t APB2RSTR; //0X0C
-    volatile uint32_t APB1RSTR; //0x10
-    volatile uint32_t AHBENR;   //0x14
-    volatile uint32_t APB2ENR;  //0x18
-    volatile uint32_t APB1ENR;  //0x1C
-    volatile uint32_t BDCR;     //0x20
-    volatile uint32_t CSR;      //0x24
-    volatile uint32_t AHBRSTR;  //0x28
-    volatile uint32_t CFGR2;    //0x2C
-    volatile uint32_t CFGR3;    //0x30
+    volatile uint32_t CR;               //0x00
+    volatile uint32_t ICSCR;            //0x04
+    volatile uint32_t CFGR;             //0x08
+    volatile uint32_t RCC_PLLCFGR;      //0x0C
+    volatile uint32_t RCC_PLLSAI1CFGR;  //0x10
+    volatile uint32_t RESERVED1;        //0x14
+    volatile uint32_t CIER;             //0x18
+    volatile uint32_t CIFR;             //0x1C
+    volatile uint32_t CICR;             //0x20
+    volatile uint32_t RESERVED2;        //0x24
+    volatile uint32_t AHB1RSTR;         //0x28
+    volatile uint32_t AHB2RSTR;         //0x2C
+    volatile uint32_t AHB3RSTR;         //0x30
+    volatile uint32_t RESERVED3;        //0x34
+    volatile uint32_t APB1RSTR1;        //0X38
+    volatile uint32_t APB1RSTR2;        //0X3C
+    volatile uint32_t APB2RSTR;         //0x40
+    volatile uint32_t RESERVED4;        //0x44
+    volatile uint32_t AHB1ENR;          //0x48
+    volatile uint32_t AHB2ENR;          //0x4C
+    volatile uint32_t AHB3ENR;          //0x50
+    volatile uint32_t RESERVED5;        //0x54
+    volatile uint32_t APB1ENR1;         //0x58
+    volatile uint32_t APB1ENR2;         //0x5C
+    volatile uint32_t APB2ENR;          //0x60
+    volatile uint32_t RESERVED6;        //0x64
+    volatile uint32_t AHB1SMENR;        //0x68
+    volatile uint32_t AHB2SMENR;        //0x6C
+    volatile uint32_t AHB3SMENR;        //0x70
+    volatile uint32_t RESERVED7;        //0x74
+    volatile uint32_t APB1SMENR1;       //0x78
+    volatile uint32_t APB1SMENR2;       //0x7C
+    volatile uint32_t APB2SMENR;        //0x80
+    volatile uint32_t RESERVED8;        //0x84
+    volatile uint32_t CCIPR;            //0x88
+    volatile uint32_t BDCR;             //0x90
+    volatile uint32_t CSR;              //0x94
+    volatile uint32_t CRRCR;            //0x98
+    volatile uint32_t CCIPR2;           //0x9C
 } RCC_TypeDef;
 
-typedef struct{
-    uint32_t SYSCLK;
-    uint32_t AHB;
-    uint32_t APB1;
-    uint32_t APB2;
-} SYSCLK_t;
-
 #define RCC ((RCC_TypeDef *) 0x40021000)
-
-// only supports one timer 
-void TimerEnable(uint8_t timer);
-
-void set_clock_64Mhz(void);
 
 #endif
