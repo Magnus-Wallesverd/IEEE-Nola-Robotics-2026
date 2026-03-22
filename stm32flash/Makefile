@@ -52,7 +52,6 @@ debug:
 	@tmux new-session -d -s debug -n main
 	@tmux send-keys -t debug:main 'nvim' C-m
 	@tmux split-window -h -t debug:main
-	# CHANGED: target/stm32g4x.cfg instead of f3x
 	@tmux send-keys -t debug:main.1 'openocd -f interface/stlink.cfg -f target/stm32g4x.cfg' C-m
 	@tmux split-window -v -t debug:main.1
 	@tmux send-keys -t debug:main.2 'arm-none-eabi-gdb $(ELF)' C-m

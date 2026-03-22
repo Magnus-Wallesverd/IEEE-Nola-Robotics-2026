@@ -69,6 +69,7 @@ void TIM7_IRQHandler(void){
     }     
 }
 
+<<<<<<< HEAD
 
 void input_timer_init(void){
     RCC->APB1ENR1 |= 0x7;        // Enable TIM 2, 3, 4

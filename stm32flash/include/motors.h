@@ -17,8 +17,6 @@
 
 #define DATA_BUF_SIZE 64
 
-extern uint8_t i2c_rx_buffer[I2C_BUFFER_SIZE];
-
 uint8_t* get_meas_pair(void);
 
 void input_timer_init(void);
