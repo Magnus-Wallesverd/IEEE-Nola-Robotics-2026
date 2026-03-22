@@ -15,6 +15,18 @@
 #define RCC_HSION (1<<8)
 #define RCC_HSIRDY (1<<10)
 
+#define RCC_PLLON 1 <<24
+#define RCC_PLLRDY 1 <<25
+
+#define RCC_SW_PLL 3
+#define RCC_SWS_PLL 3<<2
+
+#define RCC_PLLSRC_HSI 2
+#define RCC_PLLCFGR_PLLN_8 8<<8
+
+#define RCC_PPRE1_DIV8 6<<8
+#define RCC_PPRE1_DIV16 7<<8
+
 #define DMA1_EN (1<<0)
 #define DMA2_EN (1<<1)
 
@@ -31,7 +43,6 @@
 #define SPI1_EN (1<<12)
 
 typedef struct{
-<<<<<<< HEAD
     volatile uint32_t CR;       //0x00
     volatile uint32_t ICSCR;    //0x04
     volatile uint32_t CFGR;     //0x08
@@ -61,7 +72,7 @@ typedef struct{
     volatile uint32_t AHB2SMENR; //0x6C
     volatile uint32_t AHB3SMENR;    //0x70
     volatile uint32_t RESERVE6;  //0x74
-    volatile uint32_t APB1SMENR1;   //0x78
+    volatile uint32_t APB1SMENR1; //0x78
     volatile uint32_t APB1SMENR2;   //0x7C
     volatile uint32_t APB2SMENR;    //0x80
     volatile uint32_t RESERVE7;  //0x84
@@ -74,5 +85,7 @@ typedef struct{
 } RCC_TypeDef;
 
 #define RCC ((RCC_TypeDef *) 0x40021000)
+
+void set_clock_128Mhz(void);
 
 #endif

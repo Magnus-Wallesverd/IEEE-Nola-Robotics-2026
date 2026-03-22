@@ -69,8 +69,6 @@ void TIM7_IRQHandler(void){
     }     
 }
 
-<<<<<<< HEAD
-
 void input_timer_init(void){
     RCC->APB1ENR1 |= 0x7;        // Enable TIM 2, 3, 4
     RCC->APB2ENR |= (1 << 13);  // Enable TIM 8
@@ -79,8 +77,8 @@ void input_timer_init(void){
     SetPinAlternate(GPIOC, 0xC0);
     AlternateFunctionSet(GPIOA, 0x03, 1);     //TIM2 PA 1&0
     AlternateFunctionSet(GPIOA, 0xC0, 2);     //TIM3 PA 6&7
-    AlternateFunctionSet(GPIOA, 0x1800, 10);  //TIM4 PA
-    AlternateFunctionSet(GPIOC, 0xC0, 4);     //TIM8
+    AlternateFunctionSet(GPIOA, 0x1800, 10);  //TIM4 PA 11&12
+    AlternateFunctionSet(GPIOC, 0xC0, 4);     //TIM8 PC 6&7
 
     // define number of input timers as 3
     for(int i = 0; i < 3; i++){
@@ -108,9 +106,6 @@ void output_timer_init(void){
     SetPinAlternate(GPIOC, 0xF);            
     AlternateFunctionSet(GPIOC, 0xF, 2);    // PC0-3 -> AF2   
     
-    SetPinAlternate(GPIOB, PB4);            
-    AlternateFunctionSet(GPIOB, PB4, 1);    // PC0-3 -> AF2   
-
     //GPIO Control pins PC 8-12 PB 
     SetPinOutput(GPIOC, PC8|PC9|PC10|PC11|PC12);
     SetPinOutput(GPIOB, PB3|PB5);

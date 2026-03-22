@@ -8,7 +8,7 @@
 
 void systeminit(void){
 
-    //set_clock_64Mhz();
+    // set_clock_128Mhz();
 
     // systic interrupt init
     STK->CTRL |= 0x6;
@@ -20,10 +20,6 @@ void systeminit(void){
     RCC->APB1ENR1 |= (1 << 21);
     
     RCC->AHB2ENR |= 0x7;                   // enable GPIO ABC  clock 
-
-    RCC->CFGR |= HSI16_SEL;
-    while(!(RCC->CFGR&HSI16_STATUS));
-
 
     //i2c?
     // RCC->APB1ENR1 |= (1 << 21);
@@ -41,7 +37,7 @@ void systeminit(void){
 
     dispatcher_init();
     
-    usart_init(USART1, GPIOC,PC4|PC5,115200);
+    // usart_init(USART1, GPIOC,PC4|PC5,115200);
     InitBasicTIM();
     input_timer_init();
     output_timer_init();
