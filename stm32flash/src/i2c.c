@@ -26,10 +26,15 @@ void I2C_Init(I2C_TypeDef* I2Cx, uint8_t mode){
     switch(mode){
         case 0:
             NVIC_IPR->IPR7 |= NVIC_IRQ_PRIORITY1 << 24;
-            SetPinAlternate(GPIOB,0xC0);            // Set pins 6 & 7 to AF mode I2c
+            SetPinAlternate(GPIOB,0x80);            // Set pins 6 & 7 to AF mode I2c
             AlternateFunctionSet(GPIOB,0xC0,4);      // set pins PB 6&7 to AF4
-            SetOutputType(GPIOB, 0xC0, 1);
-            SetOutputSpeed(GPIOB,0xC0, 1);
+            SetOutputType(GPIOB, 0x80, 1);
+            SetOutputSpeed(GPIOB,0x80, 1);
+
+            SetPinAlternate(GPIOA,0x8000);            
+            AlternateFunctionSet(GPIOA,0x8000,4);      
+            SetOutputType(GPIOA, 0x8000, 1);
+            SetOutputSpeed(GPIOA,0x8000, 1);
 
             I2Cx->CR1 &= ~(1<<0);
             I2Cx->TIMINGR = 0x10420F13;
