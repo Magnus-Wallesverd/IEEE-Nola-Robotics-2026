@@ -7,491 +7,631 @@
 #include <stdint.h>
 
 /* ══════════════════════════════════════════════════════════════
-   FIELD DATA — coordinates in jiawei's units (÷48 = cm)
+   UNITS AND FIELD GEOMETRY: raw units/48 = cm
    ══════════════════════════════════════════════════════════════ */
 
-const Vec2 TAG_WORLD[8] = {
-    [0] = {0,2743},
-    [1] = {0,2743},
-    [2] = {0,2743},
-    [3] = {0,2743},
-    [4] = {0,2743},
-    [5] = {3885,5486},
-    [6] = {5313,0},
-    [7] = {11338,2743}
-};
+/* Wall positions (robot centre when flush against wall) */
+#define X_WEST          15*48
+#define X_EAST          221*48         
+#define Y_SOUTH         15*48          
+#define Y_NORTH         99*48          
 
-const Vec2 RENDEZVOUS[5] = {
-    [0] = {731,518},
-    [1] = {731,1646},
-    [2] = {731,2743},
-    [3] = {731,3840},
-    [4] = {731,4968}
-};
+// cave Thresholds
+#define X_CAVE_THRESH   148*48
+#define X_CAVE_IN       165*48
+#define Y_CAVE_CENTER   57*48
 
-const Vec2 WAYPOINTS[] = {
-    {1097,1097},    // perimeter outside cave
-    {1097,4389},
-    {5638,4389},
-    {5638,1097},
+#define ROW_STEP_CM     25
 
-    {1097,2194},    // lawnmower outside cave
-    {5638,2194},
-    {5638,3353},
-    {1097,3353},
-    {1097,1097},
-    {5638,1097},
+/* Start */
+#define START_X         3810
+#define START_Y         731
+#define START_HDG       0           // heading
 
-    {5638,2743},    // going into cave
-    {8625,2743},
+/* Thresholds */
+#define TOF_WALL_STOP   200         // mm
+#define DIST_THRESH     5*48
+#define HDG_THRESH      5           // degrees    
+#define VISITED_THRESH  15*48
+#define RECOVERY_MS     4000
+#define DROPOFF_MS      140000      // 2:20
 
-    {8625,1097},    // perimeter in cave
-    {10241,1097},
-    {10241,4389},
-    {8625,4389},
-    {8625,2743},
-
-    {10241,2743},   // lawnmower in cave
-    {10241,1097},
-    {8625,1097},
-    {8625,4389},
-    {10241,4389},
-    {10241,2743}
-};
-
-#define NUM_WP (sizeof(WAYPOINTS)/sizeof(WAYPOINTS[0]))
-
-#define START_X     3810
-#define START_Y     731
-#define START_THETA 90
-
-Vec2 NEB_BOX = {3200,4754};
-Vec2 GEO_BOX = {6370,731};
-
-#define DIST_THRESHOLD      70
-#define ANGLE_STRAIGHT      5
-#define ANGLE_LATERAL_MAX   15
-#define LATERAL_DIST_MAX    731
-#define MAX_GRAB_ATTEMPTS   3
-
-/* ── Camera UART protocol ────────────────────────────────────── */
-#define CAM_FN_SEE_TAG  0x00    // 0=none, 1=front, 2=back, 3=both
-#define CAM_FN_ID       0x01    // arg1: 1=front, 2=back
-#define CAM_FN_DIST     0x02    // arg1: 1=front, 2=back
-#define CAM_FN_ANG      0x03    // arg1: 1=front, 2=back
-#define CAM_FN_YAW      0x04    // arg1: 1=front, 2=back
+/* Camera protocol */
+#define CAM_FN_SEE_TAG  0x00
+#define CAM_FN_ID       0x01
+#define CAM_FN_SQRT     0x05
+#define CAM_FN_PROJ_X   0x07
+#define CAM_FN_PROJ_Y   0x08
 #define CAM_FRONT       0x01
 #define CAM_BACK        0x02
+#define CAM_OFFSET 15*48    // will need to change to real offset
 
-/* Send [0xAA][fn][arg1][arg2][0x55], receive [0xAA][val][?][0x55].
- * Disables RX interrupt during transaction to avoid IRQ consuming bytes.
- * Returns the value byte (resp[1]), or 0xFF on timeout/bad frame. */
-static uint8_t cam_request(uint8_t fn, uint8_t arg1, uint8_t arg2) {
-    /* disable RX interrupt — we're polling directly */
+/* Container positions */
+#define X_NEB           3200
+#define X_GEO           6370
+
+/* Rendezvous pad y-centres (from south wall) */
+int16_t PAD_Y[5] = { 518, 1646, 2743, 3840, 4968 };
+
+Vec2 TAG_WORLD[8]={
+    {0,2743},
+    {0,2743},
+    {0,2743},
+    {0,2743},
+    {0,2743},
+    {3885,5486},
+    {5313,0},
+    {11338,2743}
+};
+
+int16_t TAG_FACING[8]={270,270,270,270,270,0,180,90};
+
+/* ══════════════════════════════════════════════════════════════
+   WAYPOINTS 
+   ══════════════════════════════════════════════════════════════ */
+
+Waypoint wps[] = {
+    /* Open arena row endpoints */
+    { 15*48, 15*48, WP_OPEN, 0}, 
+    {140*48, 15*48, WP_OPEN, 0},
+    {140*48, 40*48, WP_OPEN, 0}, 
+    { 15*48, 40*48, WP_OPEN, 0},
+    { 15*48, 65*48, WP_OPEN, 0}, 
+    {140*48, 65*48, WP_OPEN, 0},
+    {140*48, 90*48, WP_OPEN, 0}, 
+    { 15*48, 90*48, WP_OPEN, 0},
+    /* Cave entry */
+    {155*48, 57*48, WP_CAVE_ENTER, 0},
+    {172*48, 57*48, WP_CAVE_ENTER, 0},
+    /* Cave row endpoints */
+    {172*48, 15*48, WP_CAVE, 0}, 
+    {221*48, 15*48, WP_CAVE, 0},
+    {221*48, 40*48, WP_CAVE, 0}, 
+    {172*48, 40*48, WP_CAVE, 0},
+    {172*48, 65*48, WP_CAVE, 0}, 
+    {221*48, 65*48, WP_CAVE, 0},
+    {221*48, 90*48, WP_CAVE, 0}, 
+    {172*48, 90*48, WP_CAVE, 0},
+    /* Cave exit */
+    {155*48, 57*48, WP_CAVE_EXIT, 0},
+};
+
+#define NUM_WP (sizeof(wps)/sizeof(wps[0]))
+
+/* MOTOR WRAPPERS */
+// drive fwd cm
+int drive_cm(int8_t dist_cm) {
+    return step(&dist_cm);
+}
+
+int turn_to(Robot *r, int16_t target_hdg) {
+    int16_t ang = target_hdg - r->heading;
+    while(ang > 180) ang -= 360;
+    while(ang < -180) ang += 360;
+    if (ang > -HDG_THRESH && ang < HDG_THRESH) return 1;
+    int8_t a = (int8_t)((ang > 127) ? 127 : (ang < -128) ? -128 : ang);
+    return rotate(&a);
+}
+
+/* ══════════════════════════════════════════════════════════════
+   CAMERA 
+   ══════════════════════════════════════════════════════════════ */
+uint8_t cam_req(uint8_t fn, uint8_t a1, uint8_t a2) {
     USART1->CR1 &= ~USART_RXNEIE;
+    uint8_t p[5] = {0xAA, fn, a1, a2, 0x55};
 
-    /* send 5-byte request */
-    uint8_t pkt[5] = {0xAA, fn, arg1, arg2, 0x55};
-    for (int i = 0; i < 5; i++) {
-        while (!(USART1->ISR & USART_TXE));
-        USART1->TDR = pkt[i];
+    for(int i=0;i<5;i++){
+        while(!(USART1->ISR&USART_TXE));
+        USART1->TDR=p[i];
     }
-    while (!(USART1->ISR & USART_TC));
-    USART1->ICR |= (1 << 6);    // clear TC flag
 
-    /* receive 4-byte response */
-    uint8_t resp[4] = {0};
-    for (int i = 0; i < 4; i++) {
-        uint32_t timeout = 200000;
-        while (!(USART1->ISR & USART_RXNE) && --timeout);
-        if (!timeout) {
+    while(!(USART1->ISR & USART_TC)); 
+    USART1->ICR |= (1<<6);
+    uint8_t r[4] = {0};
+
+    for(int i=0; i<4; i++){
+        uint32_t t = 200000;
+        while(!(USART1->ISR & USART_RXNE) && --t);
+        if(!t){
             USART1->CR1 |= USART_RXNEIE;
-            return 0xFF;    // timeout
-        }
-        resp[i] = (uint8_t)USART1->RDR;
+            return 0xFF;
+        } 
+        r[i] = USART1->RDR;
     }
 
     USART1->CR1 |= USART_RXNEIE;
-
-    if (resp[0] != 0xAA || resp[3] != 0x55) return 0xFF;
-    return resp[1];
+    return (r[0] == 0xAA && r[3] == 0x55) ? r[1] : 0xFF;
 }
 
-/* ── Integer math (no stdlib) ────────────────────────────────── */
-
-/* Integer square root via Newton's method */
-static uint16_t isqrt32(uint32_t n) {
-    if (n == 0) return 0;
-    uint32_t x = n;
-    uint32_t y = (x + 1) >> 1;
-    while (y < x) {
-        x = y;
-        y = (x + n / x) >> 1;
+int16_t cam_req16(uint8_t fn, uint8_t a1) {
+    USART1->CR1 &= ~USART_RXNEIE;
+    uint8_t p[5] = {0xAA, fn, a1, 0, 0x55};
+    for (int i = 0; i < 5; i++) {
+        while (!(USART1->ISR & USART_TXE));
+        USART1->TDR = p[i];
     }
-    return (uint16_t)x;
+
+    while (!(USART1->ISR & USART_TC));
+    USART1->ICR |= (1 << 6);
+    uint8_t r[4] = {0};
+    for (int i = 0; i < 4; i++) {
+        uint32_t t = 200000;
+        while (!(USART1->ISR & USART_RXNE) && --t);
+        if (!t) { USART1->CR1 |= USART_RXNEIE; return 0; }
+        r[i] = USART1->RDR;
+    }
+
+    USART1->CR1 |= USART_RXNEIE;
+    if (r[0] != 0xAA || r[3] != 0x55) return 0;
+    return (int16_t)((uint16_t)r[1] | ((uint16_t)r[2] << 8));
 }
 
-/* Integer atan2 — returns bearing in degrees [-180, 180].
- * Coordinate convention: +x = east, +y = north (same as field).
- * Returns compass bearing: 0 = north, 90 = east, etc.
- * Max error ~9 degrees, sufficient for navigation. */
-static int16_t atan2_bearing(int32_t dy, int32_t dx) {
-    if (dx == 0 && dy == 0) return 0;
+/* ══════════════════════════════════════════════════════════════
+   POSE CORRECTION
+   ══════════════════════════════════════════════════════════════ */
+void pose_correct(Robot *r, uint8_t side) {
+    uint8_t id = r->cam_id[side == CAM_FRONT ? 0 : 1];
+    if(id > 7) return; // sanity check
 
-    /* scale down to prevent overflow while keeping ratio */
-    while (dx > 1000 || dx < -1000 || dy > 1000 || dy < -1000) {
-        dx >>= 1;
-        dy >>= 1;
+    int16_t px = cam_req16(CAM_FN_PROJ_X, side) * 48;
+    int16_t py = cam_req16(CAM_FN_PROJ_Y, side) * 48;
+
+    int16_t tx = TAG_WORLD[id].x; 
+    int16_t ty = TAG_WORLD[id].y;
+
+    int16_t cam_hdg = (side == CAM_BACK)
+                    ? (r->heading + 180) % 360
+                    : r->heading;
+
+    int s_t[4]={0,1,0,-1};
+    int c_t[4]={1,0,-1,0};
+
+    int idx = ((cam_hdg + 45) / 90) % 4;
+
+    int16_t ex = tx - (px*c_t[idx] - py*s_t[idx]) - (CAM_OFFSET*s_t[idx]);
+    int16_t ey = ty - (px*s_t[idx] + py*c_t[idx]) - (CAM_OFFSET*c_t[idx]);
+    
+    // blend
+    r->x = (int16_t)(((int32_t)r->x*7 + (int32_t)ex*3) / 10);
+    r->y = (int16_t)(((int32_t)r->y*7 + (int32_t)ey*3) / 10);
+}
+
+/* ══════════════════════════════════════════════════════════════
+   WAYPOINT HELPERS
+   ══════════════════════════════════════════════════════════════ */
+// returns distance from waypoint
+uint16_t wp_dist(Robot *r, const Waypoint *w) {
+    int16_t dx = (r->x - w->x) / 48;   // to cm
+    int16_t dy = (r->y - w->y) / 48;
+    if (dx < 0) dx = -dx;
+    if (dy < 0) dy = -dy;
+
+    uint32_t sum = (uint32_t)dx*dx + (uint32_t)dy*dy;
+    uint8_t lo = (uint8_t)(sum & 0xFF);
+    uint8_t hi = (uint8_t)((sum >> 8) & 0xFF);
+    uint8_t d_cm = cam_req(CAM_FN_SQRT,lo,hi);
+
+    return (uint16_t)d_cm * 48;
+}
+
+void wp_check_visit(Robot *r) {
+    for(int i = 0; i < NUM_WP; i++){
+        uint16_t d = wp_dist(r, &wps[i]);
+        if(!wps[i].visited && (d <= VISITED_THRESH)) {
+            wps[i].visited = 1;  
+        }
+    } 
+}
+
+int wp_nearest(Robot *r, WpType t) {
+    int nearest = -1; 
+    uint16_t shortest = 0xFFFF;
+
+    for(int i = 0; i < NUM_WP; i++){
+        if(!wps[i].visited && wps[i].type == t) {
+            uint16_t d = wp_dist(r,&wps[i]);
+            if(d < shortest){
+                shortest = d;
+                nearest = i;
+            }
+        }
     }
 
-    int32_t abs_dx = dx < 0 ? -dx : dx;
-    int32_t abs_dy = dy < 0 ? -dy : dy;
-    int32_t angle;
+    return nearest;
+}
 
-    /* atan approximation: atan(t) ≈ 45*t for |t| <= 1 */
-    if (abs_dx >= abs_dy) {
-        /* use atan(dy/dx), result near 0 or ±180 */
-        angle = (45 * dy) / (dx == 0 ? 1 : dx);
-        if (dx < 0) angle += (dy >= 0) ? 180 : -180;
+int wp_all_done(WpType t) {
+    for(int i = 0; i < NUM_WP; i++){
+        if(!wps[i].visited && (WpType)wps[i].type == t){
+            return 0;
+        }
+    }
+    return 1;
+}
+
+// return 1 when done, 0 still navigating
+int wp_nav_to(Robot *r){
+    if(r->wp_target_idx < 0) return 1; // sanity check
+                                       
+    Waypoint *wp = &wps[r->wp_target_idx];
+
+    switch(r->wp_nav_step){
+    case 0:
+        if(!turn_to(r, (r->x < wp->x) ? 90 : 270)) return 0;
+        r->wp_nav_step = 1; 
+        return 0;
+
+    case 1: {
+
+        int16_t dx = wp->x - r->x; 
+        if(dx < 0) dx = -dx;
+        if(dx < DIST_THRESH) {
+            r->wp_nav_step = 2;
+            return 0;
+        }
+        int8_t cm = (int8_t)((dx/48 > 120) ? 120 : dx/48);
+        drive_cm(cm);
+        return 0;
+    }
+
+    case 2:
+        if(!turn_to(r,(r->y < wp->y) ? 0 : 180)) return 0;
+        r->wp_nav_step = 3; 
+        return 0;
+
+    case 3: {
+        int16_t dy = wp->y - r->y; 
+        if(dy < 0) dy = -dy;
+        if(dy < DIST_THRESH) {
+            wps[r->wp_target_idx].visited = 1;
+            r->last_progress_tick = get_global_tick();
+            r->wp_nav_step = 0; 
+            r->wp_target_idx = -1; 
+            return 1;
+        }
+        int8_t cm = (int8_t)((dy/48 > 120) ? 120 : dy/48);
+        drive_cm(cm);
+        return 0;
+    } 
+    }
+    return 1;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   SENSOR UPDATE 
+   ══════════════════════════════════════════════════════════════ */
+void sensor_update(Robot *r){
+    // gyroscope heading
+    r->heading = (i2c_rx_buffer[HEADING_MSB]<<8 | i2c_rx_buffer[HEADING_LSB])/16;
+    r->elapsed_ms = get_global_tick() - r->start_tick;
+    r->tof_fwd_mm = get_tof_distance();
+    
+    // encoder dead-reckoning
+
+    {
+        int16_t delta_cm = get_encoder_delta_cm();
+        if (delta_cm != 0) {
+            /* sin/cos for 0=N,90=E,180=S,270=W */
+            int8_t cx[4] = {  0,  1,  0, -1 };
+            int8_t cy[4] = {  1,  0, -1,  0 };
+            int idx = ((r->heading + 45) / 90) % 4;
+            r->x += (int16_t)((int32_t)delta_cm * 48 * cx[idx]);
+            r->y += (int16_t)((int32_t)delta_cm * 48 * cy[idx]);
+        }
+    }
+
+    r->cam_sees = cam_req(CAM_FN_SEE_TAG,0,0);
+
+    if(r->cam_sees & 0x01){
+        r->cam_id[0] = cam_req(CAM_FN_ID,CAM_FRONT,0);
+        pose_correct(r,CAM_FRONT);
+        if(r->cam_id[0] <= 4) r->telemetry_pad = r->cam_id[0];
     } else {
-        /* use 90 - atan(dx/dy) */
-        angle = 90 - (45 * dx) / (dy == 0 ? 1 : dy);
-        if (dy < 0) angle -= 180;
+        r->cam_id[0] = 0xFF;
     }
 
-    /* convert from math convention (east=0) to compass (north=0) */
-    angle = 90 - angle;
-    if (angle > 180)  angle -= 360;
-    if (angle <= -180) angle += 360;
+    if(r->cam_sees & 0x02){
+        r->cam_id[1] = cam_req(CAM_FN_ID,CAM_BACK,0);
+        pose_correct(r,CAM_BACK);
+        if(r->cam_id[1] <= 4) r->telemetry_pad = r->cam_id[1];
+    } else {
+        r->cam_id[1] = 0xFF;
+    }
 
-    return (int16_t)angle;
-}
-
-/* Normalize heading error to [-180, 180] */
-static int16_t heading_error(int16_t target, int16_t current) {
-    int16_t err = target - current;
-    if (err > 180)  err -= 360;
-    if (err <= -180) err += 360;
-    return err;
+    if(r->mission == MISSION_LAWN_OPEN || r->mission == MISSION_LAWN_CAVE)
+        wp_check_visit(r);
 }
 
 /* ══════════════════════════════════════════════════════════════
    INIT
    ══════════════════════════════════════════════════════════════ */
-
-void robot_init(RobotCtx *ctx) {
-    ctx->mission        = MISSION_TELEMETRY;
-    ctx->prev_mission   = MISSION_TELEMETRY;
-    ctx->action         = ACTION_IDLE;
-    ctx->last_event     = EVT_NONE;
-
-    ctx->x              = START_X;
-    ctx->y              = START_Y;
-    ctx->heading        = START_THETA;
-
-    ctx->wp_index       = 0;
-    ctx->nav_target.x   = START_X;
-    ctx->nav_target.y   = START_Y;
-    ctx->nav_angle      = 0;
-    ctx->nav_dist       = 0;
-
-    ctx->telemetry_pad  = 2;
-    ctx->items_collected = 0;
-    ctx->grab_attempts  = 0;
-    ctx->neb_held       = 0;
-    ctx->geo_held       = 0;
-
-    ctx->start_tick     = get_global_tick();
-    ctx->elapsed_ms     = 0;
-}
-
-/* ══════════════════════════════════════════════════════════════
-   SENSOR UPDATE
-   ══════════════════════════════════════════════════════════════ */
-
-void sensor_update(RobotCtx *ctx) {
-    ctx->heading = (i2c_rx_buffer[HEADING_MSB] << 8
-                  | i2c_rx_buffer[HEADING_LSB]) / 16;
-
-    /* TODO: update ctx->x, ctx->y from encoder dead reckoning */
-
-    ctx->elapsed_ms = get_global_tick() - ctx->start_tick;
-}
-
-/* ══════════════════════════════════════════════════════════════
-   NAVIGATION
-   ══════════════════════════════════════════════════════════════ */
-
-void nav_to(RobotCtx *ctx, uint16_t tx, uint16_t ty) {
-    ctx->nav_target.x = tx;
-    ctx->nav_target.y = ty;
-
-    int32_t dx = (int32_t)tx - (int32_t)ctx->x;
-    int32_t dy = (int32_t)ty - (int32_t)ctx->y;
-
-    /* true distance */
-    ctx->nav_dist = (int16_t)isqrt32((uint32_t)(dx*dx + dy*dy));
-
-    /* bearing to target (compass degrees, 0=north, 90=east) */
-    int16_t bearing = atan2_bearing(dy, dx);
-
-    /* angle error: how far we need to rotate from current heading */
-    ctx->nav_angle = heading_error(bearing, ctx->heading);
-}
-
-int nav_drive(RobotCtx *ctx) {
-    if (ctx->nav_dist < DIST_THRESHOLD) {
-        ctx->action = ACTION_IDLE;
-        return 1;
-    }
-
-    int16_t ang = ctx->nav_angle;
-    int16_t abs_ang = ang < 0 ? -ang : ang;
-
-    if (abs_ang < ANGLE_STRAIGHT) {
-        ctx->action = ACTION_STEPPING;
-        uint8_t step_dist = 20;
-        int result = step((void*)&step_dist);
-        if (!result) ctx->last_event = EVT_STEP_FAILED;
-
-    } else if (abs_ang <= ANGLE_LATERAL_MAX && ctx->nav_dist <= LATERAL_DIST_MAX) {
-        ctx->action = (ang > 0) ? ACTION_LATERAL_R : ACTION_LATERAL_L;
-        uint8_t lat_dist = 10;
-        if (ang > 0) lateral_right((void*)&lat_dist);
-        else         lateral_left((void*)&lat_dist);
-
-    } else {
-        ctx->action = ACTION_ROTATING;
-        int8_t rot_angle = (int8_t)ang;
-        int result = rotate((void*)&rot_angle);
-        if (!result) ctx->last_event = EVT_ROTATE_FAILED;
-    }
-
-    ctx->action = ACTION_IDLE;
-    return 0;
+void robot_init(Robot *r){
+    r->mission = MISSION_LAWN_OPEN; 
+    r->prev_mission = MISSION_LAWN_OPEN; 
+    r->x = START_X; 
+    r->y = START_Y; 
+    r->heading = START_HDG;
+    r->tof_fwd_mm = 9999;
+    r->cam_sees = 0; 
+    r->cam_id[0] = 0xFF; 
+    r->cam_id[1] = 0xFF;
+    r->telemetry_pad = 2;
+    r->sub_step = 0;
+    r->wp_nav_step = 0;
+    r->row_parity = 0;
+    r->in_cave = 0;
+    r->wp_target_idx = -1; 
+    r->start_tick = get_global_tick(); 
+    r->elapsed_ms = 0;
+    r->last_progress_tick = r->start_tick;
 }
 
 /* ══════════════════════════════════════════════════════════════
    MISSION HANDLERS
    ══════════════════════════════════════════════════════════════ */
 
-static Mission handle_telemetry(RobotCtx *ctx) {
-    /* rotate to face west wall (tags 0-4 are all at x=0, mid-field) */
-    int8_t rot = -90;   // -90 = turn left to face west
-    rotate((void*)&rot);
-
-    /* ask camera if it sees a tag */
-    uint8_t sees = cam_request(CAM_FN_SEE_TAG, 0, 0);
-
-    if (sees == 1 || sees == 3) {
-        /* front camera sees a tag — get its ID */
-        uint8_t tag_id = cam_request(CAM_FN_ID, CAM_FRONT, 0);
-        if (tag_id <= 4) {
-            ctx->telemetry_pad = tag_id; // tag 0-4 maps to RENDEZVOUS[0-4]
-        }
-    } else if (sees == 2) {
-        /* only back camera sees it */
-        uint8_t tag_id = cam_request(CAM_FN_ID, CAM_BACK, 0);
-        if (tag_id <= 4) {
-            ctx->telemetry_pad = tag_id;
+Mission handle_lawn_open(Robot *r){
+    if(r->elapsed_ms >= DROPOFF_MS) return MISSION_EXIT_CAVE;
+    
+    // nav to nearest open waypoint
+    if(get_global_tick() - r->last_progress_tick > RECOVERY_MS){
+        int i = wp_nearest(r,WP_OPEN);
+        if(i >= 0){
+            r->wp_target_idx = i;
+            r->wp_nav_step = 0;
+            r->prev_mission = MISSION_LAWN_OPEN;
+            r->sub_step = 0;
+            return MISSION_WP_RECOVER;
         }
     }
-    /* else: no tag seen, keep default pad 2 */
 
-    /* rotate back to face north */
-    int8_t rot_back = 90;
-    rotate((void*)&rot_back);
+    if(wp_all_done(WP_OPEN)){
+        r->sub_step = 0; 
+        return MISSION_CAVE_ENTER;
+    }
 
-    return MISSION_GRAB_NEB;
+    switch(r->sub_step){
+        
+    case 0: 
+        // drive until wall
+        if(r->tof_fwd_mm <= TOF_WALL_STOP){
+            // reset y from wall contact
+            r->y = (r->row_parity==0) ? Y_NORTH : Y_SOUTH;
+            r->last_progress_tick = get_global_tick();
+            r->sub_step = 1;
+            return MISSION_LAWN_OPEN;
+        }
+        drive_cm(10);
+        return MISSION_LAWN_OPEN;
+
+    case 1: 
+        // turn east
+        if(!turn_to(r,90)) return MISSION_LAWN_OPEN; 
+        r->sub_step = 2; 
+        return MISSION_LAWN_OPEN;
+
+    case 2:
+        // advance one row east
+        if(drive_cm(ROW_STEP_CM)) r->sub_step = 3;
+        return MISSION_LAWN_OPEN;
+
+    case 3: {
+        // flip direction and start next row
+        int16_t face = (r->row_parity == 0) ? 180: 0;
+        if(!turn_to(r,face)) return MISSION_LAWN_OPEN;
+        r->row_parity ^= 1;
+        r->sub_step = 0;
+        return MISSION_LAWN_OPEN;
+    }
+    }
+    return MISSION_LAWN_OPEN;
 }
 
-static Mission handle_grab_neb(RobotCtx *ctx) {
-    /* drive to nebulite container at NEB_BOX, pick it up */
-    nav_to(ctx, NEB_BOX.x, NEB_BOX.y);
-    while (!nav_drive(ctx)) {
-        sensor_update(ctx);
-        nav_to(ctx, NEB_BOX.x, NEB_BOX.y);
+/* WP_RECOVER */
+Mission handle_wp_recover(Robot *r){
+    if(wp_nav_to(r)) {
+        r->sub_step = 0;
+        r->last_progress_tick = get_global_tick();
+        return r->prev_mission;
     }
-
-    ctx->action = ACTION_GRABBING;
-    /* TODO: activate intake/gripper */
-    ctx->neb_held = 1;
-    ctx->action = ACTION_IDLE;
-
-    return MISSION_GRAB_GEO;
+    return MISSION_WP_RECOVER;
 }
 
-static Mission handle_grab_geo(RobotCtx *ctx) {
-    /* drive to geodinium container at GEO_BOX, pick it up */
-    nav_to(ctx, GEO_BOX.x, GEO_BOX.y);
-    while (!nav_drive(ctx)) {
-        sensor_update(ctx);
-        nav_to(ctx, GEO_BOX.x, GEO_BOX.y);
+Mission handle_cave_enter(Robot *r){
+    switch(r->sub_step){
+    case 0: /* hit south wall: get y exact */
+        if(!turn_to(r,180)) return MISSION_CAVE_ENTER; 
+        r->sub_step=1; 
+        return MISSION_CAVE_ENTER;
+
+    case 1: 
+        if(r->tof_fwd_mm <= TOF_WALL_STOP){
+            r->y = Y_SOUTH;
+            r->sub_step = 2;
+            return MISSION_CAVE_ENTER;
+        }
+        drive_cm(10);
+        return MISSION_CAVE_ENTER;
+
+    case 2: /* step count north to cave centre y */
+        if(!turn_to(r,0)) return MISSION_CAVE_ENTER;
+        r->sub_step=3; 
+        return MISSION_CAVE_ENTER;
+
+    case 3: {
+        int16_t dy = Y_CAVE_CENTER - r->y;
+        if (dy < 0) dy = -dy;
+        if (dy < DIST_THRESH) {
+            r->sub_step = 4;
+            return MISSION_CAVE_ENTER;
+        }
+        int8_t cm = (int8_t)((dy/48 > 120) ? 120 : dy/48);
+        drive_cm(cm);
+        return MISSION_CAVE_ENTER;
     }
 
-    ctx->action = ACTION_GRABBING;
-    /* TODO: activate intake/gripper */
-    ctx->geo_held = 1;
-    ctx->action = ACTION_IDLE;
+    case 4: /* face east, drive into cave */
+        if(!turn_to(r,90)) return MISSION_CAVE_ENTER; 
+        r->sub_step = 5; 
+        return MISSION_CAVE_ENTER;
 
-    return MISSION_SWEEP;
+    case 5: 
+        if(r->x > X_CAVE_IN || r->tof_fwd_mm <= TOF_WALL_STOP){
+            r->in_cave = 1;
+            r->row_parity = 0;
+            for(int i = 0; i < NUM_WP; i++){
+                if(wps[i].type == WP_CAVE_ENTER) wps[i].visited = 1;
+            }
+            r->sub_step = 0;
+            return MISSION_LAWN_CAVE;
+        }
+        drive_cm(10);
+        return MISSION_CAVE_ENTER;
+    } 
+    return MISSION_CAVE_ENTER;
 }
 
-static Mission handle_sweep(RobotCtx *ctx) {
-    /* follow waypoint array in lawnmower pattern
-     * passive Intake→Processing→Sorting handles samples mechanically */
-    if (ctx->wp_index >= NUM_WP) {
-        ctx->wp_index = 0;
-        return MISSION_DUMP_NEB;
+// same as LAWN_OPEN but advances west
+Mission handle_lawn_cave(Robot *r){
+    if(r->elapsed_ms >= DROPOFF_MS) return MISSION_EXIT_CAVE;
+
+    if(get_global_tick() - r->last_progress_tick > RECOVERY_MS){
+        int i = wp_nearest(r,WP_CAVE);
+        if(i >= 0){
+            r->wp_target_idx = i;
+            r->wp_nav_step = 0;
+            r->prev_mission = MISSION_LAWN_CAVE;
+            r->sub_step = 0;
+            return MISSION_WP_RECOVER;
+        }
     }
 
-    Vec2 wp = WAYPOINTS[ctx->wp_index];
-    nav_to(ctx, wp.x, wp.y);
-    while (!nav_drive(ctx)) {
-        sensor_update(ctx);
-        nav_to(ctx, wp.x, wp.y);
-        /* TODO: if (ctx->elapsed_ms > 170000) return MISSION_DUMP_NEB; */
-    }
+    if(wp_all_done(WP_CAVE)){r->sub_step = 0; return MISSION_EXIT_CAVE;}
 
-    ctx->wp_index++;
-    return MISSION_SWEEP;
+    switch(r->sub_step){
+    case 0: 
+        // drive until wall
+        if(r->tof_fwd_mm <= TOF_WALL_STOP){
+            // reset y from wall contact
+            if(r->row_parity==0) r->y = Y_NORTH;
+            else r->y = Y_SOUTH;
+            r->last_progress_tick = get_global_tick();
+            r->sub_step = 1;
+            return MISSION_LAWN_CAVE;
+        }
+        drive_cm(10);
+        return MISSION_LAWN_CAVE;
+
+    case 1: 
+        // turn east
+        if(!turn_to(r,270)) return MISSION_LAWN_CAVE; 
+        r->sub_step = 2; 
+        return MISSION_LAWN_CAVE;
+
+    case 2:
+        if(r->x <= X_CAVE_THRESH){
+            r->in_cave = 0;
+            r->sub_step = 0;
+            return MISSION_EXIT_CAVE;
+        }
+        drive_cm(ROW_STEP_CM);
+        r->sub_step = 3;
+        return MISSION_LAWN_CAVE;
+
+    case 3: {
+        // flip direction and start next row
+        int16_t face = (r->row_parity == 0) ? 180: 0;
+        if(!turn_to(r,face)) return MISSION_LAWN_CAVE;
+        r->row_parity ^= 1;
+        r->sub_step = 0;
+        return MISSION_LAWN_CAVE;
+    }
+    }
+    return MISSION_EXIT_CAVE;
 }
 
-static Mission handle_dump_neb(RobotCtx *ctx) {
-    /* navigate to rendezvous pad (learned from april tag), dump nebulite */
-    Vec2 drop = RENDEZVOUS[ctx->telemetry_pad];
-    nav_to(ctx, drop.x, drop.y);
-    while (!nav_drive(ctx)) {
-        sensor_update(ctx);
-        nav_to(ctx, drop.x, drop.y);
-    }
+/* EXIT_CAVE: drive west past threshold, mark exit WP visited */
+Mission handle_exit_cave(Robot *r){
+    switch(r->sub_step){
+    case 0: 
+        if(!turn_to(r,270))return MISSION_EXIT_CAVE; 
+        r->sub_step=1; 
+        return MISSION_EXIT_CAVE;
 
-    ctx->action = ACTION_SCORING;
-    /* TODO: activate dump mechanism */
-    ctx->neb_held = 0;
-    ctx->action = ACTION_IDLE;
-
-    return MISSION_DUMP_GEO;
-}
-
-static Mission handle_dump_geo(RobotCtx *ctx) {
-    /* navigate to rendezvous pad, dump geodinium */
-    Vec2 drop = RENDEZVOUS[ctx->telemetry_pad];
-    nav_to(ctx, drop.x, drop.y);
-    while (!nav_drive(ctx)) {
-        sensor_update(ctx);
-        nav_to(ctx, drop.x, drop.y);
-    }
-
-    ctx->action = ACTION_SCORING;
-    /* TODO: activate dump mechanism for geo */
-    ctx->geo_held = 0;
-    ctx->action = ACTION_IDLE;
-
+    case 1: 
+        if(r->x < X_CAVE_THRESH || r->tof_fwd_mm <= TOF_WALL_STOP) {
+            r->in_cave = 0;
+            for(int i = 0; i < NUM_WP; i++)
+                if(wps[i].type == WP_CAVE_EXIT) wps[i].visited = 1;
+            r->sub_step = 0; 
+            return MISSION_DONE;
+        }
+        drive_cm(10);
+        return MISSION_EXIT_CAVE;
+    } 
     return MISSION_DONE;
 }
 
-static Mission handle_done(RobotCtx *ctx) {
-    (void)ctx;
+Mission handle_done(Robot *r){
+    (void)r;
     turn_off_motors();
     return MISSION_DONE;
 }
 
-/* ── Dispatch table ──────────────────────────────────────────── */
-typedef Mission (*MissionHandler)(RobotCtx *);
+/* ══════════════════════════════════════════════════════════════
+   DISPATCH TABLE
+   ══════════════════════════════════════════════════════════════ */
+typedef Mission (*MissionHandler)(Robot *);
 
-static const MissionHandler mission_handlers[MISSION_COUNT] = {
-    [MISSION_TELEMETRY] = handle_telemetry,
-    [MISSION_GRAB_NEB]  = handle_grab_neb,
-    [MISSION_GRAB_GEO]  = handle_grab_geo,
-    [MISSION_SWEEP]     = handle_sweep,
-    [MISSION_DUMP_NEB]  = handle_dump_neb,
-    [MISSION_DUMP_GEO]  = handle_dump_geo,
+MissionHandler mission_handlers[MISSION_COUNT] = {
+    [MISSION_LAWN_OPEN]= handle_lawn_open,
+    [MISSION_WP_RECOVER]= handle_wp_recover,
+    [MISSION_CAVE_ENTER]= handle_cave_enter,
+    [MISSION_LAWN_CAVE]  = handle_lawn_cave,
+    [MISSION_EXIT_CAVE] = handle_exit_cave,
     [MISSION_DONE]      = handle_done,
 };
 
-/* ══════════════════════════════════════════════════════════════
-   TICK
-   ══════════════════════════════════════════════════════════════ */
-
-void robot_tick(RobotCtx *ctx) {
-    sensor_update(ctx);
-
-    Mission next = mission_handlers[ctx->mission](ctx);
-
-    if (next != ctx->mission) {
-        ctx->prev_mission = ctx->mission;
-        ctx->mission = next;
-        ctx->action = ACTION_IDLE;
-        ctx->grab_attempts = 0;
-    }
-}
-
-/* ══════════════════════════════════════════════════════════════
-   ROBOT_MAIN — OS task entry point
-
-   Add to fn_table in task_queue.c:
-       const func_t fn_table[] = {
-           lcd_print,
-           Sensor_Read_Wrapper,
-           usart_begin,
-           robot_main,
-       };
-   ══════════════════════════════════════════════════════════════ */
-
-void robot_main(void *args) {
-    (void)args;
-
-    RobotCtx ctx;
-    robot_init(&ctx);
-
-    while (ctx.mission != MISSION_DONE) {
-        robot_tick(&ctx);
-    }
-
-    turn_off_motors();
-    while (1) { block(); }
-}
+/*
+MissionHandler mission_handlers[MISSION_COUNT] = {
+    [MISSION_SWEEP_WEST]= handle_sweep_west,
+    [MISSION_FACE_NEB]  = handle_face_neb,
+    [MISSION_GRAB_NEB]  = handle_grab_neb,
+    [MISSION_DROP_NEB]  = handle_drop_neb,
+    [MISSION_FACE_GEO]  = handle_face_geo,
+    [MISSION_GRAB_GEO]  = handle_grab_geo,
+    [MISSION_DROP_GEO]  = handle_drop_geo,
+    [MISSION_LAWN_START]= handle_lawn_start,
+    [MISSION_LAWN_ROW]  = handle_lawn_row,
+    [MISSION_WP_RECOVER]= handle_wp_recover,
+    [MISSION_CAVE_ENTER]= handle_cave_enter,
+    [MISSION_CAVE_START]= handle_cave_start,
+    [MISSION_CAVE_ROW]  = handle_cave_row,
+    [MISSION_EXIT_CAVE] = handle_exit_cave,
+    [MISSION_DROP_BAGS] = handle_drop_bags,
+    [MISSION_DONE]      = handle_done,
+};
+*/
 
 /* ══════════════════════════════════════════════════════════════
-   CAMERA API — thin wrappers over cam_request()
+   TICK + ENTRY POINT
    ══════════════════════════════════════════════════════════════ */
-
-/* Returns 0=none, 1=front, 2=back, 3=both */
-uint8_t camera_check_apriltag(void) {
-    return cam_request(CAM_FN_SEE_TAG, 0, 0);
-}
-
-int16_t get_heading(void) {
-    return (i2c_rx_buffer[HEADING_MSB] << 8
-          | i2c_rx_buffer[HEADING_LSB]) / 16;
-}
-
-/* ── Debug ───────────────────────────────────────────────────── */
-
-const char* mission_name(Mission m) {
-    switch (m) {
-        case MISSION_TELEMETRY: return "TELEM";
-        case MISSION_GRAB_NEB:  return "GRABN";
-        case MISSION_GRAB_GEO:  return "GRABG";
-        case MISSION_SWEEP:     return "SWEEP";
-        case MISSION_DUMP_NEB:  return "DUMPN";
-        case MISSION_DUMP_GEO:  return "DUMPG";
-        case MISSION_DONE:      return "DONE ";
-        default:                return "?????";
+void robot_tick(Robot *r){
+    sensor_update(r);
+    Mission next = mission_handlers[r->mission](r);
+    if(next != r->mission){
+        r->prev_mission = r->mission; 
+        r->mission = next;
+        r->sub_step = 0;
     }
 }
 
-const char* action_name(Action a) {
-    switch (a) {
-        case ACTION_IDLE:        return "IDLE ";
-        case ACTION_ROTATING:    return "ROTAT";
-        case ACTION_STEPPING:    return "STEP ";
-        case ACTION_LATERAL_L:   return "LATL ";
-        case ACTION_LATERAL_R:   return "LATR ";
-        case ACTION_GRABBING:    return "GRAB ";
-        case ACTION_SCORING:     return "SCORE";
-        case ACTION_READING_TAG: return "RTAG ";
-        default:                 return "?????";
-    }
+void robot_main(void *args){
+    (void)args; 
+    Robot r; 
+    robot_init(&r);
+    while(r.mission != MISSION_DONE) 
+        robot_tick(&r);
+    turn_off_motors(); 
+    while(1){ block();}
 }

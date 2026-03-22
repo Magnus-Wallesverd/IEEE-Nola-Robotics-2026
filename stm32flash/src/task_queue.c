@@ -6,6 +6,7 @@
 #include "i2c.h"
 #include "motors.h"
 #include "parser.h"
+#include "statemachine.h"
 
 queue_t task_queue;
 queue_t* task_queue_ptr = &task_queue;
@@ -32,6 +33,7 @@ const func_t fn_table[] = {
     lcd_print,
     Sensor_Read_Wrapper,
     usart_begin,
+    robot_main
 };
 
 void task_queue_init(void){
