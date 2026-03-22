@@ -8,7 +8,7 @@
 
 void systeminit(void){
 
-    // set_clock_128Mhz();
+    set_clock_128Mhz();
 
     // systic interrupt init
     STK->CTRL |= 0x6;

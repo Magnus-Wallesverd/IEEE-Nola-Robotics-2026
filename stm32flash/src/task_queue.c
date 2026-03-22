@@ -32,8 +32,8 @@ const func_t fn_table[] = {
     // lcd_print,
     // usart_begin,
     // lcd_print,
-    // Sensor_Write_Wrapper
-    get_ToF_Distance
+    Sensor_Read_Wrapper
+    // get_ToF_Distance
 };
 
 void task_queue_init(void){

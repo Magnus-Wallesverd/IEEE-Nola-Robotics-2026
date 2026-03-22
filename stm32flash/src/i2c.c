@@ -46,13 +46,17 @@ void I2C_Init(I2C_TypeDef* I2Cx, uint8_t mode){
 
             SetPinAlternate(GPIOA,1<<15);            // Set pins 6 & 7 to AF mode I2c
             AlternateFunctionSet(GPIOA,1<<15,4);      // set pins PB 6&7 to AF4
+            SetOutputType(GPIOA, 1<<15, 1);
+            SetOutputSpeed(GPIOA,1<<15, 1);
+            
             SetPinAlternate(GPIOB,0x80);            // Set pins 6 & 7 to AF mode I2c
             AlternateFunctionSet(GPIOB,0x80,4);      // set pins PB 6&7 to AF4
-            SetOutputType(GPIOA, 1<<15, 1);
+            SetOutputType(GPIOB, 0x80, 1);
             SetOutputSpeed(GPIOB,0x80, 1);
+            
 
             I2Cx->CR1 &= ~(1<<0);
-            I2Cx->TIMINGR = 0x10420F13;
+            I2Cx->TIMINGR = 0x30420F13;
             I2Cx->ICR = 0x3F38;
             I2Cx->CR1 |= TXIE|RXIE|TCIE|STOPIE|NACKIE;
             I2Cx->CR1 |= (1<<0);
