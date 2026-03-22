@@ -145,7 +145,7 @@ void InitGenTIM(Gen_TIM_TypeDef1 *port);
 
 // enables timer 6 & 7
 // one timer per call
-void InitBasicTIM(Basic_TIM_TypeDef *port);
+void InitBasicTIM(void);
 
 // outputs PWM
 void OutputPWM(Adv_TIM_TypeDef *port);

@@ -62,16 +62,13 @@ uint16_t hA = 120;
 uint16_t hB = 100;
 uint16_t hC =  30;
 
-void TIM1_UP_TIM16_IRQHandler(void){
-    TIM16->SR = 0;  // clear flags
-}
-
-void TIM20_UP_IRQHandler(void){
-    TIM20->SR = 0;  // clear flags
+void TIM7_IRQHandler(void){
+    TIM7->SR = 0;  // clear flags
     if(motor_tcb->state == BLOCKED){
         unblock(motor_tcb);
     }     
 }
+
 
 void input_timer_init(void){
     RCC->APB1ENR1 |= 0x7;        // Enable TIM 2, 3, 4
@@ -138,17 +135,17 @@ void output_timer_init(void){
     // TIM16->BDTR  |= 1<<15;       // Main Output enable
     // TIM16->CR1   |= 0b10000001;
     
-    // timer prio
-    NVIC_IPR->IPR19 |= NVIC_IRQ_PRIORITY1 << 16;
+}
 
-    TIM20->DIER  |= 1;
-    TIM20->CCMR1 |= 0x68;
-    TIM20->PSC   |= 24*8;
-    TIM20->ARR    = 7999;
-    TIM20->CCR1  |= 4000;
-    TIM20->CCER  |= 1;
-    TIM20->BDTR  |= 1<<15;       // Main Output enable
-    TIM20->CR1   |= 0b10000001;
+void InitBasicTIM(void){
+    RCC->APB1ENR1 |= 1 <<5;
+    NVIC->ISER1 |= 1 <<23;
+    // NVIC_IPR->IPR19 |= NVIC_IRQ_PRIORITY1 << 16;
+    TIM7->DIER  |= 1;
+    TIM7->PSC   |= 24*8;
+    TIM7->ARR    = 7999;
+    TIM7->CR1   |= 0b10000001;
+
 }
 
 void zero_timers(void){
