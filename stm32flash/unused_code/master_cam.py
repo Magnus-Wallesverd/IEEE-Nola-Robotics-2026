@@ -1,27 +1,23 @@
-#  master camera
+# master camera
 
-#  UART3  P4 (TX) / P5 (RX) <->  STM32 115200 baud
-#  UART1  P0 (RX) <- slave rear camera, 115200 baud
-#  Shared GND between master, slave, and STM32.
+# UART3  P4 (TX) / P5 (RX) <->  STM32 115200 baud
+# UART1  P0 (RX) <- slave rear camera, 115200 baud
+# Shared GND between master, slave, and STM32.
 
-#  Coordinate system:
-#  Origin = SW corner.  +X = east,  +Y = north.  All units: inches.
-#  Field: 93 × 45 in.
-
-#  receive packet from STM:
+# receive packet from STM:
 #    [0]  0xAA     header
 #    [1]  fn_id    function ID
-#    [2]  arg1     arg: 0 = none, 1 = front, 2 = back, or value high byte
-#    [3]  arg2     arg: value low byte
+#    [2]  arg1     arg: 0 = none, 1 = front, 2 = back, or lo byte
+#    [3]  arg2     arg: high byte (for math functions)
 #    [3]  0x55     footer
 
 # return packet to STM:
 #    [0]  0xAA     header
-#    [1]  value1
-#    [2]  value2
+#    [1]  value low
+#    [2]  value high
 #    [3]  0x55     footer
 
-#  Function dispatch table:
+# function dispatch table:
 #    FN_SEE_TAG = 0x00   return: 0 = no see, 1 = front sees, 2 = back sees, 3 = both sees
 #    FN_ID      = 0x01   return: tag ID
 #    FN_DIST    = 0x02   return: tag distance from cam
@@ -29,6 +25,8 @@
 #    FN_YAW     = 0x04   return: tag yaw from cam
 #    FN_SQRT    = 0x05   return: sqrt(arg)
 #    FN_ATAN    = 0x06   return: atan(arg)
+#    FN_PROJ_X  = 0x07   return: dist * sin(ang)
+#    FN_PROJ_Y  = 0x08   return: dist * cos(ang)
 
 #  Slave packet:
 #    [0]  0xBB        header
@@ -67,7 +65,10 @@ FN_ANG      = 0x03
 FN_YAW      = 0x04
 FN_SQRT     = 0x05
 FN_ATAN     = 0x06
+FN_PROJ_X   = 0x07
+FN_PROJ_Y   = 0x08
 
+# camera paramters
 TAG_SIZE_IN = 80.0 / 25.4   # 3.1496 in
 
 FX = (2.8/3.984) * 160 * 1.36
@@ -82,7 +83,7 @@ Tc = 0.0159
 Ts = 1.0 / 13.3
 y_prev = {}
 
-# starting
+# starting values
 front_buf = {}
 rear_buf = {}
 front_id = None
@@ -156,6 +157,7 @@ def proc_rear():
         rest = uart_slave.read(4)
         if rest is None or len(rest) < 4:
             break
+
         tag_id = rest[0]
         dist = rest[1]
         bearing = rest[2]
@@ -166,6 +168,8 @@ def proc_rear():
 
         rear_id = tag_id
         rear_buf[tag_id] = (dist, bearing_deg, yaw_deg)
+
+        print("REAR  id=%d dist=%d bearing=%d yaw=%d" % (tag_id, dist, bearing_deg, yaw_deg))
 
 # receive requests from STM
 def receive_request():
@@ -187,69 +191,74 @@ def receive_request():
     return None, None, None
 
 #  UART HELPERS  (STM32)
-def _send_pkt(value):
-    val1 = value & 0xFF
-    val2 = (value >> 8) & 0xFF if value > 0xFF else 0
+def send_pkt(value):
+    v = int(value) & 0xFF
 
     pkt    = bytearray(4)
     pkt[0] = STM_HEADER
-    pkt[1] = val1
-    pkt[2] = val2
+    pkt[1] = v & 0xFF
+    pkt[2] = (v >> 8) & 0xFF
     pkt[3] = STM_FOOTER
     uart_stm.write(pkt)
     print("TX function return: {}".format(value))
+
+def get_tag(cam):
+    """Return (dist, bearing, yaw) for cam=1/2, or None."""
+    if cam == 1 and front_id is not None and front_id in front_buf:
+        return front_buf[front_id]
+    if cam == 2 and rear_id is not None and rear_id in rear_buf:
+        return rear_buf[rear_id]
+    return None
 
 def cmd_see_tag():
     has_front = len(front_buf) > 0
     has_rear = len(rear_buf) > 0
     if has_front and has_rear:
-        _send_pkt(3)
+        send_pkt(3)
     elif has_rear:
-        _send_pkt(2)
+        send_pkt(2)
     elif has_front:
-        _send_pkt(1)
+        send_pkt(1)
     else:
-        _send_pkt(0)
+        send_pkt(0)
 
-def cmd_id(tag):
-    if tag == 1 and front_id is not None:
-        _send_pkt(front_id)
-    elif tag == 2 and rear_id is not None:
-        _send_pkt(rear_id)
+def cmd_id(cam):
+    if cam == 1 and front_id is not None:
+        send_pkt(front_id)
+    elif cam == 2 and rear_id is not None:
+        send_pkt(rear_id)
     else:
-        _send_pkt(0xFF) # no tag
+        send_pkt(0xFF) # no tag
 
-def cmd_dist(tag):
-    if tag == 1 and front_id is not None and front_id in front_buf:
-        _send_pkt(front_buf[front_id][0])
-    elif tag == 2 and rear_id is not None and rear_id in rear_buf:
-        _send_pkt(rear_buf[rear_id][0])
-    else:
-        _send_pkt(0)
+def cmd_dist(cam):
+    t = get_tag(cam)
+    send_pkt(t[0] if t else 0)
 
-def cmd_ang(tag):
-    if tag == 1 and front_id is not None and front_id in front_buf:
-        _send_pkt(front_buf[front_id][1])
-    elif tag == 2 and rear_id is not None and rear_id in rear_buf:
-        _send_pkt(rear_buf[rear_id][1])
-    else:
-        _send_pkt(0)
+def cmd_ang(cam):
+    t = get_tag(cam)
+    send_pkt(t[1] & 0xFF if t else 0)
 
-def cmd_yaw(tag):
-    if tag == 1 and front_id is not None and front_id in front_buf:
-        _send_pkt(front_buf[front_id][2])
-    elif tag == 2 and rear_id is not None and rear_id in rear_buf:
-        _send_pkt(rear_buf[rear_id][2])
-    else:
-        _send_pkt(0)
+def cmd_yaw(cam):
+    t = get_tag(cam)
+    send_pkt(t[2] & 0xFF if t else 0)
 
 def cmd_sqrt(lo,hi):
-    value = _unpack_int16(lo,hi)
-    _send_pkt(int(math.sqrt(abs(value))))
+    value = (hi << 8) | lo
+    send_pkt(int(math.sqrt(abs(value))))
 
 def cmd_atan(lo,hi):
     value = _unpack_int16(lo,hi)
-    _send_pkt(int(math.degrees(math.atan(value))))
+    send_pkt(int(math.degrees(math.atan(value))) & 0xFFFF)
+
+def cmd_proj_x(cam):
+    t = get_tag(cam)
+    val = int(t[0] * math.sin(math.radians(t[1]))) if t else 0
+    send_pkt(val & 0xFFFF)
+
+def cmd_proj_y(cam):
+    t = get_tag(cam)
+    val = int(t[0] * math.cos(math.radians(t[1]))) if t else 0
+    send_pkt(val & 0xFFFF)
 
 # process request from STM
 def process_request(function, arg1, arg2):
@@ -269,6 +278,10 @@ def process_request(function, arg1, arg2):
         cmd_sqrt(arg1,arg2)
     elif function == FN_ATAN:
         cmd_atan(arg1,arg2)
+    elif function == FN_PROJ_X:
+        cmd_proj_x(arg1)
+    elif function == FN_PROJ_Y:
+        cmd_proj_y(arg1)
     else:
         return
 
@@ -276,7 +289,7 @@ def process_request(function, arg1, arg2):
 while True:
 
     clock.tick()
-    now = time.ticks_ms()
+    Ts = 1.0/ max(clock.fps(), 1.0)
     img = sensor.snapshot()
 
     proc_front(img)
@@ -284,5 +297,3 @@ while True:
 
     fn,arg1,arg2 = receive_request()
     process_request(fn, arg1, arg2)
-
-    Ts = 1.0/clock.fps()
