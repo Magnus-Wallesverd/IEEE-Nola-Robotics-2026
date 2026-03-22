@@ -27,7 +27,8 @@ void systeminit(void){
     // RCC->APB2ENR |= (1 << 11);              // Enable TIM1
     
     RCC->AHB2ENR |= GPIOA_EN|GPIOB_EN;      // enable GPIO AB 
- 
+    
+    SetPinOutput(GPIOA, PA0);
     // enable i2c interrupt
     // NVIC->ISER0 |= 1<<31;
     

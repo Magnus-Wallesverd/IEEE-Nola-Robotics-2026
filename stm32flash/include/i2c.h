@@ -96,6 +96,8 @@ void Sensor_Read(I2C_TypeDef* I2Cx, uint16_t dev, uint8_t* tx_buf, uint16_t tx_l
 void Sensor_Read_Wrapper(void* args);
 
 void Sensor_Write_Wrapper(void* args);
+
+void get_ToF_Distance(void* args);
  
 void Sensor_Init(void);
 
