@@ -295,7 +295,8 @@ void step2(int16_t args,uint8_t speed){
     int32_t pwm8 = 0;
     
     uint16_t* tof_p = ToF_Distance_p;
-    uint16_t relative_tof = *tof_p;
+    uint16_t  tof_marker = *tof_p;
+    int16_t  tof_live;
 
     jump_start(speed);
 
@@ -312,15 +313,17 @@ void step2(int16_t args,uint8_t speed){
         curr3 = TIM3->CNT - 83;
         curr4 = TIM4->CNT + 35;
         curr8 = TIM8->CNT - 39;
+
+        tof_live = (tof_marker - *tof_p)/10;
         
         curr_avg = ((curr3)+curr4+(curr8)+curr2)/4;
         error = (target2 - curr_avg);
 
-        error2 = target2 - curr2;
-        error3 = target2 - curr3;
-        error4 = target2 - curr4;
-        error8 = target2 - curr8;
-
+        error2 = target2 - (curr2*40 + tof_live*60)/100;
+        error3 = target2 - (curr3*40 + tof_live*60)/100;
+        error4 = target2 - (curr4*40 + tof_live*60)/100;
+        error8 = target2 - (curr8*40 + tof_live*60)/100;
+        
         derr = error - prev;
         ierr += error /C;
         pwm = error*A + kd_arr[speed-1]*derr + ierr;
