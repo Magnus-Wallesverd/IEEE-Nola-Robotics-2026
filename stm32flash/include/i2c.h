@@ -89,7 +89,7 @@ extern I2C_Dev*  VL53L1X;
 
 extern I2C_Dev* Current_Dev;
 
-extern uint16_t ToF_Distance;
+extern uint16_t ToF_Distance_p;
 extern int16_t bno_heading;
 
 // I2C HAL function prototypes

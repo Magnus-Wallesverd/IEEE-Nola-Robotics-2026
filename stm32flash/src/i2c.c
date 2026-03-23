@@ -19,6 +19,8 @@ int ovf17 = 0;
 int bno_ready = 0;
 
 uint16_t ToF_Distance = 0;
+uint16_t ToF_Distance_p = &ToF_Distance;
+
 uint8_t  ToF_offset_ADA = 29;
 uint8_t  ToF_offset_PIM = 18;
 

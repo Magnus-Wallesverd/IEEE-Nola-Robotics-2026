@@ -158,17 +158,6 @@ void InitBasicTIM(void){
 
 }
 
-void zero_timers(void){
-    // TIM2->CNT = 0;
-    // TIM3->CNT = 0;
-    // TIM4->CNT = 0;
-    // TIM8->CNT = 0;
-
-    TIM1->CCR1 = 0;
-    TIM1->CCR2 = 0;
-    TIM1->CCR3 = 0;
-    TIM1->CCR4 = 0;
-}
 
 void turn_on_motors(void){
 
@@ -204,12 +193,26 @@ int32_t clamp_max_pwm(int32_t pwm, uint8_t speed){
     return pwm;
 }
 
-void zerocounter(){
+void zero_CCR(void){
+
+    TIM1->CCR1 = 0;
+    TIM1->CCR2 = 0;
+    TIM1->CCR3 = 0;
+    TIM1->CCR4 = 0;
+}
+
+void zero_CNT(){
         
     TIM2->CNT = 0;
     TIM3->CNT = 0;
     TIM4->CNT = 0;
     TIM8->CNT = 0;
+}
+
+void lock_motors(void){
+    GPIOC->BSRR |= (INL1|INL2|INL3|INL4|INR3);
+    GPIOB->BSRR |= (INR1|INR4);
+    GPIOA->BSRR |= INR2;
 }
 
 int step(void* args){
@@ -220,7 +223,7 @@ int step(void* args){
     int8_t data = *((uint8_t*) args);
     int16_t error = 0;
 
-    zerocounter();
+    zero_CNT();
 
     const int16_t target2 = 48*(data); // convert cm to encoder counts
     int16_t curr_avg = 0;
@@ -229,7 +232,7 @@ int step(void* args){
     while(1){
         
         if(motor_timeout_counter > MAXTIMEOUT){
-            zero_timers();
+            zero_CCR();
             turn_off_motors();
             return 0;
         }
@@ -265,7 +268,7 @@ int step(void* args){
         TIM1->CCR4 = pwm;
         prev = error;
         if((error < 70 && error > -70) && derr ==0){
-            zero_timers();
+            zero_CCR();
             turn_off_motors();
             return 1;
         }
@@ -279,7 +282,7 @@ void step2(int16_t args,uint8_t speed){
     int16_t error = 0;
     motor_timeout_counter = 0;
     
-    zerocounter();
+    zero_CNT();
 
     const int16_t target2 = (48*(args)); // convert cm to encoder counts
     int16_t curr_avg = 0;
@@ -290,12 +293,18 @@ void step2(int16_t args,uint8_t speed){
     int32_t pwm3 = 0;
     int32_t pwm4 = 0;
     int32_t pwm8 = 0;
+    
+    uint16_t* tof_p = ToF_Distance_p;
+    uint16_t relative_tof = *tof_p;
 
     jump_start(speed);
 
     while(1){
+        if(*tof_p < 200){
+            lock_motors();
+        }
         if(motor_timeout_counter > MAXTIMEOUT){
-            // zero_timers();
+            // zero_CCR();
             turn_off_motors();
             return ;
         }
@@ -346,7 +355,7 @@ void step2(int16_t args,uint8_t speed){
         prev = error;
 
         if((error < 70 && error > -70) && derr ==0){
-            zero_timers();
+            zero_CCR();
             turn_off_motors();
             return;
         }
@@ -362,7 +371,7 @@ void rotate2(int16_t args){
     measure_h = 0;
     while(1){
         // if(motor_timeout_counter > MAXTIMEOUT){
-        //     zero_timers();
+        //     zero_CCR();
         //     turn_off_motors();
         //     return ;
         // }
@@ -392,7 +401,7 @@ void rotate2(int16_t args){
         TIM1->CCR1 = pwm;
         TIM1->CCR4 = pwm;
         if((measure_h < 48 && measure_h > -48) && measure8 ==0){
-            zero_timers();
+            zero_CCR();
             turn_off_motors();
             return;
         }
@@ -412,7 +421,7 @@ int rotate(void* args){
     while(1){
 
         if(motor_timeout_counter > MAXTIMEOUT){
-            zero_timers();
+            zero_CCR();
             turn_off_motors();
             return 0;
         }
@@ -444,7 +453,7 @@ int rotate(void* args){
         TIM1->CCR1 = pwm;
         TIM1->CCR4 = pwm;
         if((measure_h < 48 && measure_h > -48) && measure8 ==0){
-            zero_timers();
+            zero_CCR();
             turn_off_motors();
             return 1;
         }
@@ -466,7 +475,7 @@ int lateral_left(void* args){
     while(1){
 
         if(motor_timeout_counter > MAXTIMEOUT){
-            zero_timers();
+            zero_CCR();
             turn_off_motors();
             return 0;
         }
@@ -487,7 +496,7 @@ int lateral_left(void* args){
         int16_t output8 = lateral_Kd*(curr8-prev8) + lateral_Kp*(target - curr8) + (error8);
 
         if(target - curr2 < 0){
-            zero_timers();
+            zero_CCR();
             turn_off_motors();
             return 1;
         } else {
@@ -519,7 +528,7 @@ int lateral_right(void* args){
     while(1){
 
         if(motor_timeout_counter > MAXTIMEOUT){
-            zero_timers();
+            zero_CCR();
             turn_off_motors();
             return 0;
         }
@@ -543,7 +552,7 @@ int lateral_right(void* args){
             TIM1->CCR2 = 0;
             TIM1->CCR3 = 0;
             TIM1->CCR4 = 0;
-            zero_timers();
+            zero_CCR();
             turn_off_motors();
             return 1;
         }else {
