@@ -189,9 +189,13 @@ void lcd_print(void* args){
             // move_cursor(1, 0);
             // stringify(measure_h, buffer_4);
             move_cursor(2, 0 );
-            stringify(TIM4->CNT, buffer_5);
+            stringify(TIM2->CNT, buffer_5);
+            move_cursor(3, 0 );
+            stringify(TIM3->CNT, buffer_6);
             move_cursor(2, 7 );
-            stringify(TIM8->CNT, buffer_6);
+            stringify(TIM4->CNT, buffer_3);
+            move_cursor(3, 7 );
+            stringify(TIM8->CNT, buffer_4);
 
             t1=t0;
         }

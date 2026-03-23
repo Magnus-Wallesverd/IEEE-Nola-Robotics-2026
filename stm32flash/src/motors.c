@@ -17,7 +17,7 @@ uint32_t tim7_ovf;
 uint32_t* tim7_ovf_p = &tim7_ovf;
 
 uint32_t motor_timeout_counter = 0;
-uint32_t MAXTIMEOUT = 80;
+uint32_t MAXTIMEOUT = 200;
 
 Gen_TIM_TypeDef1* input_timers[] = {TIM2, TIM3, TIM4};
 int32_t ierr = 0;
@@ -53,9 +53,10 @@ uint8_t dir = 0;
 uint32_t counter;
 uint8_t Kp = 1;
 int16_t measure_h = 0;
-uint16_t A = 10;
-uint16_t B = 3;
-uint16_t C = 10;
+
+uint16_t A = 4;
+uint16_t B = 23;
+uint16_t C = 1400;
 
 uint8_t lateral_Kd = 60;
 uint8_t lateral_Kp = 3;
@@ -117,12 +118,12 @@ void output_timer_init(void){
 
     TIM1->CCMR1 |= 0x6868;      // pwm 1 CH 1,2
     TIM1->CCMR2 |= 0x6868;      // pwm 1 CH 3,4
-    TIM1->PSC   |= 12;           //
+    TIM1->PSC   |= 31;           //
     TIM1->ARR   = 7999;        // top
-    TIM1->CCR1  = 0;        // compare ch1
-    TIM1->CCR2  = 0;        // compare ch1
-    TIM1->CCR3  = 0;        // compare ch1
-    TIM1->CCR4  = 0;        // compare ch1
+    TIM1->CCR1  = 2000;        // compare ch1
+    TIM1->CCR2  = 1800;        // compare ch1
+    TIM1->CCR3  = 1800;        // compare ch1
+    TIM1->CCR4  = 1800;        // compare ch1
     TIM1->CCER  |= 0x1111;      // enable CC 1-4
     TIM1->BDTR  |= 1<<15;       // Main Output enable
     TIM1->CR1 |= 0b10000001;    // Enable TIM1 counter
@@ -160,10 +161,25 @@ void zero_timers(void){
     TIM1->CCR4 = 0;
 }
 
+void turn_on_motors(void){
+
+    GPIOC->BSRR |= (INL4|INL1|INR3)|((INL3|INL2) << 16) ;
+    GPIOB->BSRR |= ((INR4|INR1) <<16);
+    GPIOA->BSRR |= INR2;
+}
+
 void turn_off_motors(void){
     GPIOC->BSRR |= (INL1|INL2|INL3|INL4|INR3)<<16;
     GPIOB->BSRR |= (INR1|INR4) << 16;
     GPIOA->BSRR |= INR2 << 16;
+}
+
+void jump_start(void){
+    turn_on_motors();      
+    TIM1->CCR1 = 7999;
+    TIM1->CCR2 = 7999;
+    TIM1->CCR3 = 7999;
+    TIM1->CCR4 = 7999;
 }
 
 void zerocounter(){
@@ -241,28 +257,31 @@ void step2(int16_t args){
     int16_t error = 0;
     motor_timeout_counter = 0;
     
-
     zerocounter();
 
     const int16_t target2 = (48*(args)); // convert cm to encoder counts
     int16_t curr_avg = 0;
     int16_t derr = 0;
     int16_t prev = 0;
+
+    jump_start();
+
     while(1){
-        // if(motor_timeout_counter > MAXTIMEOUT){
-        //     zero_timers();
-        //     turn_off_motors();
-        //     return ;
-        // }
+        if(motor_timeout_counter > MAXTIMEOUT){
+            // zero_timers();
+            turn_off_motors();
+            return ;
+        }
         curr2 = TIM2->CNT;
         curr3 = TIM3->CNT;
         curr4 = TIM4->CNT;
         curr8 = TIM8->CNT;
-        curr_avg = (curr3+curr4+curr8+curr2)/4;
+        curr_avg = ((curr3-48)+curr4+(curr8-48)+curr2)/4;
         error = (target2 - curr_avg);
         derr = error - prev;
         ierr += error /C;
         pwm = error*A + B*derr + ierr;
+
         if(pwm<0){ 
             GPIOC->BSRR |= ((INL4|INL1|INR3)<<16)|((INL3|INL2)) ;
             GPIOB->BSRR |= INR3<<16|(INR1);
@@ -283,10 +302,11 @@ void step2(int16_t args){
         TIM1->CCR1 = pwm;
         TIM1->CCR4 = pwm;
         prev = error;
-        // if((error < 70 && error > -70) && derr ==0){
-        //     zero_timers();
-        //     turn_off_motors();
-        // }
+        if((error < 70 && error > -70) && derr ==0){
+            zero_timers();
+            turn_off_motors();
+            return;
+        }
         motor_timeout_counter++;
         devi += (target_h - *curr_h)*derr; //endyne per second;
         block();
@@ -298,11 +318,11 @@ void rotate2(int16_t args){
 
     measure_h = 0;
     while(1){
-        if(motor_timeout_counter > MAXTIMEOUT){
-            zero_timers();
-            turn_off_motors();
-            return ;
-        }
+        // if(motor_timeout_counter > MAXTIMEOUT){
+        //     zero_timers();
+        //     turn_off_motors();
+        //     return ;
+        // }
         measure_h = args - *curr_h;
         if(measure_h <= HEADING_MAX_VALUE/2) measure_h+=HEADING_MAX_VALUE;
         if(measure_h > HEADING_MAX_VALUE/2) measure_h-=HEADING_MAX_VALUE;   
@@ -507,16 +527,38 @@ void global_pos(void* args){
     // 4320    -> -90 degree -> -x direction
     //  0  ->   0 degree -> +y direction
     //  5760 -.  180 degree   -y direction
-    int16_t x1 = 30;
+    int16_t x1 = 20;
+    int16_t y1 = 3*30;
     int16_t arg =0;
     int16_t dispx = x1 -x;
     devi = 0;
     target_h = 0;
-    // target_h = 1440*(dispx > 0) + 4320*(dispx < 0 );
-    step2(10);
-    // for(int i = 0; i < x1/ + 1 ; i++ ){
-    //     rotate2(target_h + (devi)/(40*9));
+    step2(120);
+    // targe0t_h = 1440*(dispx > 0) + 4320*(dispx < 0 );
+    // rotate2(0);
+    // for(int i = 0; i < x1/11 + 1 ; i++ ){
+    //     rotate2(target_h + (devi)/(40*10));
+    //     step2(30);
+    // }
+    // // rotate2(1440);
+    // for(int i = 0; i < y1/11 + 1 ; i++ ){
+    //     rotate2(1440 + (devi)/(40*10));
     //     step2(11);
     // }
 
 }
+
+/*
+ * D% 50, 75, 25 
+ * 
+ * 4.7  , 8 ,    9.58,  0.86  0.85 UR
+ * 4.79 , 8.12,  9.6 ,  4.9   0.84 LR
+ * 4.48 , 7.86,  9.4 ,  3.9   3.9  UL
+ * 4.87 , 8.33 , 9.67,  0.64  0.66   LL
+ *
+ *  500hz D% 25 50 75
+ *  6   , 8.91, 10
+ *  6.15, 8.95  9.82
+ *  5.82, 8.74  9.93
+ *  6.51, 9.21 10.02
+ * */
