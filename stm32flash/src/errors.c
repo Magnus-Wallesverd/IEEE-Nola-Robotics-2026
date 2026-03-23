@@ -1,5 +1,6 @@
 #include <stdint.h>
 #include "backend.h"
+#include "gpio.h"
 
 void UsageFault_Handler(void){
     uint32_t cfsr = SCB->CFSR;
@@ -30,7 +31,7 @@ void hardfault_c(uint32_t *stack)
 
     volatile uint32_t fault_addr = SCB->BFAR;
     volatile uint32_t cfsr = SCB->CFSR;
-
+    GPIOA->BSRR |= 0x20;
     while(1);
 }
 

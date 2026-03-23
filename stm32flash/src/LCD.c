@@ -63,7 +63,7 @@ static void stringify(uint32_t num, char buffer[]){
         buffer[BUFFER_SIZE-1-i] = temp + NUM_BASE;
     }
 
-    for(uint8_t i = 0;i<BUFFER_SIZE; i++){
+    for(uint8_t i = 0;i<BUFFER_SIZE;i++){
         putchar(buffer[i]);
         buffer[i] = 0;
     }
@@ -159,7 +159,7 @@ void lcd_print(void* args){
     char entry_1[] = {"T3"};
     char entry_2[] = {"T4"};
     char entry_3[] = {"T8"};
-    char entry_4[] = {"Right "};
+    char entry_4[] = {"d_tof "};
     char entry_5[] = {"Cntr  "};
     char* lu_table[] = {entry_1,entry_2,entry_3,entry_4};
     char buffer_1[BYTE_BUFFER] = {0};
@@ -170,13 +170,10 @@ void lcd_print(void* args){
     char buffer_6[BYTE_BUFFER] = {0};
     
     move_cursor(2, 0);
-    print(entry_0);
+    print(entry_4);
+
     move_cursor(3, 0);
-    print(entry_1);
-    move_cursor(3, 8);
-    print(entry_2);
-    move_cursor(2, 8);
-    print(entry_3);
+    print(entry_0);
 
     uint32_t t0 = 0;
     uint32_t t1 = 0;
@@ -187,21 +184,24 @@ void lcd_print(void* args){
 
             move_cursor(0, 0);
             // stringify((i2c_rx_buffer[HEADING_MSB] << 8 | i2c_rx_buffer[HEADING_LSB]), buffer_1);
-            stringify(ToF_Distance, buffer_1);
+            stringify(*ToF_Distance_p, buffer_1);
             move_cursor(0, 7);
             stringify(bno_heading>>4, buffer_2);
             // move_cursor(1, 7);
             // stringify(TIM1->CCR1, buffer_3);
             // move_cursor(1, 0);
             // stringify(measure_h, buffer_4);
-            move_cursor(2, 3 );
-            stringify(TIM1->CCR4, buffer_3);
+            move_cursor(2, 7);
+            stringify(delta_tof, buffer_3);
+
             move_cursor(3, 3 );
-            stringify(TIM1->CCR1, buffer_4);
-            move_cursor(3, 11 );
-            stringify(TIM1->CCR3, buffer_5);
-            move_cursor(2, 11 );
-            stringify(TIM1->CCR2, buffer_6);
+            stringify(TIM1->CCR4, buffer_3);
+            // move_cursor(3, 3 );
+            // stringify(TIM1->CCR1, buffer_4);
+            // move_cursor(3, 11 );
+            // stringify(TIM1->CCR3, buffer_5);
+            // move_cursor(2, 11 );
+            // stringify(TIM1->CCR2, buffer_6);
 
             t1=t0;
         }

@@ -19,6 +19,8 @@ uint32_t* tim7_ovf_p = &tim7_ovf;
 uint32_t motor_timeout_counter = 0;
 uint32_t MAXTIMEOUT = 320;
 
+int16_t delta_tof;
+
 Gen_TIM_TypeDef1* input_timers[] = {TIM2, TIM3, TIM4};
 int32_t ierr = 0;
 int16_t prev2 = 0;
@@ -54,9 +56,9 @@ uint32_t counter;
 uint8_t Kp = 1;
 int16_t measure_h = 0;
 
-uint16_t A = 4;
-uint16_t B = 23;
-uint16_t C = 1400;
+uint16_t A = 5;
+uint16_t B = 1;
+uint16_t C = 14000;
 
 uint8_t lateral_Kd = 60;
 uint8_t lateral_Kp = 3;
@@ -158,7 +160,6 @@ void InitBasicTIM(void){
 
 }
 
-
 void turn_on_motors(void){
 
     GPIOC->BSRR |= (INL4|INL1|INR3)|((INL3|INL2) << 16) ;
@@ -213,12 +214,19 @@ void lock_motors(void){
     GPIOC->BSRR |= (INL1|INL2|INL3|INL4|INR3);
     GPIOB->BSRR |= (INR1|INR4);
     GPIOA->BSRR |= INR2;
+
+    TIM1->CCR1 = 7999;
+    TIM1->CCR2 = 7999;
+    TIM1->CCR3 = 7999;
+    TIM1->CCR4 = 7999;
 }
 
 void step2(int16_t args,uint8_t speed){
     motor_tcb = current_tcb;
     
     int16_t error = 0;
+    int16_t tof_error = 0;
+    int16_t total_error = 0;
     motor_timeout_counter = 0;
     
     zero_CNT();
@@ -234,13 +242,21 @@ void step2(int16_t args,uint8_t speed){
     int32_t pwm8 = 0;
     
     uint16_t* tof_p = ToF_Distance_p;
-    uint16_t  tof_marker = *tof_p /10;
     int16_t  tof_live;
+
+    int16_t tof_p2 = (int16_t) *tof_p;
+    while(*tof_p == 0){
+        block();
+    }
+
+    uint32_t tof_target = (*tof_p*480) - target2; 
 
     jump_start(speed);
 
     while(1){
-        if(*tof_p/10 < 200){
+        tof_p2 = (int16_t) *tof_p;
+        if(*tof_p/10 < 20){
+            // turn_off_motors();
             lock_motors();
             return ;
         }
@@ -254,24 +270,26 @@ void step2(int16_t args,uint8_t speed){
         curr4 = TIM4->CNT + 35;
         curr8 = TIM8->CNT - 39;
 
-        tof_live = ((tof_marker - *tof_p)*480)/10;
+        tof_error = -1*(tof_target - *tof_p*480);
         
         curr_avg = ((curr3)+curr4+(curr8)+curr2)/4;
-        error = (target2 - (curr_avg * ENCODER_FILTER_WEIGHT + tof_live*TOF_FILTER_WEIGHT));
-
-        error2 = target2 - (curr2*ENCODER_FILTER_WEIGHT + tof_live*TOF_FILTER_WEIGHT)/100;
-        error3 = target2 - (curr3*ENCODER_FILTER_WEIGHT + tof_live*TOF_FILTER_WEIGHT)/100;
-        error4 = target2 - (curr4*ENCODER_FILTER_WEIGHT + tof_live*TOF_FILTER_WEIGHT)/100;
-        error8 = target2 - (curr8*ENCODER_FILTER_WEIGHT + tof_live*TOF_FILTER_WEIGHT)/100;
+        error = target2 - curr_avg;
         
-        derr = error - prev;
-        ierr += error /C;
-        pwm = error*A + kd_arr[speed-1]*derr + ierr;
+        // error2 = target2 - curr2;
+        // error3 = target2 - curr3;
+        // error4 = target2 - curr4;
+        // error8 = target2 - curr8;
+        
+        // total_error = (TOF_FILTER_WEIGHT*tof_error + ENCODER_FILTER_WEIGHT*error)/100;
+        total_error = error;        
+        derr = total_error - prev;
+        ierr += total_error /C;
+        pwm = total_error*A + kd_arr[speed-1]*derr + ierr;
 
-        pwm2 = error2*A + kd_arr[speed-1]*derr + ierr;
-        pwm3 = error3*A + kd_arr[speed-1]*derr + ierr;
-        pwm4 = error4*A + kd_arr[speed-1]*derr + ierr;
-        pwm8 = error8*A + kd_arr[speed-1]*derr + ierr;
+        pwm2 = total_error*A + kd_arr[speed-1]*derr + ierr;
+        pwm3 = total_error*A + kd_arr[speed-1]*derr + ierr;
+        pwm4 = total_error*A + kd_arr[speed-1]*derr + ierr;
+        pwm8 = total_error*A + kd_arr[speed-1]*derr + ierr;
 
         if(pwm<0){ 
             GPIOC->BSRR |= ((INL4|INL1|INR3)<<16)|((INL3|INL2)) ;
@@ -295,9 +313,9 @@ void step2(int16_t args,uint8_t speed){
         TIM1->CCR3 = pwm4;
         TIM1->CCR4 = pwm2;
 
-        prev = error;
+        prev = total_error;
 
-        if((error < 70 && error > -70) && derr ==0){
+        if((total_error < 70 && total_error > -70) && derr ==0){
             zero_CCR();
             turn_off_motors();
             return;
@@ -517,17 +535,18 @@ int lateral_right(void* args){
 void global_pos(void* args){
     // one endyne is 1/48 cm
     // magneometer (0 to 5760) -> (0,2pi)
-    // 1440   ->
+    // 1440   ->  90 degree +x direction
     // 4320    -> -90 degree -> -x direction
     //  0  ->   0 degree -> +y direction
-    //  5760 -.  180 degree   -y direction
+    //  2880 -.  180 degree   -y direction
     int16_t x1 = 20;
-    int16_t y1 = 3*30;
-    int16_t arg =0;
-    int16_t dispx = x1 -x;
-    devi = 0;
-    target_h = 0;
-    step2(120,SLOW);
+    int16_t y1 = 30;
+    target_h = 0*(y1>0) + 2880*(y1 <0);
+    rotate2(target_h);
+    step2(20,MEDIUM);
+    target_h = 1440*(x1>0) + 4320*(x1 <0);
+    rotate2(target_h);
+    step2(20,MEDIUM);
     // targe0t_h = 1440*(dispx > 0) + 4320*(dispx < 0 );
     // rotate2(0);
     // for(int i = 0; i < x1/11 + 1 ; i++ ){
