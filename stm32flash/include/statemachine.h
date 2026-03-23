@@ -19,6 +19,7 @@ typedef enum {
 
 /* MISSIONS */
 typedef enum {
+    MISSION_WAIT_START,
     MISSION_LAWN_OPEN,
     MISSION_WP_RECOVER,
     MISSION_CAVE_ENTER,

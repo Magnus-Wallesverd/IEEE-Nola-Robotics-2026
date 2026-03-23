@@ -16,10 +16,6 @@ typedef struct {
     uint8_t  cam_id[2];     // [0]=front [1]=rear tag ID, 0xFF=none 
     uint8_t  telemetry_pad; // rendezvous pad
 
-    /* Sorting counts */
-    uint8_t  count_nebulite;
-    uint8_t  count_geodinium;
-
     /* Match timing */
     uint32_t start_tick;
     uint32_t elapsed_ms;
