@@ -17,7 +17,7 @@ uint32_t tim7_ovf;
 uint32_t* tim7_ovf_p = &tim7_ovf;
 
 uint32_t motor_timeout_counter = 0;
-uint32_t MAXTIMEOUT = 200;
+uint32_t MAXTIMEOUT = 320;
 
 Gen_TIM_TypeDef1* input_timers[] = {TIM2, TIM3, TIM4};
 int32_t ierr = 0;
@@ -65,6 +65,15 @@ uint8_t lateral_Ki = 4;
 uint16_t hA = 20;
 uint16_t hB = 3;
 uint16_t hC =  50;
+
+enum speed {
+    SLOW = 1,
+    MEDIUM,
+    FAST
+};
+
+uint16_t speed_arr[] = {1499,3999,7999};
+uint16_t kd_arr[] = {10,23,23};
 
 void TIM7_IRQHandler(void){
     TIM7->SR = 0;  // clear flags
@@ -120,10 +129,10 @@ void output_timer_init(void){
     TIM1->CCMR2 |= 0x6868;      // pwm 1 CH 3,4
     TIM1->PSC   |= 31;           //
     TIM1->ARR   = 7999;        // top
-    TIM1->CCR1  = 2000;        // compare ch1
-    TIM1->CCR2  = 1800;        // compare ch1
-    TIM1->CCR3  = 1800;        // compare ch1
-    TIM1->CCR4  = 1800;        // compare ch1
+    TIM1->CCR1  = 0;        // compare ch1         TIM3
+    TIM1->CCR2  = 0;        // compare ch1         TIM8
+    TIM1->CCR3  = 0;        // compare ch1         TIM4
+    TIM1->CCR4  = 0;        // compare ch1         TIM2
     TIM1->CCER  |= 0x1111;      // enable CC 1-4
     TIM1->BDTR  |= 1<<15;       // Main Output enable
     TIM1->CR1 |= 0b10000001;    // Enable TIM1 counter
@@ -150,10 +159,10 @@ void InitBasicTIM(void){
 }
 
 void zero_timers(void){
-    TIM2->CNT = 0;
-    TIM3->CNT = 0;
-    TIM4->CNT = 0;
-    TIM8->CNT = 0;
+    // TIM2->CNT = 0;
+    // TIM3->CNT = 0;
+    // TIM4->CNT = 0;
+    // TIM8->CNT = 0;
 
     TIM1->CCR1 = 0;
     TIM1->CCR2 = 0;
@@ -174,12 +183,25 @@ void turn_off_motors(void){
     GPIOA->BSRR |= INR2 << 16;
 }
 
-void jump_start(void){
+void jump_start(uint8_t speed){
+    uint32_t tick = tim7_ovf;
     turn_on_motors();      
     TIM1->CCR1 = 7999;
     TIM1->CCR2 = 7999;
     TIM1->CCR3 = 7999;
     TIM1->CCR4 = 7999;
+    while( tim7_ovf < tick + 3 - speed);
+
+}
+
+int32_t clamp_max_pwm(int32_t pwm, uint8_t speed){
+    if(pwm < 0){
+        pwm = 0;
+    }
+    if(abs_32(pwm) > speed_arr[speed-1]){
+        pwm = speed_arr[speed-1];
+    }
+    return pwm;
 }
 
 void zerocounter(){
@@ -251,9 +273,9 @@ int step(void* args){
         motor_timeout_counter++;
     }
 }
-void step2(int16_t args){
+void step2(int16_t args,uint8_t speed){
     motor_tcb = current_tcb;
-
+    
     int16_t error = 0;
     motor_timeout_counter = 0;
     
@@ -263,8 +285,13 @@ void step2(int16_t args){
     int16_t curr_avg = 0;
     int16_t derr = 0;
     int16_t prev = 0;
+    
+    int32_t pwm2 = 0;
+    int32_t pwm3 = 0;
+    int32_t pwm4 = 0;
+    int32_t pwm8 = 0;
 
-    jump_start();
+    jump_start(speed);
 
     while(1){
         if(motor_timeout_counter > MAXTIMEOUT){
@@ -272,15 +299,27 @@ void step2(int16_t args){
             turn_off_motors();
             return ;
         }
-        curr2 = TIM2->CNT;
-        curr3 = TIM3->CNT;
-        curr4 = TIM4->CNT;
-        curr8 = TIM8->CNT;
-        curr_avg = ((curr3-48)+curr4+(curr8-48)+curr2)/4;
+        curr2 = TIM2->CNT + 180;
+        curr3 = TIM3->CNT - 83;
+        curr4 = TIM4->CNT + 35;
+        curr8 = TIM8->CNT - 39;
+        
+        curr_avg = ((curr3)+curr4+(curr8)+curr2)/4;
         error = (target2 - curr_avg);
+
+        error2 = target2 - curr2;
+        error3 = target2 - curr3;
+        error4 = target2 - curr4;
+        error8 = target2 - curr8;
+
         derr = error - prev;
         ierr += error /C;
-        pwm = error*A + B*derr + ierr;
+        pwm = error*A + kd_arr[speed-1]*derr + ierr;
+
+        pwm2 = error2*A + kd_arr[speed-1]*derr + ierr;
+        pwm3 = error3*A + kd_arr[speed-1]*derr + ierr;
+        pwm4 = error4*A + kd_arr[speed-1]*derr + ierr;
+        pwm8 = error8*A + kd_arr[speed-1]*derr + ierr;
 
         if(pwm<0){ 
             GPIOC->BSRR |= ((INL4|INL1|INR3)<<16)|((INL3|INL2)) ;
@@ -293,15 +332,19 @@ void step2(int16_t args){
             GPIOB->BSRR |= ((INR4|INR1) <<16);
             GPIOA->BSRR |= INR2;
         }
-        if(pwm > 30000 || pwm < -30000){
-            pwm = TIM1->ARR;
-        }
+        
+        pwm2 = clamp_max_pwm(pwm2, speed);
+        pwm3 = clamp_max_pwm(pwm3, speed);
+        pwm4 = clamp_max_pwm(pwm4, speed);
+        pwm8 = clamp_max_pwm(pwm8, speed);
 
-        TIM1->CCR3 = pwm;
-        TIM1->CCR2 = pwm;
-        TIM1->CCR1 = pwm;
-        TIM1->CCR4 = pwm;
+        TIM1->CCR1 = pwm3;
+        TIM1->CCR2 = pwm8;
+        TIM1->CCR3 = pwm4;
+        TIM1->CCR4 = pwm2;
+
         prev = error;
+
         if((error < 70 && error > -70) && derr ==0){
             zero_timers();
             turn_off_motors();
@@ -533,7 +576,7 @@ void global_pos(void* args){
     int16_t dispx = x1 -x;
     devi = 0;
     target_h = 0;
-    step2(120);
+    step2(120,SLOW);
     // targe0t_h = 1440*(dispx > 0) + 4320*(dispx < 0 );
     // rotate2(0);
     // for(int i = 0; i < x1/11 + 1 ; i++ ){
@@ -548,17 +591,3 @@ void global_pos(void* args){
 
 }
 
-/*
- * D% 50, 75, 25 
- * 
- * 4.7  , 8 ,    9.58,  0.86  0.85 UR
- * 4.79 , 8.12,  9.6 ,  4.9   0.84 LR
- * 4.48 , 7.86,  9.4 ,  3.9   3.9  UL
- * 4.87 , 8.33 , 9.67,  0.64  0.66   LL
- *
- *  500hz D% 25 50 75
- *  6   , 8.91, 10
- *  6.15, 8.95  9.82
- *  5.82, 8.74  9.93
- *  6.51, 9.21 10.02
- * */

@@ -36,7 +36,7 @@ int lateral_right(void* args);
 void servo(void* args);
 
 int step(void* args);
-void step2(int16_t args);
+void step2(int16_t args, uint8_t speed);
 
 int rotate(void* args);
 void rotate2(int16_t args);

@@ -155,10 +155,10 @@ void lcd_init(void){
 
 void lcd_print(void* args){
     (void)args;
-    char entry_0[] = {"Wait  "};
-    char entry_1[] = {"Step  "};
-    char entry_2[] = {"Rotate"};
-    char entry_3[] = {"Left  "};
+    char entry_0[] = {"T2"};
+    char entry_1[] = {"T3"};
+    char entry_2[] = {"T4"};
+    char entry_3[] = {"T8"};
     char entry_4[] = {"Right "};
     char entry_5[] = {"Cntr  "};
     char* lu_table[] = {entry_1,entry_2,entry_3,entry_4};
@@ -169,8 +169,14 @@ void lcd_print(void* args){
     char buffer_5[BYTE_BUFFER] = {0};
     char buffer_6[BYTE_BUFFER] = {0};
     
-    // move_cursor(1, 0);
-    // print(entry_5);
+    move_cursor(2, 0);
+    print(entry_0);
+    move_cursor(3, 0);
+    print(entry_1);
+    move_cursor(3, 8);
+    print(entry_2);
+    move_cursor(2, 8);
+    print(entry_3);
 
     uint32_t t0 = 0;
     uint32_t t1 = 0;
@@ -188,14 +194,14 @@ void lcd_print(void* args){
             // stringify(TIM1->CCR1, buffer_3);
             // move_cursor(1, 0);
             // stringify(measure_h, buffer_4);
-            move_cursor(2, 0 );
-            stringify(TIM2->CNT, buffer_5);
-            move_cursor(3, 0 );
-            stringify(TIM3->CNT, buffer_6);
-            move_cursor(2, 7 );
-            stringify(TIM4->CNT, buffer_3);
-            move_cursor(3, 7 );
-            stringify(TIM8->CNT, buffer_4);
+            move_cursor(2, 3 );
+            stringify(TIM1->CCR4, buffer_3);
+            move_cursor(3, 3 );
+            stringify(TIM1->CCR1, buffer_4);
+            move_cursor(3, 11 );
+            stringify(TIM1->CCR3, buffer_5);
+            move_cursor(2, 11 );
+            stringify(TIM1->CCR2, buffer_6);
 
             t1=t0;
         }
