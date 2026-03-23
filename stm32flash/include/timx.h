@@ -132,6 +132,8 @@ typedef struct{
 #define TIM6  ((Basic_TIM_TypeDef *) 0x40001000)
 #define TIM7  ((Basic_TIM_TypeDef *) 0x40001400)
 
+extern uint32_t* tim7_ovf_p;
+
 // enable timer 1, 8 or 20 with some loaded preset
 // only one timer per call
 void InitAdvTIM(Adv_TIM_TypeDef *port);

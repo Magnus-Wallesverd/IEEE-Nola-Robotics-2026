@@ -24,6 +24,8 @@
 #define RCC_PLLSRC_HSI 2
 #define RCC_PLLCFGR_PLLN_8 8<<8
 
+#define RCC_PLLREN 1<<24
+
 #define RCC_PPRE1_DIV8 6<<8
 #define RCC_PPRE1_DIV16 7<<8
 

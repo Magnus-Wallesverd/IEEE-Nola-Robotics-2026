@@ -10,8 +10,11 @@
 #define FAST_MODE_PLUS 2
 
 #define BNO055_ADDR 0x28
+#define BNO055_RX_BUFFER_SIZE 64
+#define BNO055_TX_BUFFER_SIZE 1
 #define OPR_REG 0x3D
 #define NDOF_MODE 0xC
+#define SYS_CLK_STATUS 0x38
 #define HEADING_REG 0x1A
 #define HEADING_LSB 0
 #define HEADING_MSB 1
@@ -78,12 +81,16 @@ extern int bno_ready;
 
 extern uint8_t i2c_rx_buffer[I2C_BUFFER_SIZE];
 extern uint8_t i2c_tx_buffer[I2C_BUFFER_SIZE];
-
+extern uint8_t bno_rx_buffer[BNO055_RX_BUFFER_SIZE];
+extern uint8_t bno_tx_buffer[BNO055_TX_BUFFER_SIZE];
 
 extern I2C_Dev*  BNO055;
 extern I2C_Dev*  VL53L1X;
 
 extern I2C_Dev* Current_Dev;
+
+extern uint16_t ToF_Distance;
+extern int16_t bno_heading;
 
 // I2C HAL function prototypes
 
@@ -100,6 +107,8 @@ void Sensor_Write_Wrapper(void* args);
 void get_ToF_Distance(void* args);
  
 void Sensor_Init(void);
+
+void bno055_init(void);
 
 void I2C_Wait(I2C_TypeDef* I2Cx);
 

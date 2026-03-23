@@ -4,8 +4,10 @@
 int i2c_rx_i = 0;
 int i2c_tx_i = 0;
 int nack_counter = 0;
-int bno[] = {OPR_REG, NDOF_MODE, HEADING_REG};
 int bno_flag = 0;
+
+uint8_t bno_rx_buffer[BNO055_RX_BUFFER_SIZE];
+uint8_t bno_tx_buffer[BNO055_TX_BUFFER_SIZE];
 
 uint8_t i2c_rx_buffer[I2C_BUFFER_SIZE];
 uint8_t i2c_tx_buffer[I2C_BUFFER_SIZE];

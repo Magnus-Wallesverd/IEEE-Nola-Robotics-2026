@@ -13,8 +13,11 @@
 //still works because only 1 motor task gets called
 TCB* motor_tcb;
 
+uint32_t tim7_ovf;
+uint32_t* tim7_ovf_p = &tim7_ovf;
+
 uint32_t motor_timeout_counter = 0;
-uint32_t MAXTIMEOUT = 40;
+uint32_t MAXTIMEOUT = 80;
 
 Gen_TIM_TypeDef1* input_timers[] = {TIM2, TIM3, TIM4};
 int32_t ierr = 0;
@@ -28,7 +31,7 @@ int16_t curr3 = 0;
 int16_t curr4 = 0;
 int16_t curr8 = 0;
 int16_t ref_h= 0;
-int16_t curr_h = 0;
+int16_t* curr_h = &bno_heading;
 int16_t prev_h = 0;
 int16_t error_h = 0;
 int16_t target_h = 0;
@@ -50,20 +53,21 @@ uint8_t dir = 0;
 uint32_t counter;
 uint8_t Kp = 1;
 int16_t measure_h = 0;
-uint16_t A = 40;
+uint16_t A = 10;
 uint16_t B = 3;
-uint16_t C = 35;
+uint16_t C = 10;
 
 uint8_t lateral_Kd = 60;
 uint8_t lateral_Kp = 3;
 uint8_t lateral_Ki = 4;
 
-uint16_t hA = 120;
-uint16_t hB = 100;
-uint16_t hC =  30;
+uint16_t hA = 20;
+uint16_t hB = 3;
+uint16_t hC =  50;
 
 void TIM7_IRQHandler(void){
     TIM7->SR = 0;  // clear flags
+    tim7_ovf++;
     if(motor_tcb->state == BLOCKED){
         unblock(motor_tcb);
     }     
@@ -113,8 +117,8 @@ void output_timer_init(void){
 
     TIM1->CCMR1 |= 0x6868;      // pwm 1 CH 1,2
     TIM1->CCMR2 |= 0x6868;      // pwm 1 CH 3,4
-    TIM1->PSC   |= 7;           //
-    TIM1->ARR   = 0xFFFF;        // top
+    TIM1->PSC   |= 12;           //
+    TIM1->ARR   = 7999;        // top
     TIM1->CCR1  = 0;        // compare ch1
     TIM1->CCR2  = 0;        // compare ch1
     TIM1->CCR3  = 0;        // compare ch1
@@ -138,8 +142,8 @@ void InitBasicTIM(void){
     NVIC->ISER1 |= 1 <<23;
     // NVIC_IPR->IPR19 |= NVIC_IRQ_PRIORITY1 << 16;
     TIM7->DIER  |= 1;
-    TIM7->PSC   |= 24*8;
-    TIM7->ARR    = 7999;
+    TIM7->PSC   |= 100;
+    TIM7->ARR    = 32000;
     TIM7->CR1   |= 0b10000001;
 
 }
@@ -240,17 +244,16 @@ void step2(int16_t args){
 
     zerocounter();
 
-    const int16_t target2 = 48*(args); // convert cm to encoder counts
+    const int16_t target2 = (48*(args)); // convert cm to encoder counts
     int16_t curr_avg = 0;
     int16_t derr = 0;
     int16_t prev = 0;
     while(1){
-        curr_h = (i2c_rx_buffer[HEADING_MSB] << 8 | i2c_rx_buffer[HEADING_LSB]);
-        if(motor_timeout_counter > MAXTIMEOUT){
-            zero_timers();
-            turn_off_motors();
-            return ;
-        }
+        // if(motor_timeout_counter > MAXTIMEOUT){
+        //     zero_timers();
+        //     turn_off_motors();
+        //     return ;
+        // }
         curr2 = TIM2->CNT;
         curr3 = TIM3->CNT;
         curr4 = TIM4->CNT;
@@ -280,12 +283,12 @@ void step2(int16_t args){
         TIM1->CCR1 = pwm;
         TIM1->CCR4 = pwm;
         prev = error;
-        if((error < 70 && error > -70) && derr ==0){
-            zero_timers();
-            turn_off_motors();
-        }
+        // if((error < 70 && error > -70) && derr ==0){
+        //     zero_timers();
+        //     turn_off_motors();
+        // }
         motor_timeout_counter++;
-        devi += (target_h - curr_h)*derr; //endyne per second;
+        devi += (target_h - *curr_h)*derr; //endyne per second;
         block();
     }
 }
@@ -293,7 +296,6 @@ void rotate2(int16_t args){
     motor_tcb = current_tcb;
     motor_timeout_counter = 0;
 
-    curr_h = (i2c_rx_buffer[HEADING_MSB] << 8 | i2c_rx_buffer[HEADING_LSB]);
     measure_h = 0;
     while(1){
         if(motor_timeout_counter > MAXTIMEOUT){
@@ -301,12 +303,11 @@ void rotate2(int16_t args){
             turn_off_motors();
             return ;
         }
-        curr_h = (i2c_rx_buffer[HEADING_MSB] << 8 | i2c_rx_buffer[HEADING_LSB]);
-        measure_h = args - curr_h;
+        measure_h = args - *curr_h;
         if(measure_h <= HEADING_MAX_VALUE/2) measure_h+=HEADING_MAX_VALUE;
         if(measure_h > HEADING_MAX_VALUE/2) measure_h-=HEADING_MAX_VALUE;   
         measure8 = (measure_h - prev_h);
-        ierr += measure_h/(hC*dir);
+        ierr += measure_h/hC;
         pwm = measure_h*hA + hB*measure8 + ierr;
         prev_h = measure_h;
         if(pwm <0){
@@ -320,7 +321,7 @@ void rotate2(int16_t args){
             GPIOB->BSRR |= (INR1|INR4);
             GPIOA->BSRR |= INR2<<16;
         }
-        if(pwm > 30000 || pwm < -30000){
+        if(pwm > 8000){
             pwm = TIM1->ARR;
         }
         TIM1->CCR3 = pwm;
@@ -372,7 +373,7 @@ int rotate(void* args){
             GPIOB->BSRR |= (INR1|INR4);
             GPIOA->BSRR |= INR2<<16;
         }
-        if(pwm > 30000 || pwm < -30000){
+        if(pwm > 8000){
             pwm = TIM1->ARR;
         }
         TIM1->CCR3 = pwm;
@@ -506,15 +507,16 @@ void global_pos(void* args){
     // 4320    -> -90 degree -> -x direction
     //  0  ->   0 degree -> +y direction
     //  5760 -.  180 degree   -y direction
-    int16_t x1 = 9999;
+    int16_t x1 = 30;
     int16_t arg =0;
     int16_t dispx = x1 -x;
     devi = 0;
+    target_h = 0;
     // target_h = 1440*(dispx > 0) + 4320*(dispx < 0 );
-    target_h =0;
-    for(int i = 0; i < x1/11 + 1 ; i++){
-        rotate2(target_h + (devi)/(40*9));
-        step2(11);
-    }
+    step2(10);
+    // for(int i = 0; i < x1/ + 1 ; i++ ){
+    //     rotate2(target_h + (devi)/(40*9));
+    //     step2(11);
+    // }
 
 }

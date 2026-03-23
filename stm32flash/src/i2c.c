@@ -17,14 +17,16 @@
 
 int ovf17 = 0;
 int bno_ready = 0;
-int i2c_wait_counter = 0;
 
 uint16_t ToF_Distance = 0;
 uint8_t  ToF_offset_ADA = 29;
 uint8_t  ToF_offset_PIM = 18;
 
-int16_t offset = 0;
-
+int16_t bno_heading;
+uint8_t bno_init[] = {OPR_REG, NDOF_MODE};
+uint8_t bno_sys_status[] = {SYS_CLK_STATUS};
+uint8_t bno_sys_read[1];
+uint8_t* bno_status = bno_sys_read;
 
 I2C_Dev  Dev;
 I2C_Dev* Current_Dev = &Dev;
@@ -79,11 +81,17 @@ void I2C_Init(I2C_TypeDef* I2Cx, uint8_t mode){
     }
 
     Sensor_Init();
+    bno055_init();
 }
 
 void I2C_Wait(I2C_TypeDef* I2Cx){
-    i2c_wait_counter++;
     while(I2Cx->ISR & BUSY);
+}
+
+void bno055_init(void){
+    while(*tim7_ovf_p < 20);
+    Sensor_Write(I2C1, BNO055_ADDR, bno_init, sizeof(bno_init));
+    while(*tim7_ovf_p < 21);
 }
 
 void Sensor_Init(void){
@@ -96,9 +104,16 @@ void Sensor_Init(void){
     if(state){
         status = VL53L1X_SensorInit(dev);
         calibrate_status = VL53L1X_SetOffset(VL53L1X_ADDR, ToF_offset_ADA);
-    } else {
+    } 
         
-    }
+}
+
+void bno_read_heading(void){
+    
+    I2C_Wait(I2C1);
+    bno_tx_buffer[0] = HEADING_REG;
+    Sensor_Read(I2C1, BNO055_ADDR, bno_tx_buffer, BNO055_TX_BUFFER_SIZE, bno_rx_buffer, 2);
+    bno_heading = bno_rx_buffer[HEADING_MSB] <<8 | bno_rx_buffer[HEADING_LSB];
 }
 
 void Sensor_Read(I2C_TypeDef* I2Cx, uint16_t dev, uint8_t* tx_buf, uint16_t tx_len, uint8_t* rx_buf, uint16_t rx_len){
@@ -150,6 +165,7 @@ void Sensor_Read_Wrapper(void* args){
     (void) args;
     while(1){
         get_ToF_Distance((void*) args);
+        bno_read_heading();
         yield();
 
     }

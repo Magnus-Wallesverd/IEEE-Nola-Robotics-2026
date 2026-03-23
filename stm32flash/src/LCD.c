@@ -21,19 +21,23 @@ int32_t int32(int16_t val){
     return temp;
 }
 
+void lcd_wait(void){
+    for(volatile int i = 0; i < 6 * 64; i++);
+}
+
 static void setup(uint32_t PINS){
     PinWrite(GPIOA, E_PIN);
     PinWrite(GPIOB, (PINS<<OFFSET)&0xFF00);
-    for(volatile int i = 0; i < 6 * 18; i++);
+    lcd_wait();
     ResetPins(GPIOA, E_PIN);
     ResetPins(GPIOB, DATA_PINS);
-    for(volatile int i = 0; i < 6 * 18; i++);
+    lcd_wait();
 }
 
 void byte2LCD(char data, uint16_t ctrl_pins){
     PinWrite(GPIOA, ctrl_pins|E_PIN);
     PinWrite(GPIOB, data<<OFFSET);
-    for(volatile int i = 0; i < 6 * 18; i++);
+    lcd_wait();
     ResetPins(GPIOA, E_PIN);
     ResetPins(GPIOA, ctrl_pins);
     ResetPins(GPIOB, data<<OFFSET);
@@ -42,11 +46,11 @@ void byte2LCD(char data, uint16_t ctrl_pins){
 static void putchar(char buffer){
     PinWrite(GPIOA, RS_E_PINS);
     PinWrite(GPIOB, buffer<<OFFSET);
-    for(volatile int i = 0; i < 6 * 18 ; i++);
+    lcd_wait();
     ResetPins(GPIOA, E_PIN);
     ResetPins(GPIOA, RS_PIN);
     ResetPins(GPIOB, buffer<<OFFSET);
-    for(volatile int i = 0; i < 6 * 18; i++)i;
+    lcd_wait();
 }
 
 // hex to char array
@@ -113,28 +117,28 @@ static void print(char buffer[]){
     for(int i = 0; buffer[i] != '\0'; i++){
         PinWrite(GPIOA, RS_E_PINS);
         PinWrite(GPIOB, buffer[i]<<OFFSET);
-        for(volatile int i = 0; i < 6 * 18; i++);
+        lcd_wait();
         ResetPins(GPIOA, E_PIN);
         ResetPins(GPIOA, RS_PIN);
         ResetPins(GPIOB, buffer[i]<<OFFSET);
-        for(volatile int i = 0; i < 6 * 18; i++);
+        lcd_wait();
     }
 }
 
 static void lcd_ddram_cmd(uint32_t addr){
     PinWrite(GPIOA, E_PIN);
     PinWrite(GPIOB, addr<<OFFSET);
-    for(volatile int i = 0; i < 6 * 18; i++);
+    lcd_wait();
     ResetPins(GPIOA, E_PIN);
     ResetPins(GPIOB, addr<<OFFSET);
-    for(volatile int i = 0; i < 6 * 18; i++);
+    lcd_wait();
 }
 
 void lcd_init(void){
     
     // port setup
-    SetPinOutput(GPIOB, DATA_PINS);     //PB15-8 for D7-0
-    SetPinOutput(GPIOA, RS_RW_E_PINS);  //PA10-8 for RS,RW,E
+    SetPinOutput(GPIOB, DATA_PINS);     //PB15-8  D7-0
+    SetPinOutput(GPIOA, RS_RW_E_PINS);  //PA10-8  RS,RW,E
                                  
     SetOutputType(GPIOA, RW_PIN, 1);
 
@@ -146,7 +150,7 @@ void lcd_init(void){
     setup((E_PIN|FUNC_SET));
     setup((E_PIN|DISP_SET));
     setup((E_PIN|CLR_LCD));
-    for(volatile int i = 0; i < 1818*8; i++);
+    for(volatile int i = 0; i < 1818*16; i++);
 }
 
 void lcd_print(void* args){
@@ -177,9 +181,17 @@ void lcd_print(void* args){
 
             move_cursor(0, 0);
             // stringify((i2c_rx_buffer[HEADING_MSB] << 8 | i2c_rx_buffer[HEADING_LSB]), buffer_1);
-            // stringify(TIM3->CNT, buffer_1);
-            // move_cursor(0, 7);
-            // stringify(TIM2->CNT, buffer_2);
+            stringify(ToF_Distance, buffer_1);
+            move_cursor(0, 7);
+            stringify(bno_heading>>4, buffer_2);
+            // move_cursor(1, 7);
+            // stringify(TIM1->CCR1, buffer_3);
+            // move_cursor(1, 0);
+            // stringify(measure_h, buffer_4);
+            move_cursor(2, 0 );
+            stringify(TIM4->CNT, buffer_5);
+            move_cursor(2, 7 );
+            stringify(TIM8->CNT, buffer_6);
 
             t1=t0;
         }
