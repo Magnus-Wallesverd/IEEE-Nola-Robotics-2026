@@ -27,6 +27,7 @@
 #    FN_ATAN    = 0x06   return: atan(arg)
 #    FN_PROJ_X  = 0x07   return: dist * sin(ang)
 #    FN_PROJ_Y  = 0x08   return: dist * cos(ang)
+#    FN_START   = 0x09   return: 1 if led detected, 0 otherwise
 
 #  Slave packet:
 #    [0]  0xBB        header
@@ -34,6 +35,7 @@
 #    [2]  distance
 #    [3]  bearing deg
 #    [4]  yaw
+#    [5]  flags
 
 import sensor, time, machine, math
 from pyb import UART
@@ -67,6 +69,7 @@ FN_SQRT     = 0x05
 FN_ATAN     = 0x06
 FN_PROJ_X   = 0x07
 FN_PROJ_Y   = 0x08
+FN_START    = 0x09
 
 # camera paramters
 TAG_SIZE_IN = 80.0 / 25.4   # 3.1496 in
@@ -88,6 +91,8 @@ front_buf = {}
 rear_buf = {}
 front_id = None
 rear_id = None
+
+start_detected = 0
 
 # helpers
 def _unpack_int16(lo, hi):
@@ -142,34 +147,39 @@ def proc_front(img):
 
 # SLAVE UART READER ============================================
 def proc_rear():
-    global rear_buf, rear_id
+    global rear_buf, rear_id, start_detected
     rear_buf.clear()
     rear_id = None
 
-    while uart_slave.any() >= 5:
+    while uart_slave.any() >= 6:
         # Sync to header byte, discard anything before 0xBB
         b = uart_slave.read(1)
         if b is None or b[0] != SLAVE_HEADER:
             continue
         # Need 5 more bytes
-        if uart_slave.any() < 4:
+        if uart_slave.any() < 5:
             break
-        rest = uart_slave.read(4)
-        if rest is None or len(rest) < 4:
+        rest = uart_slave.read(5)
+        if rest is None or len(rest) < 5:
             break
 
         tag_id = rest[0]
         dist = rest[1]
         bearing = rest[2]
         yaw = rest[3]
+        flags = rest[4]
 
-        bearing_deg = bearing if bearing < 128 else bearing - 256
-        yaw_deg = yaw if yaw < 128 else yaw - 256
+        if flags & 0x01:
+            start_detected = 1
 
-        rear_id = tag_id
-        rear_buf[tag_id] = (dist, bearing_deg, yaw_deg)
+        if tag_id != 0xFF:
+            bearing_deg = bearing if bearing < 128 else bearing - 256
+            yaw_deg = yaw if yaw < 128 else yaw - 256
 
-        print("REAR  id=%d dist=%d bearing=%d yaw=%d" % (tag_id, dist, bearing_deg, yaw_deg))
+            rear_id = tag_id
+            rear_buf[tag_id] = (dist, bearing_deg, yaw_deg)
+
+            print("REAR  id=%d dist=%d bearing=%d yaw=%d" % (tag_id, dist, bearing_deg, yaw_deg))
 
 # receive requests from STM
 def receive_request():
@@ -260,6 +270,9 @@ def cmd_proj_y(cam):
     val = int(t[0] * math.cos(math.radians(t[1]))) if t else 0
     send_pkt(val & 0xFFFF)
 
+def cmd_start():
+    send_pkt(1 if start_detected else 0)
+
 # process request from STM
 def process_request(function, arg1, arg2):
     if function is None:
@@ -282,12 +295,13 @@ def process_request(function, arg1, arg2):
         cmd_proj_x(arg1)
     elif function == FN_PROJ_Y:
         cmd_proj_y(arg1)
+    elif function == FN_START:
+        cmd_start()
     else:
         return
 
 #  MAIN LOOP
 while True:
-
     clock.tick()
     Ts = 1.0/ max(clock.fps(), 1.0)
     img = sensor.snapshot()
