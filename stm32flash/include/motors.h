@@ -15,6 +15,9 @@
 #define INR2 PA10
 #define INR4 PB5
 
+#define ENCODER_FILTER_WEIGHT 40
+#define TOF_FILTER_WEIGHT 60
+
 #define DATA_BUF_SIZE 64
 
 uint8_t* get_meas_pair(void);

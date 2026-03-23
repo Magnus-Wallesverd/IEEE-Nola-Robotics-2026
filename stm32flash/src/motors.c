@@ -215,67 +215,6 @@ void lock_motors(void){
     GPIOA->BSRR |= INR2;
 }
 
-int step(void* args){
-
-    motor_tcb = current_tcb;
-    motor_timeout_counter = 0;
-
-    int8_t data = *((uint8_t*) args);
-    int16_t error = 0;
-
-    zero_CNT();
-
-    const int16_t target2 = 48*(data); // convert cm to encoder counts
-    int16_t curr_avg = 0;
-    int16_t derr = 0;
-    int16_t prev = 0;
-    while(1){
-        
-        if(motor_timeout_counter > MAXTIMEOUT){
-            zero_CCR();
-            turn_off_motors();
-            return 0;
-        }
-
-        curr2 = TIM2->CNT;
-        curr3 = TIM3->CNT;
-        curr4 = TIM4->CNT;
-        curr8 = TIM8->CNT;
-        curr_avg = (curr3+curr4+curr8+curr2)/4;
-        error = (target2 - curr_avg);
-        derr = error - prev;
-        ierr += error /C;
-        pwm = error*A + B*derr + ierr;
-        if(pwm<0){ 
-
-            GPIOC->BSRR |= ((INL4|INL1|INR3)<<16)|((INL3|INL2)) ;
-            GPIOB->BSRR |= INR3<<16|(INR1);
-            GPIOA->BSRR |= INR2<<16;
-            pwm *=-1;
-        }
-        else if(pwm>0){ //forward 
-            GPIOC->BSRR |= (INL4|INL1|INR3)|((INL3|INL2) << 16) ;
-            GPIOB->BSRR |= ((INR4|INR1) <<16);
-            GPIOA->BSRR |= INR2;
-        }
-        if(pwm > 30000 || pwm < -30000){
-            pwm = TIM1->ARR;
-        }
-
-        TIM1->CCR3 = pwm;
-        TIM1->CCR2 = pwm;
-        TIM1->CCR1 = pwm;
-        TIM1->CCR4 = pwm;
-        prev = error;
-        if((error < 70 && error > -70) && derr ==0){
-            zero_CCR();
-            turn_off_motors();
-            return 1;
-        }
-        block();
-        motor_timeout_counter++;
-    }
-}
 void step2(int16_t args,uint8_t speed){
     motor_tcb = current_tcb;
     
@@ -295,14 +234,15 @@ void step2(int16_t args,uint8_t speed){
     int32_t pwm8 = 0;
     
     uint16_t* tof_p = ToF_Distance_p;
-    uint16_t  tof_marker = *tof_p;
+    uint16_t  tof_marker = *tof_p /10;
     int16_t  tof_live;
 
     jump_start(speed);
 
     while(1){
-        if(*tof_p < 200){
+        if(*tof_p/10 < 200){
             lock_motors();
+            return ;
         }
         if(motor_timeout_counter > MAXTIMEOUT){
             // zero_CCR();
@@ -314,15 +254,15 @@ void step2(int16_t args,uint8_t speed){
         curr4 = TIM4->CNT + 35;
         curr8 = TIM8->CNT - 39;
 
-        tof_live = (tof_marker - *tof_p)/10;
+        tof_live = ((tof_marker - *tof_p)*480)/10;
         
         curr_avg = ((curr3)+curr4+(curr8)+curr2)/4;
-        error = (target2 - curr_avg);
+        error = (target2 - (curr_avg * ENCODER_FILTER_WEIGHT + tof_live*TOF_FILTER_WEIGHT));
 
-        error2 = target2 - (curr2*40 + tof_live*60)/100;
-        error3 = target2 - (curr3*40 + tof_live*60)/100;
-        error4 = target2 - (curr4*40 + tof_live*60)/100;
-        error8 = target2 - (curr8*40 + tof_live*60)/100;
+        error2 = target2 - (curr2*ENCODER_FILTER_WEIGHT + tof_live*TOF_FILTER_WEIGHT)/100;
+        error3 = target2 - (curr3*ENCODER_FILTER_WEIGHT + tof_live*TOF_FILTER_WEIGHT)/100;
+        error4 = target2 - (curr4*ENCODER_FILTER_WEIGHT + tof_live*TOF_FILTER_WEIGHT)/100;
+        error8 = target2 - (curr8*ENCODER_FILTER_WEIGHT + tof_live*TOF_FILTER_WEIGHT)/100;
         
         derr = error - prev;
         ierr += error /C;
@@ -363,7 +303,6 @@ void step2(int16_t args,uint8_t speed){
             return;
         }
         motor_timeout_counter++;
-        devi += (target_h - *curr_h)*derr; //endyne per second;
         block();
     }
 }
