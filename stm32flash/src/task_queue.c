@@ -32,7 +32,7 @@ const func_t fn_table[] = {
     Sensor_Read_Wrapper,
     lcd_print,
     // usart_begin,
-    global_pos
+    relative_pos
 };
 
 void task_queue_init(void){
