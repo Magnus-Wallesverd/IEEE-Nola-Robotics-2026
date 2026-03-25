@@ -24,6 +24,10 @@
 #define VL53L1X_ADDR 0x29
 #define VL53L1X_ID   0x010F
 
+#define MAG_ADDR 0x0C
+#define MAG_START_MEASURE 0x3E
+#define MAG_READ_MEASURE 0x4E
+
 #define AUTOEND_OFF  ~(1<<25)
 #define AUTOEND_ON (1<<25)
 #define WRITE   ~(1<<10)
@@ -91,6 +95,7 @@ extern I2C_Dev* Current_Dev;
 
 extern uint16_t* ToF_Distance_p;
 extern int16_t bno_heading;
+extern int16_t mag_data[3];
 
 // I2C HAL function prototypes
 
@@ -101,14 +106,13 @@ void Sensor_Write(I2C_TypeDef* I2Cx, uint16_t dev, uint8_t* tx_buf, uint16_t tx_
 void Sensor_Read(I2C_TypeDef* I2Cx, uint16_t dev, uint8_t* tx_buf, uint16_t tx_len, uint8_t* rx_buf, uint16_t rx_len);
 
 void Sensor_Read_Wrapper(void* args);
-
 void Sensor_Write_Wrapper(void* args);
 
 void get_ToF_Distance(void* args);
  
 void Sensor_Init(void);
-
 void bno055_init(void);
+void mag_init(void);
 
 void I2C_Wait(I2C_TypeDef* I2Cx);
 

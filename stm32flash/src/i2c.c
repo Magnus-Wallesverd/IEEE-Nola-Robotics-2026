@@ -24,6 +24,8 @@ uint16_t* ToF_Distance_p = &ToF_Distance;
 uint8_t  ToF_offset_ADA = 29;
 uint8_t  ToF_offset_PIM = 18;
 
+int16_t mag_data[3] = {0};
+
 int16_t bno_heading;
 uint8_t bno_init[] = {OPR_REG, NDOF_MODE};
 uint8_t bno_sys_status[] = {SYS_CLK_STATUS};
@@ -44,23 +46,17 @@ void I2C_Init(I2C_TypeDef* I2Cx, uint8_t mode){
     switch((uint32_t)I2Cx){
         case (uint32_t)I2C1:
 
-            NVIC_IPR->IPR7 |= NVIC_IRQ_PRIORITY1 << 24;
-            NVIC->ISER0 |= 1<<31;
             RCC->APB1ENR |= (1 << 21);
+            NVIC->ISER0 |= 1<<31;
+            NVIC_IPR->IPR7 |= NVIC_IRQ_PRIORITY1 << 24;
 
-            SetPinAlternate(GPIOA,1<<15);            // Set pins 6 & 7 to AF mode I2c
-            AlternateFunctionSet(GPIOA,1<<15,4);      // set pins PB 6&7 to AF4
-            SetOutputType(GPIOA, 1<<15, 1);
-            SetOutputSpeed(GPIOA,1<<15, 1);
-            
-            SetPinAlternate(GPIOB,0x80);            // Set pins 6 & 7 to AF mode I2c
-            AlternateFunctionSet(GPIOB,0x80,4);      // set pins PB 6&7 to AF4
-            SetOutputType(GPIOB, 0x80, 1);
-            SetOutputSpeed(GPIOB,0x80, 1);
-            
+            SetPinAlternate(GPIOB,0xC0);            // Set pins 6 & 7 to AF mode I2c
+            AlternateFunctionSet(GPIOB,0xC0,4);      // set pins PB 6&7 to AF4
+            SetOutputType(GPIOB, 0xC0, 1);
+            SetOutputSpeed(GPIOB,0xC0, 1);
 
             I2Cx->CR1 &= ~(1<<0);
-            I2Cx->TIMINGR = 0x30420F13;
+            I2Cx->TIMINGR = 0x10420F13;
             I2Cx->ICR = 0x3F38;
             I2Cx->CR1 |= TXIE|RXIE|TCIE|STOPIE|NACKIE;
             I2Cx->CR1 |= (1<<0);
@@ -82,12 +78,69 @@ void I2C_Init(I2C_TypeDef* I2Cx, uint8_t mode){
 
     }
 
-    Sensor_Init();
-    bno055_init();
+    // Sensor_Init();
+    // bno055_init();
+    // mag_init();
 }
 
 void I2C_Wait(I2C_TypeDef* I2Cx){
     while(I2Cx->ISR & BUSY);
+}
+
+void I2C_Yield(I2C_TypeDef* I2Cx){
+    while(I2Cx->ISR & BUSY){
+        yield();
+    }
+}
+
+void mag_init(void){
+
+    static uint8_t config[4] = {0}; 
+    static uint8_t tmp[1] = {0};
+    static uint8_t data[7] = {0};
+
+    config[0] = 0x60;
+    config[1] = 0x0;
+    config[2] = 0x5C;
+    config[3] = 0x0;
+
+    Sensor_Read(I2C1, MAG_ADDR, config, 4, tmp, 1);
+    I2C_Wait(I2C1);
+    data[0] = tmp[0]; 
+
+    config[0] = 0x60;
+    config[1] = 0x02;
+    config[2] = 0xB4;
+    config[3] = 0x8;
+
+    Sensor_Read(I2C1, MAG_ADDR, config, 4, tmp, 1);
+    I2C_Wait(I2C1);
+    data[1] = tmp[0];
+}
+
+void mag_read(){
+    static uint8_t tmp[1] = {0};
+    static uint8_t data[7] = {0};
+    static int16_t xMag, yMag, zMag;
+
+    I2C_Yield(I2C1);
+
+    tmp[0] = MAG_START_MEASURE;
+    Sensor_Read(I2C1, MAG_ADDR, tmp, 1, tmp, 1);
+    I2C_Yield(I2C1);
+    data[0] = tmp[0];
+    
+    tmp[0] = MAG_READ_MEASURE;
+    Sensor_Read(I2C1, MAG_ADDR, tmp, 1, data, 7);
+    I2C_Yield(I2C1);
+
+    xMag = data[1] * 256 + data[2];
+    yMag = data[3] * 256 + data[4];
+    zMag = data[5] * 256 + data[6];
+
+    mag_data[0] = xMag;
+    mag_data[1] = yMag;
+    mag_data[2] = zMag;
 }
 
 void bno055_init(void){
