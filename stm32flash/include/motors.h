@@ -15,11 +15,12 @@
 #define INR2 PA10
 #define INR4 PB5
 
+#define ENCODER_FILTER_WEIGHT 20
+#define TOF_FILTER_WEIGHT 80
+
 #define DATA_BUF_SIZE 64
 
-extern uint8_t i2c_rx_buffer[I2C_BUFFER_SIZE];
-
-uint8_t* get_meas_pair(void);
+extern int16_t delta_tof;
 
 void input_timer_init(void);
 
@@ -38,9 +39,9 @@ int lateral_right(void* args);
 void servo(void* args);
 
 int step(void* args);
-void step2(int16_t args);
+void step2(int16_t args, uint8_t speed);
 
 int rotate(void* args);
 void rotate2(int16_t args);
-void global_pos(void* args);
+void relative_pos(void* args);
 #endif // !MOTORS_H
