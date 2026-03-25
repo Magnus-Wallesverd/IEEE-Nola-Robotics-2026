@@ -20,7 +20,7 @@ sem_t usart_sem;
 uint32_t usart_tx_i = 0;
 uint32_t usart_rx_i = 0;
 
-uint8_t package[] = {USART_HEADER,0,0,USART_FOOTER};
+uint8_t package[] = {USART_HEADER,0,0,0};
 uint8_t usart_tx_buffer[USART_TX_BUF_SIZE];
 uint8_t usart_rx_buffer[USART_RX_BUF_SIZE];
 uint8_t data[USART_TX_BUF_SIZE];
@@ -130,18 +130,19 @@ void usart_init(USART_Typedef* USARTx, GPIO_TypeDef* port, uint32_t pins, uint32
     USARTx->CR3 |= (1<<12);
 }
 
-void usart_load_tx(int status){
+void usart_load_tx(uint8_t f_ID, uint8_t MSB, uint8_t LSB){
 
-    package[1] = status;
+    package[1] = f_ID;
+    package[2] = LSB;
+    package[3] = MSB;
     usart.USARTx->CR1 |= USART_TXEIE;
-    
 }
 
 void usart_begin(void* args){
     (void) args;
     // usart.USARTx->CR1 |= USART_RXNEIE;
     usart.USARTx->CR1 |= USART_RXNEIE;
-    usart_load_tx(1);
+    usart_load_tx(0x5, 4, 0);
 }
 
 uint8_t* get_usart_rx(void){
