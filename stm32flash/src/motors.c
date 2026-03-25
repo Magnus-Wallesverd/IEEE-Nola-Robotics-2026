@@ -159,6 +159,9 @@ void output_timer_init(void){
     // timer prio
     NVIC_IPR->IPR19 |= NVIC_IRQ_PRIORITY1 << 16;
 
+    //TIM20 interrupt enable
+    NVIC->ISER2 |= 1<<14;
+
     TIM20->DIER  |= 1;
     TIM20->CCMR1 |= 0x68;
     TIM20->PSC   |= 24*8;
