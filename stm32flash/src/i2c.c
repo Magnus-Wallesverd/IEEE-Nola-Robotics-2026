@@ -82,7 +82,8 @@ void I2C_Init(I2C_TypeDef* I2Cx, uint8_t mode){
 
     }
 
-    Sensor_Init();
+    ToF_Init();
+    mag_init();
     bno055_init();
 }
 
@@ -96,7 +97,45 @@ void bno055_init(void){
     while(*tim7_ovf_p < 21);
 }
 
-void Sensor_Init(void){
+
+void mag_init(void){
+
+    static uint8_t config[4] = {0}; 
+    static uint8_t tmp[1] = {0};
+    static uint8_t data[7] = {0};
+
+    config[0] = 0x60;
+    config[1] = 0x0;
+    config[2] = 0x5C;
+    config[3] = 0x0;
+
+    Sensor_Read(I2C1, MAG_ADDR, config, 4, tmp, 1);
+    I2C_Wait(I2C1);
+    data[0] = tmp[0]; 
+
+    config[0] = 0x60;
+    config[1] = 0x02;
+    config[2] = 0xB4;
+    config[3] = 0x8;
+
+    Sensor_Read(I2C1, MAG_ADDR, config, 4, tmp, 1);
+    I2C_Wait(I2C1);
+    data[1] = tmp[0];
+
+    // challenge for sylvia. get this to run in the Sensor wrapper!
+    config[0] = 0x3E;
+    Sensor_Read(I2C1, MAG_ADDR, config, 1, tmp, 1);
+    I2C_Wait(I2C1);
+    data[2] = tmp[0];
+    
+    config[0] = 0x4E;
+    Sensor_Read(I2C1, MAG_ADDR, config, 1, tmp, 1);
+    I2C_Wait(I2C1);
+    data[3] = tmp[0];
+
+}
+
+void ToF_Init(void){
     uint16_t dev = VL53L1X_ADDR;
     uint8_t state = 0;
     int8_t status = VL53L1X_BootState(VL53L1X_ADDR, &state);

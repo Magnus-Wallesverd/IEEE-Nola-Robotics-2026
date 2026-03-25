@@ -24,6 +24,10 @@
 #define VL53L1X_ADDR 0x29
 #define VL53L1X_ID   0x010F
 
+#define MAG_ADDR 0x0C
+#define MAG_START_MEASURE 0x3E
+#define MAG_READ_MEASURE 0x4E
+
 #define AUTOEND_OFF  ~(1<<25)
 #define AUTOEND_ON (1<<25)
 #define WRITE   ~(1<<10)
@@ -106,7 +110,9 @@ void Sensor_Write_Wrapper(void* args);
 
 void get_ToF_Distance(void* args);
  
-void Sensor_Init(void);
+void ToF_Init(void);
+
+void mag_init(void);
 
 void bno055_init(void);
 
