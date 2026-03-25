@@ -36,7 +36,7 @@ const int16_t PAD_Y[5] = {518, 1646, 2743, 3840, 4968};
 #define HDG_THRESH      5           // close enough to target heading
 #define DIST_THRESH     (5  * 48)   // close enough to waypoint
 #define VISITED_THRESH  (15 * 48)   // mark waypoint as visited
-#define TOF_WALL_STOP   200         // this close to wall
+#define TOF_WALL_STOP   200         // this close to wall, mm
 
 // Timing
 #define RECOVERY_MS     4000        // if stuck this long, navigate to nearest waypoint

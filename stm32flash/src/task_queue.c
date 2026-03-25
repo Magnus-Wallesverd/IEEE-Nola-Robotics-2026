@@ -6,6 +6,8 @@
 #include "i2c.h"
 #include "motors.h"
 #include "parser.h"
+#include "robot_state.h"
+#include "statemachine.h"
 
 queue_t task_queue;
 queue_t* task_queue_ptr = &task_queue;
@@ -29,9 +31,11 @@ void* priority_queue_array[TASK_QUEUE_SIZE];
 
 // should start thinking of easier ways to get functions in here
 const func_t fn_table[] = {
-    // Sensor_Read_Wrapper,
+    Sensor_Read_Wrapper,
     // // lcd_print,
     usart_begin,
+    robot_state_update,
+    sm_main
     // relative_pos
 };
 

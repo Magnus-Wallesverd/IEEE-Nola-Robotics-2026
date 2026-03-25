@@ -35,6 +35,7 @@ void robot_state_init(void) {
     g_robot.y = 731;    // starting y
     g_robot.heading = 0;  // facing north
     g_robot.tof_mm = 9999;
+    g_robot.prev_tof = 9999;
     g_robot.cam_sees = 0;
     g_robot.cam_id[0] = 0xFF;
     g_robot.cam_id[1] = 0xFF;
@@ -49,18 +50,21 @@ void robot_state_init(void) {
 void robot_state_update(void) {
     g_robot.heading  = bno_heading / 16; // divide by 16 for degrees
     g_robot.tof_mm   = ToF_Distance;
+    if (g_robot.prev_tof == 9999) g_robot.prev_tof = ToF_Distance;
 
     // match time
     g_robot.elapsed_ms = get_global_tick() - g_robot.start_tick;
-
+            
     // projected x/y using current heading quadrant
-    int16_t delta_cm = delta_tof; // cm travelled since last step() call
+    int16_t delta_cm = (g_robot.prev_tof - g_robot.tof_mm) / 10; // cm travelled
     if (delta_cm != 0) {
         int idx = ((g_robot.heading + 45) / 90) % 4;
         g_robot.x += (int16_t)(delta_cm * 48 * cx[idx]);
         g_robot.y += (int16_t)(delta_cm * 48 * cy[idx]);
         delta_tof = 0;
     }
+
+    g_robot.prev_tof = g_robot.tof_mm;
 
     // what the cam sees
     usart_load_tx(FN_SEE_TAG, 0, 0);
