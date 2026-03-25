@@ -195,8 +195,10 @@ int step(void* args){
     motor_tcb = current_tcb;
     motor_timeout_counter = 0;
 
+
     int8_t data = *((uint8_t*) args);
     int16_t error = 0;
+    int16_t ierr = 0;
 
     zerocounter();
 
@@ -256,6 +258,7 @@ void step2(int16_t args){
 
     int16_t error = 0;
     motor_timeout_counter = 0;
+    int16_t ierr = 0;
     
     zerocounter();
 
@@ -315,14 +318,15 @@ void step2(int16_t args){
 void rotate2(int16_t args){
     motor_tcb = current_tcb;
     motor_timeout_counter = 0;
+    int16_t ierr = 0;
 
     measure_h = 0;
     while(1){
-        // if(motor_timeout_counter > MAXTIMEOUT){
-        //     zero_timers();
-        //     turn_off_motors();
-        //     return ;
-        // }
+        if(motor_timeout_counter > MAXTIMEOUT){
+            zero_timers();
+            turn_off_motors();
+            return ;
+        }
         measure_h = args - *curr_h;
         if(measure_h <= HEADING_MAX_VALUE/2) measure_h+=HEADING_MAX_VALUE;
         if(measure_h > HEADING_MAX_VALUE/2) measure_h-=HEADING_MAX_VALUE;   
@@ -361,6 +365,7 @@ void rotate2(int16_t args){
 int rotate(void* args){
     motor_tcb = current_tcb;
     motor_timeout_counter = 0;
+    int16_t ierr = 0;
 
     int8_t data = *((uint8_t*) args);
     int16_t curr_h = (i2c_rx_buffer[HEADING_MSB] << 8 | i2c_rx_buffer[HEADING_LSB]);
@@ -520,32 +525,21 @@ int lateral_right(void* args){
 
 }
 
-void global_pos(void* args){
+void relative_pos(void* args){
     // one endyne is 1/48 cm
     // magneometer (0 to 5760) -> (0,2pi)
-    // 1440   ->
+    // 1440   ->  90 degree -> +x direction
     // 4320    -> -90 degree -> -x direction
     //  0  ->   0 degree -> +y direction
-    //  5760 -.  180 degree   -y direction
+    //  2880 -> 180 degree   -y direction
     int16_t x1 = 20;
-    int16_t y1 = 3*30;
-    int16_t arg =0;
-    int16_t dispx = x1 -x;
-    devi = 0;
-    target_h = 0;
-    step2(120);
-    // targe0t_h = 1440*(dispx > 0) + 4320*(dispx < 0 );
-    // rotate2(0);
-    // for(int i = 0; i < x1/11 + 1 ; i++ ){
-    //     rotate2(target_h + (devi)/(40*10));
-    //     step2(30);
-    // }
-    // // rotate2(1440);
-    // for(int i = 0; i < y1/11 + 1 ; i++ ){
-    //     rotate2(1440 + (devi)/(40*10));
-    //     step2(11);
-    // }
-
+    int16_t y1 = 20;
+    target_h = 0*(y1 >0) + 2880*(y1 <0) ;
+    rotate2(target_h);
+    step2(y1);
+    target_h = 1440*(y1 >0) + 4320*(y1 <0) ;
+    rotate2(target_h);
+    step2(x1);
 }
 
 /*

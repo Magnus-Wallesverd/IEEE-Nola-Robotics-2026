@@ -40,5 +40,5 @@ void step2(int16_t args);
 
 int rotate(void* args);
 void rotate2(int16_t args);
-void global_pos(void* args);
+void relative_pos(void* args);
 #endif // !MOTORS_H
