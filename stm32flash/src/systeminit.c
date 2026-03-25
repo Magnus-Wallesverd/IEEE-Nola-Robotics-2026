@@ -8,7 +8,7 @@
 
 void systeminit(void){
 
-    set_clock_128Mhz();
+    set_clock_64Mhz();
 
     // systic interrupt init
     STK->CTRL |= 0x6;
@@ -46,5 +46,4 @@ void systeminit(void){
 
     I2C_Init(I2C1, 0);
 
-    for(int i = 0; i < 0xFFFF; i++);
 }

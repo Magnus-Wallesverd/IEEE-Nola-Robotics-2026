@@ -46,7 +46,7 @@ void I2C_Init(I2C_TypeDef* I2Cx, uint8_t mode){
 
             NVIC_IPR->IPR7 |= NVIC_IRQ_PRIORITY1 << 24;
             NVIC->ISER0 |= 1<<31;
-            RCC->APB1ENR1 |= (1 << 21);
+            RCC->APB1ENR |= (1 << 21);
 
             SetPinAlternate(GPIOA,1<<15);            // Set pins 6 & 7 to AF mode I2c
             AlternateFunctionSet(GPIOA,1<<15,4);      // set pins PB 6&7 to AF4
