@@ -19,19 +19,19 @@
 #define X_CAVE_IN       (165 * 48)
 #define Y_CAVE_CENTER   (57  * 48)
 
-#define ROW_STEP_CM     25          /* lawnmower row advance, ~10 in */
+#define ROW_STEP_CM     25         
 
 /* ── Starting pose ─────────────────────────────────────────────── */
 #define START_X         3810
 #define START_Y         731
 
 /* ── Thresholds ─────────────────────────────────────────────────── */
-#define HDG_THRESH      5           /* degrees — close enough to heading  */
-#define DIST_THRESH     (5  * 48)   /* raw — close enough to waypoint     */
-#define VISITED_THRESH  (15 * 48)   /* raw — mark waypoint as visited     */
-#define RECOVERY_MS     4000        /* ms without progress → WP recover   */
-#define DROPOFF_MS      140000      /* 2:20 match time limit              */
-#define TOF_WALL_STOP   200         /* mm — wall contact distance         */
+#define HDG_THRESH      5           // degrees, close enough to heading  
+#define DIST_THRESH     (5  * 48)   // close enough to waypoint     
+#define VISITED_THRESH  (15 * 48)   // mark waypoint as visited     
+#define RECOVERY_MS     4000        // ms without progress -> WP recover   
+#define DROPOFF_MS      140000      // 2:20 match time limit              
+#define TOF_WALL_STOP   200         // mm, wall contact distance         
 
 /* ══════════════════════════════════════════════════════════════
    WAYPOINTS
@@ -140,59 +140,52 @@ int wp_nearest_with_cam_hint(SM *s, WpType t) {
 }
 
 /* ══════════════════════════════════════════════════════════════
-   NAVIGATION HELPERS  (inline — no separate nav.c needed)
+   NAVIGATION HELPERS
    ══════════════════════════════════════════════════════════════ */
 
 /* Returns 1 if match time has exceeded ms */
-static int nav_time_exceeded(uint32_t ms) {
+int nav_time_exceeded(uint32_t ms) {
     return g_robot.elapsed_ms >= ms;
 }
 
-/* Returns 1 if ToF reads wall within stopping distance.
-   Used only for wall-contact position resets, not for stopping
-   (the motor driver handles stopping automatically).            */
-static int nav_wall_ahead(void) {
+// Returns 1 if ToF reads wall within stopping distance.
+int nav_wall_ahead(void) {
     return g_robot.tof_fwd_mm <= TOF_WALL_STOP;
 }
 
-/* Drive forward one step. Motor driver stops if wall detected.
-   Returns 1 when wall contact confirmed via ToF.               */
-static int nav_drive_to_wall(void) {
+/* Drive forward until wall */
+int nav_drive_to_wall(void) {
     if (g_robot.tof_fwd_mm <= TOF_WALL_STOP) return 1;
-    int8_t cm = 10;
+    int8_t cm = 180;
     step(&cm);
     return 0;
 }
 
-/* Drive exactly dist_cm centimetres using encoder PID.
-   Returns 1 when motor reports move complete.                  */
-static int nav_step_cm(int8_t dist_cm) {
+/* Drive exactly dist_cm */
+int nav_step_cm(int8_t dist_cm) {
     return step(&dist_cm);
 }
 
-/* Rotate to target_hdg degrees using gyro feedback.
-   Returns 1 when within HDG_THRESH degrees.                    */
-static int nav_rotate_to(int16_t target_hdg) {
+/* Rotate to target_hdg degrees */
+int nav_rotate_to(int16_t target_hdg) {
     int16_t ang = target_hdg - g_robot.heading;
     while (ang >  180) ang -= 360;
     while (ang < -180) ang += 360;
-    /* FIX: HDG_THRESH is in degrees, not raw units */
+
     if (ang > -HDG_THRESH && ang < HDG_THRESH) return 1;
     int8_t a = (int8_t)((ang > 127) ? 127 : (ang < -128) ? -128 : ang);
     return rotate(&a);
 }
 
-/* Drive west until past x_thresh (used for cave exit).
-   Returns 1 when robot x drops below threshold.               */
-static int nav_drive_past_x(int16_t x_thresh) {
+/* Drive west until past x_thresh (used for cave exit). */
+int nav_drive_past_x(int16_t x_thresh) {
     if (g_robot.x < x_thresh) return 1;
     int8_t cm = 10;
     step(&cm);
     return 0;
 }
 
-/* Navigate to wps[s->wp_target_idx].
-   Returns 1 when reached, 0 still navigating.                 */
+/* Navigate to waypoint: Returns 1 when reached, 0 still navigating. */
 int wp_nav_to(SM *s) {
     if (s->wp_target_idx < 0) return 1;
     Waypoint *wp = &wps[s->wp_target_idx];
@@ -206,7 +199,7 @@ int wp_nav_to(SM *s) {
         return 0;
 
     case 1: {
-        int16_t dx = (int16_t)wp->x - g_robot.x;
+        int16_t dx = (int16_t)wp->x-g_robot.x;
         if (dx < 0) dx = -dx;
         if (dx < DIST_THRESH) { s->wp_nav_step = 2; return 0; }
         int8_t cm = (int8_t)((dx/48 > 120) ? 120 : dx/48);
@@ -243,20 +236,54 @@ int wp_nav_to(SM *s) {
    MISSION HANDLERS
    ══════════════════════════════════════════════════════════════ */
 
-/* ── WAIT_START ─────────────────────────────────────────────── */
-static Mission handle_wait_start(SM *s) {
+Mission handle_wait_start(SM *s) {
     (void)s;
     if (g_robot.start_detected) return MISSION_LAWN_OPEN;
     return MISSION_WAIT_START;
 }
 
-/* ── LAWN_OPEN ──────────────────────────────────────────────────
-   Lawnmower sweep of open arena.
-   sub_step 0: drive north/south until wall (motor handles stop)
+/* Lawnmower sweep of open arena.
+   sub_step 0: drive north/south until wall
    sub_step 1: turn east
    sub_step 2: step one row width east
    sub_step 3: flip row direction, back to sub_step 0           */
-static Mission handle_lawn_open(SM *s) {
+
+Mission handle_sweep_west(SM *s) {
+    // turn -45 to read west tag for rendezvous point
+    // turn to -90 to west wall
+    // step until wall detected
+    // turn to 0 degrees to north wall
+    // step until wall detected
+    // turn to 90 to east 
+    // step toward container
+    // return MISSION_GRAB_NEB
+
+}
+
+Mission handle_grab_neb(SM *s) {
+    // turn 180
+    // back up into container (hook should be going in hole)
+    // lift up hooks to lift container
+    // go to rendezvous point, algorithm changes depending on which side pad is on
+    // drop hook and back out (or lateral step out)
+    // return MISSION_GRAB_GEO
+}
+
+Mission handle_grab_geo(SM *s) {
+    // from rendezvous point, go to just outside the drop off zone
+    // drive south until wall
+    // turn to 90 toward east
+    // drive straight toward container
+    // turn 180
+    // back up into container (hook should be going in hole)
+    // lift up hook s to lift container
+    // go to rendezvous point, algorithm changes depending on which side pad is on
+    // drop hook and back out (or lateral step out)
+    // return MISSION_LAWN_OPEN
+}
+
+// should sweep the open arena using nearest unvisisted waypoint
+Mission handle_lawn_open(SM *s) {
     if (nav_time_exceeded(DROPOFF_MS)) return MISSION_EXIT_CAVE;
 
     /* Stuck recovery — use camera hint to find best next waypoint */
@@ -280,8 +307,7 @@ static Mission handle_lawn_open(SM *s) {
     case 0:
         /* Drive until motor stops at wall, then validate with ToF */
         if (nav_drive_to_wall()) {
-            /* Hard-reset y from known wall position.
-               This is valid because ToF confirmed wall contact.  */
+            /* Hard-reset y from known wall position. */
             g_robot.y = (s->row_parity == 0) ? Y_NORTH : Y_SOUTH;
             s->last_progress_tick = get_global_tick();
             s->sub_step = 1;
@@ -309,8 +335,7 @@ static Mission handle_lawn_open(SM *s) {
     return MISSION_LAWN_OPEN;
 }
 
-/* ── WP_RECOVER ─────────────────────────────────────────────── */
-static Mission handle_wp_recover(SM *s) {
+Mission handle_wp_recover(SM *s) {
     if (wp_nav_to(s)) {
         s->sub_step           = 0;
         s->last_progress_tick = get_global_tick();
@@ -319,8 +344,7 @@ static Mission handle_wp_recover(SM *s) {
     return MISSION_WP_RECOVER;
 }
 
-/* ── CAVE_ENTER ─────────────────────────────────────────────── */
-static Mission handle_cave_enter(SM *s) {
+Mission handle_cave_enter(SM *s) {
     switch (s->sub_step) {
 
     case 0:
@@ -370,8 +394,7 @@ static Mission handle_cave_enter(SM *s) {
     return MISSION_CAVE_ENTER;
 }
 
-/* ── LAWN_CAVE ──────────────────────────────────────────────── */
-static Mission handle_lawn_cave(SM *s) {
+Mission handle_lawn_cave(SM *s) {
     if (nav_time_exceeded(DROPOFF_MS)) return MISSION_EXIT_CAVE;
 
     if (get_global_tick() - s->last_progress_tick > RECOVERY_MS) {
@@ -426,8 +449,7 @@ static Mission handle_lawn_cave(SM *s) {
     return MISSION_EXIT_CAVE;
 }
 
-/* ── EXIT_CAVE ──────────────────────────────────────────────── */
-static Mission handle_exit_cave(SM *s) {
+Mission handle_exit_cave(SM *s) {
     switch (s->sub_step) {
 
     case 0:
@@ -448,8 +470,15 @@ static Mission handle_exit_cave(SM *s) {
     return MISSION_DONE;
 }
 
-/* ── DONE ────────────────────────────────────────────────────── */
-static Mission handle_done(SM *s) {
+MISSION_DROPOFF(SM *s) {
+    // whenever there is enough balls sorted, go to drop off (release the hopper walls)
+    // algorithm for getting to dropoff point changes depending on where it is
+    // return to previous mission
+    // when all waypoints have been covered, do a drop off one final time
+    // 
+}
+
+Mission handle_done(SM *s) {
     (void)s;
     turn_off_motors();
     return MISSION_DONE;
@@ -460,7 +489,8 @@ static Mission handle_done(SM *s) {
    ══════════════════════════════════════════════════════════════ */
 typedef Mission (*MissionHandler)(SM *);
 
-static MissionHandler handlers[MISSION_COUNT] = {
+// TODO: containers, drop containers at rendezvous, sorting, drop bags
+MissionHandler handlers[MISSION_COUNT] = {
     [MISSION_WAIT_START] = handle_wait_start,
     [MISSION_LAWN_OPEN]  = handle_lawn_open,
     [MISSION_WP_RECOVER] = handle_wp_recover,
@@ -474,8 +504,10 @@ static MissionHandler handlers[MISSION_COUNT] = {
    INIT AND TICK
    ══════════════════════════════════════════════════════════════ */
 void sm_init(SM *s) {
-    s->mission            = MISSION_WAIT_START;
-    s->prev_mission       = MISSION_WAIT_START;
+    // s->mission            = MISSION_WAIT_START;
+    // s->prev_mission       = MISSION_WAIT_START;
+    s->mission = MISSION_LAWN_OPEN;
+    s->prev_mission = MISSION_LAWN_OPEN;
     s->sub_step           = 0;
     s->wp_target_idx      = -1;
     s->wp_nav_step        = 0;

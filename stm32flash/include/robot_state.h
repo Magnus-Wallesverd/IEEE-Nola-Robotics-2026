@@ -15,6 +15,7 @@ typedef struct {
     uint8_t  cam_sees;      // bit0=front visible, bit1=rear
     uint8_t  cam_id[2];     // [0]=front [1]=rear tag ID, 0xFF=none 
     uint8_t  telemetry_pad; // rendezvous pad
+    uint8_t  start_detected;// checks if start LED on
 
     /* Match timing */
     uint32_t start_tick;
