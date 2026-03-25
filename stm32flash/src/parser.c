@@ -18,10 +18,10 @@ uint32_t p_dst_i = 0;
 dispatcher_t global_dispatch;
 
 const transport_t dispatch_table[] = {
-    step,
-    rotate,
-    lateral_left,
-    lateral_right,
+    // step,
+    // rotate,
+    // lateral_left,
+    // lateral_right,
 };
 
 void dispatcher_init(void){

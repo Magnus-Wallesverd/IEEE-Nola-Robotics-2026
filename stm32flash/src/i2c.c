@@ -33,10 +33,10 @@ uint8_t* bno_status = bno_sys_read;
 I2C_Dev  Dev;
 I2C_Dev* Current_Dev = &Dev;
 
-void TIM1_TRG_TIM17_IRQHandler(void){
-    ovf17++;
-    TIM17->SR = 0;
-}
+// void TIM1_TRG_TIM17_IRQHandler(void){
+//     ovf17++;
+//     TIM17->SR = 0;
+// }
 
 
 void I2C_Init(I2C_TypeDef* I2Cx, uint8_t mode){
@@ -91,9 +91,9 @@ void I2C_Wait(I2C_TypeDef* I2Cx){
 }
 
 void bno055_init(void){
-    while(*tim7_ovf_p < 20);
+    while(*tim20_ovf_p < 20);
     Sensor_Write(I2C1, BNO055_ADDR, bno_init, sizeof(bno_init));
-    while(*tim7_ovf_p < 21);
+    while(*tim20_ovf_p < 21);
 }
 
 void Sensor_Init(void){
@@ -166,8 +166,8 @@ void get_ToF_Distance(void* args){
 void Sensor_Read_Wrapper(void* args){
     (void) args;
     while(1){
-        get_ToF_Distance((void*) args);
-        bno_read_heading();
+        // get_ToF_Distance((void*) args);
+        // bno_read_heading();
         yield();
 
     }

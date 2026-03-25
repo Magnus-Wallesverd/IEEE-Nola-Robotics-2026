@@ -13,8 +13,8 @@
 //still works because only 1 motor task gets called
 TCB* motor_tcb;
 
-uint32_t tim7_ovf;
-uint32_t* tim7_ovf_p = &tim7_ovf;
+uint32_t tim20_ovf;
+uint32_t* tim20_ovf_p = &tim20_ovf;
 
 uint32_t motor_timeout_counter = 0;
 uint32_t MAXTIMEOUT = 320;
@@ -77,16 +77,25 @@ enum speed {
 uint16_t speed_arr[] = {1499,3999,7999};
 uint16_t kd_arr[] = {10,23,23};
 
-void TIM7_IRQHandler(void){
-    TIM7->SR = 0;  // clear flags
-    tim7_ovf++;
+
+void TIM20_UP_IRQHandler(void){
+    TIM20->SR = 0;  // clear flags
+    tim20_ovf++;
     if(motor_tcb->state == BLOCKED){
         unblock(motor_tcb);
     }     
 }
 
+// void TIM7_IRQHandler(void){
+//     TIM7->SR = 0;  // clear flags
+//     tim7_ovf++;
+//     if(motor_tcb->state == BLOCKED){
+//         unblock(motor_tcb);
+//     }     
+// }
+
 void input_timer_init(void){
-    RCC->APB1ENR1 |= 0x7;        // Enable TIM 2, 3, 4
+    RCC->APB1ENR |= 0x7;        // Enable TIM 2, 3, 4
     RCC->APB2ENR |= (1 << 13);  // Enable TIM 8
     
     SetPinAlternate(GPIOA, 0x18C3);
@@ -147,18 +156,30 @@ void output_timer_init(void){
     // TIM16->BDTR  |= 1<<15;       // Main Output enable
     // TIM16->CR1   |= 0b10000001;
     
+    // timer prio
+    NVIC_IPR->IPR19 |= NVIC_IRQ_PRIORITY1 << 16;
+
+    TIM20->DIER  |= 1;
+    TIM20->CCMR1 |= 0x68;
+    TIM20->PSC   |= 24*8;
+    TIM20->ARR    = 7999;
+    TIM20->CCR1  |= 4000;
+    TIM20->CCER  |= 1;
+    TIM20->BDTR  |= 1<<15;       // Main Output enable
+    TIM20->CR1   |= 0b10000001;
 }
 
-void InitBasicTIM(void){
-    RCC->APB1ENR1 |= 1 <<5;
-    NVIC->ISER1 |= 1 <<23;
-    // NVIC_IPR->IPR19 |= NVIC_IRQ_PRIORITY1 << 16;
-    TIM7->DIER  |= 1;
-    TIM7->PSC   |= 100;
-    TIM7->ARR    = 32000;
-    TIM7->CR1   |= 0b10000001;
 
-}
+// void InitBasicTIM(void){
+//     RCC->APB1ENR1 |= 1 <<5;
+//     NVIC->ISER1 |= 1 <<23;
+//     // NVIC_IPR->IPR19 |= NVIC_IRQ_PRIORITY1 << 16;
+//     TIM7->DIER  |= 1;
+//     TIM7->PSC   |= 100;
+//     TIM7->ARR    = 32000;
+//     TIM7->CR1   |= 0b10000001;
+//
+// }
 
 void turn_on_motors(void){
 
@@ -174,13 +195,13 @@ void turn_off_motors(void){
 }
 
 void jump_start(uint8_t speed){
-    uint32_t tick = tim7_ovf;
+    uint32_t tick = tim20_ovf;
     turn_on_motors();      
     TIM1->CCR1 = 7999;
     TIM1->CCR2 = 7999;
     TIM1->CCR3 = 7999;
     TIM1->CCR4 = 7999;
-    while( tim7_ovf < tick + 3 - speed);
+    while( tim20_ovf < tick + 3 - speed);
 
 }
 
