@@ -109,53 +109,17 @@ int wp_all_done(WpType t) {
 }
 
 
-int wp_nearest_with_cam_hint(SM *s, WpType t) {
-    uint8_t id = g_robot.cam_id[0];    /* front camera tag ID */
-    if (id == 0xFF) id = g_robot.cam_id[1];  /* try rear if front empty */
-
-    /* No tag visible — use normal nearest */
-    if (id == 0xFF) return wp_nearest(s, t);
-
-    /* Build a bias point from the tag location */
-    int16_t bias_x, bias_y;
-    if      (id <= 4) { bias_x = X_WEST;  bias_y = Y_CAVE_CENTER; }
-    else if (id == 5) { bias_x = START_X; bias_y = Y_NORTH;       }
-    else if (id == 6) { bias_x = START_X; bias_y = Y_SOUTH;       }
-    else              { bias_x = X_EAST;  bias_y = Y_CAVE_CENTER;  }
-
-    /* Find unvisited waypoint of type t closest to the bias point */
-    int      nearest  = -1;
-    uint32_t shortest = 0xFFFFFFFF;
-    for (int i = 0; i < (int)NUM_WP; i++) {
-        if (!wps[i].visited && (WpType)wps[i].type == t) {
-            int32_t dx = (int32_t)wps[i].x - bias_x;
-            int32_t dy = (int32_t)wps[i].y - bias_y;
-            if (dx < 0) dx = -dx;
-            if (dy < 0) dy = -dy;
-            uint32_t d = (uint32_t)(dx + dy);
-            if (d < shortest) { shortest = d; nearest = i; }
-        }
-    }
-    return (nearest >= 0) ? nearest : wp_nearest(s, t);
-}
-
 /* ══════════════════════════════════════════════════════════════
    NAVIGATION HELPERS
    ══════════════════════════════════════════════════════════════ */
-
-/* Returns 1 if match time has exceeded ms */
+// Returns 1 if match time has exceeded ms
 int nav_time_exceeded(uint32_t ms) {
     return g_robot.elapsed_ms >= ms;
 }
 
-// Returns 1 if ToF reads wall within stopping distance.
-int nav_wall_ahead(void) {
-    return g_robot.tof_fwd_mm <= TOF_WALL_STOP;
-}
-
 /* Drive forward until wall */
 int nav_drive_to_wall(void) {
-    if (g_robot.tof_fwd_mm <= TOF_WALL_STOP) return 1;
+    if (ToF_Distance <= TOF_WALL_STOP) return 1;
     int8_t cm = 180;
     step(&cm);
     return 0;
@@ -232,21 +196,21 @@ int wp_nav_to(SM *s) {
     return 1;
 }
 
+// update position based on encoders
+// update heading based on gyroscope
+// camera reads apriltags and confirms position
+// ToF confirms position
+
 /* ══════════════════════════════════════════════════════════════
    MISSION HANDLERS
    ══════════════════════════════════════════════════════════════ */
 
 Mission handle_wait_start(SM *s) {
     (void)s;
+    // should take from camera
     if (g_robot.start_detected) return MISSION_LAWN_OPEN;
     return MISSION_WAIT_START;
 }
-
-/* Lawnmower sweep of open arena.
-   sub_step 0: drive north/south until wall
-   sub_step 1: turn east
-   sub_step 2: step one row width east
-   sub_step 3: flip row direction, back to sub_step 0           */
 
 Mission handle_sweep_west(SM *s) {
     // turn -45 to read west tag for rendezvous point
@@ -281,6 +245,12 @@ Mission handle_grab_geo(SM *s) {
     // drop hook and back out (or lateral step out)
     // return MISSION_LAWN_OPEN
 }
+
+/* Lawnmower sweep of open arena.
+   sub_step 0: drive north/south until wall
+   sub_step 1: turn east
+   sub_step 2: step one row width east
+   sub_step 3: flip row direction, back to sub_step 0           */
 
 // should sweep the open arena using nearest unvisisted waypoint
 Mission handle_lawn_open(SM *s) {
@@ -475,7 +445,6 @@ MISSION_DROPOFF(SM *s) {
     // algorithm for getting to dropoff point changes depending on where it is
     // return to previous mission
     // when all waypoints have been covered, do a drop off one final time
-    // 
 }
 
 Mission handle_done(SM *s) {
@@ -492,11 +461,15 @@ typedef Mission (*MissionHandler)(SM *);
 // TODO: containers, drop containers at rendezvous, sorting, drop bags
 MissionHandler handlers[MISSION_COUNT] = {
     [MISSION_WAIT_START] = handle_wait_start,
+    [MISSION_SWEEP_WEST] = handle_sweep_west,
+    [MISSION_GRAB_NEB]   = handle_grab_neb,
+    [MISSION_GRAB_GEO]   = handle_grab_geo,
     [MISSION_LAWN_OPEN]  = handle_lawn_open,
     [MISSION_WP_RECOVER] = handle_wp_recover,
     [MISSION_CAVE_ENTER] = handle_cave_enter,
     [MISSION_LAWN_CAVE]  = handle_lawn_cave,
     [MISSION_EXIT_CAVE]  = handle_exit_cave,
+    [MISSION_DROPOFF]    = handle_dropoff,
     [MISSION_DONE]       = handle_done,
 };
 

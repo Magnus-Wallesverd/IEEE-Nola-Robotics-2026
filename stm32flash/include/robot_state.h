@@ -11,7 +11,6 @@ typedef struct {
     int16_t  heading;       // degrees: 0=N  90=E  180=S  270=W
 
     /* Sensors */
-    uint16_t tof_fwd_mm;    // ToF forward distance in mm
     uint8_t  cam_sees;      // bit0=front visible, bit1=rear
     uint8_t  cam_id[2];     // [0]=front [1]=rear tag ID, 0xFF=none 
     uint8_t  telemetry_pad; // rendezvous pad
