@@ -95,6 +95,7 @@ extern I2C_Dev* Current_Dev;
 
 extern uint16_t* ToF_Distance_p;
 extern int16_t bno_heading;
+extern int16_t mag_data[3];
 
 // I2C HAL function prototypes
 

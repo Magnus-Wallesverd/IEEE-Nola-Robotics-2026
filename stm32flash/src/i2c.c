@@ -24,6 +24,8 @@ uint16_t* ToF_Distance_p = &ToF_Distance;
 uint8_t  ToF_offset_ADA = 29;
 uint8_t  ToF_offset_PIM = 18;
 
+int16_t mag_data[3] = {0};
+
 int16_t bno_heading;
 uint8_t bno_init[] = {OPR_REG, NDOF_MODE};
 uint8_t bno_sys_status[] = {SYS_CLK_STATUS};
@@ -91,6 +93,12 @@ void I2C_Wait(I2C_TypeDef* I2Cx){
     while(I2Cx->ISR & BUSY);
 }
 
+void I2C_Yield(I2C_TypeDef* I2Cx){
+    while(I2Cx->ISR & BUSY){
+        yield();
+    }
+}
+
 void bno055_init(void){
     while(*tim7_ovf_p < 20);
     Sensor_Write(I2C1, BNO055_ADDR, bno_init, sizeof(bno_init));
@@ -121,18 +129,6 @@ void mag_init(void){
     Sensor_Read(I2C1, MAG_ADDR, config, 4, tmp, 1);
     I2C_Wait(I2C1);
     data[1] = tmp[0];
-
-    // challenge for sylvia. get this to run in the Sensor wrapper!
-    config[0] = 0x3E;
-    Sensor_Read(I2C1, MAG_ADDR, config, 1, tmp, 1);
-    I2C_Wait(I2C1);
-    data[2] = tmp[0];
-    
-    config[0] = 0x4E;
-    Sensor_Read(I2C1, MAG_ADDR, config, 1, tmp, 1);
-    I2C_Wait(I2C1);
-    data[3] = tmp[0];
-
 }
 
 void ToF_Init(void){
@@ -202,11 +198,41 @@ void get_ToF_Distance(void* args){
     VL53L1X_ClearInterrupt(VL53L1X_ADDR);
 }
 
+void mag_read(){
+    static uint8_t tmp[1] = {0};
+    static uint8_t data[7] = {0};
+    static int16_t xMag, yMag, zMag;
+
+    I2C_Yield(I2C1);
+
+    config[0] = MAG_START_MEASURE;
+    Sensor_Read(I2C1, MAG_ADDR, config, 1, tmp, 1);
+    I2C_Yield(I2C1);
+    data[0] = tmp[0];
+    
+    config[0] = MAG_READ_MEASURE;
+    Sensor_Read(I2C1, MAG_ADDR, config, 1, data, 7);
+    I2C_Yield(I2C1);
+
+    xMag = data[1] * 256 + data[2];
+    yMag = data[3] * 256 + data[4];
+    zMag = data[5] * 256 + data[6];
+
+    if(xMag > 32767){ xMag -= 65536; }
+    if(yMag > 32767){ yMag -= 65536; }
+    if(zMag > 32767){ zMag -= 65536; }
+
+    mag_data[0] = xMag;
+    mag_data[1] = yMag;
+    mag_data[2] = zMag;
+}
+
 void Sensor_Read_Wrapper(void* args){
     (void) args;
     while(1){
         get_ToF_Distance((void*) args);
         bno_read_heading();
+        mag_read();
         yield();
 
     }
