@@ -142,7 +142,7 @@ void usart_begin(void* args){
     (void) args;
     // usart.USARTx->CR1 |= USART_RXNEIE;
     usart.USARTx->CR1 |= USART_RXNEIE;
-    usart_load_tx(0x5, 4, 0);
+    //usart_load_tx(0x5, 4, 0);
 }
 
 uint8_t* get_usart_rx(void){
