@@ -63,6 +63,8 @@ void output_timer_init(void){
     SetPinAlternate(GPIOC, 0xF);            
     AlternateFunctionSet(GPIOC, 0xF, 2);    // PC0-3 -> AF2   
     
+    SetPinAlternate(GPIOB, PB8);            
+    AlternateFunctionSet(GPIOB, PB8, 1);    // PB8 -> AF2   
 
     TIM1->CCMR1 |= 0x6868;      // pwm 1 CH 1,2
     TIM1->CCMR2 |= 0x6868;      // pwm 1 CH 3,4
@@ -79,7 +81,7 @@ void output_timer_init(void){
     TIM16->CCMR1 |= 0x68;
     TIM16->PSC   |= 19;
     TIM16->ARR    = 63999;
-    TIM16->CCR1  |= 32000;
+    TIM16->CCR1  |= 0;
     TIM16->CCER  |= 1;
     TIM16->BDTR  |= 1<<15;       // Main Output enable
     TIM16->CR1   |= 0b10000001;
