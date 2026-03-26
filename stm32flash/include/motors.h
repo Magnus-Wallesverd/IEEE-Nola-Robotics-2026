@@ -35,8 +35,6 @@ void set_speed(uint16_t target);
 
 void motor_wrapper(void* args);
 
-void init_servo_TIM(void);
-
 int lateral_left(void* args);
 
 int lateral_right(void* args);
@@ -54,5 +52,8 @@ int relative_pos(int16_t x1 , int16_t y1);
 void turn_off_motors(void);
 
 void motor_handler(void* args);
+
+void motor_init(void);
+
 
 #endif // !MOTORS_H

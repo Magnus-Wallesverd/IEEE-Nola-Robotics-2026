@@ -34,6 +34,7 @@ void worker_function(void);
 extern uint32_t transport_handler_counter;
 extern TCB _stcb[TCB_ARRAY_SIZE];
 extern TCB* transport_tcb;
+extern TCB* motor_tcb;
 
 uint32_t get_global_tick(void);
 uint8_t* get_i2c_buffer(void);
