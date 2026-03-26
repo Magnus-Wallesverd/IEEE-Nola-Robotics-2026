@@ -144,7 +144,7 @@ void mag_read(){
 }
 
 void bno055_init(void){
-    while(*tim20_ovf_p < 20);
+    while(*tim20_ovf_p < 23);
     Sensor_Write(I2C1, BNO055_ADDR, bno_init, sizeof(bno_init));
     while(*tim20_ovf_p < 21);
 }
@@ -165,7 +165,7 @@ void Sensor_Init(void){
 
 void bno_read_heading(void){
     
-    I2C_Wait(I2C1);
+    I2C_Yield(I2C1);
     bno_tx_buffer[0] = HEADING_REG;
     Sensor_Read(I2C1, BNO055_ADDR, bno_tx_buffer, BNO055_TX_BUFFER_SIZE, bno_rx_buffer, 2);
     bno_heading = bno_rx_buffer[HEADING_MSB] <<8 | bno_rx_buffer[HEADING_LSB];
@@ -204,6 +204,7 @@ void get_ToF_Distance(void* args){
     (void) args;
     I2C_Yield(I2C1);
 
+    I2C_Wait(I2C1);
     static uint8_t range_active = 0;
     uint8_t data_ready;
 

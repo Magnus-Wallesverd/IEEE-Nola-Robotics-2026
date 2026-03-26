@@ -84,7 +84,7 @@ void usart_init(USART_Typedef* USARTx, GPIO_TypeDef* port, uint32_t pins, uint32
             AlternateFunctionSet(port,pins,7);
             SetOutputSpeed(port, pins, 1);
             break;
-        case (uint32_t)USART2:
+        case (uint32_t)USART2:;
             RCC->APB1ENR |= USART2_EN;
             NVIC->ISER1  |= NVIC_USART2;
             SetOutputSpeed(port, pins, 1);
