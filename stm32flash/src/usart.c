@@ -48,10 +48,6 @@ void USART1_IRQHandler(void){
                 if(usart_rx_i == USART_FRAME_SIZE){
                     usart_rx_i = 0;
                     u_state_machine = USART_INACTIVE;
-                    if(wait(usart.sem)){
-                        producer_function(usart.sem);
-                        signal(usart.sem);
-                    }
                 }
                 return;
         }
@@ -119,8 +115,6 @@ void usart_init(USART_Typedef* USARTx, GPIO_TypeDef* port, uint32_t pins, uint32
     sem_init(usart.sem,(void*)&usart_item,1);  
 
     usart.dispatch = &usart_dispatcher;
-    // usart.dispatch->header = USART_HEADER;
-    // usart.dispatch->footer = USART_FOOTER;
 
     ((work_item_t*)usart.sem->item)->fn = parser_dispatcher;
 
@@ -130,7 +124,7 @@ void usart_init(USART_Typedef* USARTx, GPIO_TypeDef* port, uint32_t pins, uint32
     USARTx->CR3 |= (1<<12);
 }
 
-void usart_load_tx(uint8_t f_ID, uint8_t MSB, uint8_t LSB){
+void usart_load_tx(uint8_t f_ID, uint8_t LSB, uint8_t MSB){
 
     package[1] = f_ID;
     package[2] = LSB;
@@ -142,7 +136,7 @@ void usart_begin(void* args){
     (void) args;
     // usart.USARTx->CR1 |= USART_RXNEIE;
     usart.USARTx->CR1 |= USART_RXNEIE;
-    //usart_load_tx(0x5, 4, 0);
+    usart_load_tx(0x5, 0, 4);
 }
 
 uint8_t* get_usart_rx(void){
