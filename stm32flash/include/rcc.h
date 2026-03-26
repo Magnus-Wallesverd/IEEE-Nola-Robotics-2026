@@ -21,6 +21,7 @@
 #define RCC_PLLON   (1<<24)
 #define RCC_PLLRDY  (1<<25)
 
+#define RCC_PLL_4x      (2<<18)
 #define RCC_PLL_8x      (6<<18)
 
 #define RCC_PPRE2_DIV2  (4<<11)
@@ -87,6 +88,6 @@ typedef struct{
 // only supports one timer 
 void TimerEnable(uint8_t timer);
 
-void set_clock_64Mhz(void);
+void set_clock_32Mhz(void);
 
 #endif
