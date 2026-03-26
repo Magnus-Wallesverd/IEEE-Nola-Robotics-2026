@@ -1,6 +1,7 @@
 #include "statemachine.h"
 #include "robot_state.h"
 #include "motors.h"
+#include "usart.h"
 #include "lock.h"
 #include "tcb.h"
 #include <stdint.h>
@@ -625,23 +626,36 @@ void sm_tick(SM *s) {
 }
 
 
-void  circle_path(void){
 
-    static motor_payload payload1 = {
-        80,
-        1
-    };
+transport_item_t usart_frame;
+usart_payload usart_data = {
+    .f_ID = 1, .LSB = 0xB, .MSB =0xB  
+};
 
-
-    for(int i = 0; i < 4; i++){
-        // motor_item_t* task
-        // enqueue(motor_queue_ptr, (void*)&payload1);
+void usart_test(int x){
+    for(int i = 0; i < x; i++){
+        usart_frame.fn = usart_load_tx;
+        usart_frame.args = (void*)&usart_data;
+        enqueue(transport_queue_ptr, (void*)&usart_frame);
     }
+}
+
+int check_handler(queue_t* q){
+    if( q->count == 0){
+        return 1;
+    }
+    return 0;
 }
 
 void sm_main(void *args) {
     (void)args;
+    usart_test(4);
     while(1);
+    if(check_handler(motor_queue_ptr)&check_handler(transport_queue_ptr)){
+        
+    } else {
+        yield();
+    }
 
     robot_state_init();
     SM s;

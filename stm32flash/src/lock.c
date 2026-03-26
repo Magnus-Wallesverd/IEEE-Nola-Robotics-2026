@@ -15,12 +15,6 @@ void unblock(TCB* tcb){
     kernel_unblock_counter++;
 }
 
-void kernel_unblock(sem_t* s){
-    if(wait(s) == 1){
-        enqueue(ready_queue_ptr, s->item);
-    }
-}
-
 void flag_wait(TCB* tcb){
     tcb->flags--;
 }

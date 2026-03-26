@@ -18,15 +18,16 @@ void systeminit(void){
     ready_queue_init();
     motor_queue_init();
     // priority_queue_init();
-    // transport_queue_init();
+    transport_queue_init();
     // dispatcher_init();
  
 
-    // usart_init(USART1, GPIOC,PC4|PC5,115200);
+    usart_init(USART1, GPIOC,PC4|PC5,115200);
 
     input_timer_init();
     output_timer_init();
 
-    I2C_Init(I2C1, 0);
+    // I2C_Init(I2C1, 0);
     SetPinOutput(GPIOA,PA5);
+    SetPinOutput(GPIOB,PB15);
 }

@@ -26,7 +26,6 @@ queue_t* priority_queue_ptr = &priority_queue;
 
 work_item_t task_pool[TASK_QUEUE_SIZE];
 transport_item_t transport_pool[TRANSPORT_QUEUE_SIZE];
-
 motor_item_t motor_pool[MOTOR_QUEUE_SIZE];
 
 void* task_queue_array[TASK_QUEUE_SIZE];
@@ -37,11 +36,12 @@ void* priority_queue_array[TASK_QUEUE_SIZE];
 
 // should start thinking of easier ways to get functions in here
 const func_t fn_table[] = {
-    Sensor_Read_Wrapper,
+    sm_main,
+    // Sensor_Read_Wrapper,
+    motor_handler,
+    transport_handler
     // // lcd_print,
     // usart_begin,
-    sm_main,
-    motor_handler
 
     // relative_pos
 };
@@ -103,7 +103,7 @@ void motor_queue_init(void){
 
     motor_queue_ptr->array = motor_queue_array;
     motor_queue_ptr->count = 0;
-    motor_queue_ptr->size  = TRANSPORT_QUEUE_SIZE;
+    motor_queue_ptr->size  = MOTOR_QUEUE_SIZE;
     motor_queue_ptr->front = motor_queue_ptr->array;
     motor_queue_ptr->end   = motor_queue_ptr->array;
 
@@ -114,7 +114,7 @@ void motor_queue_init(void){
     }
 
     // need to enqueue the address of the task
-    for(unsigned int i = 0; i < sizeof(fn_table)/4; i++){
+    for(unsigned int i = 0; i < sizeof(motor_table)/4; i++){
         enqueue(motor_queue_ptr, &motor_pool[i]);
     }
     

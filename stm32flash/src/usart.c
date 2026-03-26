@@ -1,9 +1,10 @@
 #include "usart.h"
+#include "tcb.h"
+#include "lock.h"
 
 // use for the active usart peripheral 
 // holds the pointer to peripheral and buffers
 usart_t usart;
-parser_t usart_parser;
 
 work_item_t usart_item;
 
@@ -13,9 +14,8 @@ int tx_counter = 0;
 
 enum usart_state u_state_machine = USART_INACTIVE;
 
-dispatcher_t usart_dispatcher;
 
-sem_t usart_sem;
+sem_t usart_sema;
 
 uint32_t usart_tx_i = 0;
 uint32_t usart_rx_i = 0;
@@ -44,11 +44,11 @@ void USART1_IRQHandler(void){
             case USART_INACTIVE:
                 break;
             case USART_ACTIVE:
-                usart_rx_buffer[usart_rx_i++] = data;
-                if(usart_rx_i == USART_FRAME_SIZE){
-                    usart_rx_i = 0;
+                usart_rx_buffer[usart_rx_i++%USART_RX_BUF_SIZE] = data;
+                if(usart_rx_i % USART_FRAME_SIZE == 0){
+                    // usart_rx_i = 0;
                     u_state_machine = USART_INACTIVE;
-                    signal(&usart_sem);
+                    unblock(transport_tcb);
                 }
                 break;
         }
@@ -111,13 +111,8 @@ void usart_init(USART_Typedef* USARTx, GPIO_TypeDef* port, uint32_t pins, uint32
     usart.tx_buffer_p = package;
     usart.rx_buffer_p = usart_rx_buffer;
     
-    usart.sem = &usart_sem;
 
-    sem_init(usart.sem,(void*)&usart_item,1);  
-
-    usart.dispatch = &usart_dispatcher;
-
-    ((work_item_t*)usart.sem->item)->fn = parser_dispatcher;
+    sem_init(&usart_sema,1);  
 
     USARTx->CR1 |= CR1_SETUP;
     USARTx->BRR = CLK_32Mhz/baud;
@@ -125,19 +120,27 @@ void usart_init(USART_Typedef* USARTx, GPIO_TypeDef* port, uint32_t pins, uint32
     USARTx->CR3 |= (1<<12);
 }
 
-void usart_load_tx(uint8_t f_ID, uint8_t LSB, uint8_t MSB){
-
-    package[1] = f_ID;
-    package[2] = LSB;
-    package[3] = MSB;
+void usart_load_tx(void* args){
+    
+    package[1] = ((usart_payload*)args)->f_ID; 
+    package[2] = ((usart_payload*)args)->LSB; 
+    package[3] = ((usart_payload*)args)->MSB;
     usart.USARTx->CR1 |= USART_TXEIE;
+    usart.USARTx->CR1 |= USART_RXNEIE;
+
 }
+// void usart_load_tx(uint8_t f_ID, uint8_t LSB, uint8_t MSB){
+//
+//     package[1] = f_ID;
+//     package[2] = LSB;
+//     package[3] = MSB;
+//     usart.USARTx->CR1 |= USART_TXEIE;
+// }
 
 void usart_begin(void* args){
     (void) args;
     // usart.USARTx->CR1 |= USART_RXNEIE;
-    usart.USARTx->CR1 |= USART_RXNEIE;
-    usart_load_tx(0x5, 0, 4);
+    // usart_load_tx(0x5, 0, 4);
 }
 
 uint8_t* get_usart_rx(void){

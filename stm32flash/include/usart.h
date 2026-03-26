@@ -68,9 +68,14 @@ typedef struct{
     uint8_t* tx_buffer_p;
     uint8_t* rx_buffer_p;
     parser_t* parser;
-    sem_t* sem;
     dispatcher_t* dispatch;
 } usart_t;
+
+typedef struct{
+    uint8_t f_ID;
+    uint8_t LSB;
+    uint8_t MSB;
+}usart_payload;
 
 #define USART1 ((USART_Typedef *) 0x40013800)
 #define USART2 ((USART_Typedef *) 0x40004400)
@@ -80,12 +85,14 @@ typedef struct{
 
 extern uint8_t package[USART_TX_BUF_SIZE];
 extern int tx_counter;
-extern sem_t usart_sem;
+extern sem_t usart_sema;
 
 void usart_init(USART_Typedef* USARTx, GPIO_TypeDef* port, uint32_t pins, uint32_t baud);
-// void usart_load_tx(int status);
-void usart_load_tx(uint8_t f_ID, uint8_t MSB, uint8_t LSB);
+void usart_load_tx(void* args);
+// void usart_load_tx(uint8_t f_ID, uint8_t MSB, uint8_t LSB);
 void usart_begin(void* args);
+void transport_handler(void* args);
+
 usart_t* get_usart_t(void);
 uint8_t* get_usart_rx(void);
 

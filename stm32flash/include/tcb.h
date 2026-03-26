@@ -28,12 +28,12 @@ enum states{
     IDLE
 };
 
-void transport_handler(void* args);
+
 void worker_function(void);
-void transport_producer_function(sem_t* s);
 
 extern uint32_t transport_handler_counter;
 extern TCB _stcb[TCB_ARRAY_SIZE];
+extern TCB* transport_tcb;
 
 uint32_t get_global_tick(void);
 uint8_t* get_i2c_buffer(void);

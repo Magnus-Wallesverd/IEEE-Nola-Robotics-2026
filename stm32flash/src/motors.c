@@ -17,7 +17,7 @@ uint32_t tim20_ovf;
 uint32_t* tim20_ovf_p = &tim20_ovf;
 
 uint32_t motor_timeout_counter = 0;
-uint32_t MAXTIMEOUT = 320;
+uint32_t MAXTIMEOUT = 120;
 
 int16_t delta_tof;
 
@@ -138,8 +138,8 @@ void output_timer_init(void){
 
     TIM1->CCMR1 |= 0x6868;      // pwm 1 CH 1,2
     TIM1->CCMR2 |= 0x6868;      // pwm 1 CH 3,4
-    TIM1->PSC   |= 0;           //
-    TIM1->ARR   = 63999;        // top
+    TIM1->PSC   |= 8;           //
+    TIM1->ARR   = 7999;        // top
     TIM1->CCR1  = 0;        // compare ch1         TIM3
     TIM1->CCR2  = 0;        // compare ch1         TIM8
     TIM1->CCR3  = 0;        // compare ch1         TIM4
@@ -164,7 +164,7 @@ void output_timer_init(void){
 
     TIM20->DIER  |= 1;
     TIM20->CCMR1 |= 0x68;
-    TIM20->PSC   |= 24*8;
+    TIM20->PSC   |= 99;
     TIM20->ARR    = 7999;
     TIM20->CCR1  |= 4000;
     TIM20->CCER  |= 1;

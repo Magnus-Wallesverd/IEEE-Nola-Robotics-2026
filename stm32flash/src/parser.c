@@ -4,8 +4,6 @@
 #include "motors.h"
 #include <semaphore.h>
 
-transport_item_t transport_item;
-
 work_item_t dispatch_item;
 
 sem_t dispatch_sem;

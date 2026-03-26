@@ -5,14 +5,13 @@
 
 typedef struct {
     uint32_t flag;
-    void* item;
 } sem_t;
 
 // add external objects here
 // probably the array of semaphores
 // probably individual special instances
 
-void sem_init(sem_t* s, void* item, int init_flag);
+void sem_init(sem_t* s, int init_flag);
 
 void signal(sem_t* s);
 
