@@ -641,7 +641,7 @@ void  circle_path(void){
 
 void sm_main(void *args) {
     (void)args;
-
+    while(1);
 
     robot_state_init();
     SM s;

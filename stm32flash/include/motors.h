@@ -43,12 +43,11 @@ int lateral_right(void* args);
 
 void servo(void* args);
 
-int step(void* args);
 int step2(int16_t args, uint8_t speed);
 int step3(void* args);
 
-int rotate(void* args);
 int rotate2(int16_t args);
+int rotate3(void* args);
 
 int relative_pos(int16_t x1 , int16_t y1);
 

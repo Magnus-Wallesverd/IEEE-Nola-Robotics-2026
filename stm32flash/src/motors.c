@@ -140,10 +140,10 @@ void output_timer_init(void){
     TIM1->CCMR2 |= 0x6868;      // pwm 1 CH 3,4
     TIM1->PSC   |= 0;           //
     TIM1->ARR   = 63999;        // top
-    TIM1->CCR1  = 32000;        // compare ch1         TIM3
-    TIM1->CCR2  = 32000;        // compare ch1         TIM8
-    TIM1->CCR3  = 32000;        // compare ch1         TIM4
-    TIM1->CCR4  = 32000;        // compare ch1         TIM2
+    TIM1->CCR1  = 0;        // compare ch1         TIM3
+    TIM1->CCR2  = 0;        // compare ch1         TIM8
+    TIM1->CCR3  = 0;        // compare ch1         TIM4
+    TIM1->CCR4  = 0;        // compare ch1         TIM2
     TIM1->CCER  |= 0x1111;      // enable CC 1-4
     TIM1->BDTR  |= 1<<15;       // Main Output enable
     TIM1->CR1 |= 0b10000001;    // Enable TIM1 counter
@@ -246,9 +246,162 @@ void lock_motors(void){
 }
 
 int step3(void* args){
-    motor_payload pay;
-    // int16_t dist = ((motor_payload)args.args);
-    // uint8_t speed = *((motor_payload)args.speed);
+    motor_tcb = current_tcb;
+
+    int16_t dist = ((motor_payload*)args)->args;
+    uint8_t speed = ((motor_payload*)args)->speed;
+
+    
+    int16_t error = 0;
+    int16_t tof_error = 0;
+    int16_t total_error = 0;
+    motor_timeout_counter = 0;
+    
+    zero_CNT();
+
+    const int16_t target2 = (48*(dist)); // convert cm to encoder counts
+    int16_t curr_avg = 0;
+    int16_t derr = 0;
+    int16_t prev = 0;
+    
+    int32_t pwm2 = 0;
+    int32_t pwm3 = 0;
+    int32_t pwm4 = 0;
+    int32_t pwm8 = 0;
+    
+    uint16_t* tof_p = ToF_Distance_p;
+    int16_t  tof_live;
+
+    int16_t tof_p2 = (int16_t) *tof_p;
+    while(*tof_p == 0){
+        block();
+    }
+
+    uint32_t tof_target = (*tof_p*480) - target2; 
+
+    jump_start(speed);
+
+    while(1){
+        tof_p2 = (int16_t) *tof_p;
+        if(*tof_p/10 < 30){
+            // turn_off_motors();
+            lock_motors();
+            return 0 ;
+        }
+        if(motor_timeout_counter > MAXTIMEOUT){
+            // zero_CCR();
+            turn_off_motors();
+            return 0 ;
+        }
+        curr2 = TIM2->CNT + 180;
+        curr3 = TIM3->CNT - 83;
+        curr4 = TIM4->CNT + 35;
+        curr8 = TIM8->CNT - 39;
+
+        tof_error = -1*(tof_target - *tof_p*480);
+        
+        curr_avg = ((curr3)+curr4+(curr8)+curr2)/4;
+        error = target2 - curr_avg;
+        
+        // error2 = target2 - curr2;
+        // error3 = target2 - curr3;
+        // error4 = target2 - curr4;
+        // error8 = target2 - curr8;
+        
+        // total_error = (TOF_FILTER_WEIGHT*tof_error + ENCODER_FILTER_WEIGHT*error)/100;
+        total_error = error;        
+        derr = total_error - prev;
+        ierr += total_error /C;
+        pwm = total_error*A + kd_arr[speed-1]*derr + ierr;
+
+        pwm2 = total_error*A + kd_arr[speed-1]*derr + ierr;
+        pwm3 = total_error*A + kd_arr[speed-1]*derr + ierr;
+        pwm4 = total_error*A + kd_arr[speed-1]*derr + ierr;
+        pwm8 = total_error*A + kd_arr[speed-1]*derr + ierr;
+
+        if(pwm<0){ 
+            GPIOC->BSRR |= ((INL4|INL1|INR3)<<16)|((INL3|INL2)) ;
+            GPIOB->BSRR |= INR3<<16|(INR1);
+            GPIOA->BSRR |= INR2<<16;
+            pwm *=-1;
+        }
+        else if(pwm>0){ //forward 
+            GPIOC->BSRR |= (INL4|INL1|INR3)|((INL3|INL2) << 16) ;
+            GPIOB->BSRR |= ((INR4|INR1) <<16);
+            GPIOA->BSRR |= INR2;
+        }
+        
+        pwm2 = clamp_max_pwm(pwm2, speed);
+        pwm3 = clamp_max_pwm(pwm3, speed);
+        pwm4 = clamp_max_pwm(pwm4, speed);
+        pwm8 = clamp_max_pwm(pwm8, speed);
+
+        TIM1->CCR1 = pwm3;
+        TIM1->CCR2 = pwm8;
+        TIM1->CCR3 = pwm4;
+        TIM1->CCR4 = pwm2;
+
+        prev = total_error;
+
+        if((total_error < 70 && total_error > -70) && derr ==0){
+            zero_CCR();
+            turn_off_motors();
+            return 1;
+        }
+        motor_timeout_counter++;
+        block();
+    }
+    while(1);
+}
+
+int rotate3(void* args){
+    motor_tcb = current_tcb;
+
+    int16_t angle = ((motor_payload*)args)->args;
+    
+    motor_timeout_counter = 0;
+    zero_CNT();
+
+    measure_h = 0;
+    while(1){
+        if(motor_timeout_counter > MAXTIMEOUT){
+            zero_CCR();
+            turn_off_motors();
+            return 0;
+        }
+        measure_h = angle - *curr_h;
+        if(measure_h <= HEADING_MAX_VALUE/2) measure_h+=HEADING_MAX_VALUE;
+        if(measure_h > HEADING_MAX_VALUE/2) measure_h-=HEADING_MAX_VALUE;   
+        measure8 = (measure_h - prev_h);
+        ierr += measure_h/hC;
+        pwm = measure_h*hA + hB*measure8 + ierr ;
+        prev_h = measure_h;
+        if(pwm <0){
+            pwm*=-1;
+            GPIOC->BSRR |= (INL4|INL1)<<16 |((INL3|INL2|INR3));
+            GPIOB->BSRR |= (INR1|INR4)<<16;
+            GPIOA->BSRR |= INR2;
+        }
+        else{
+            GPIOC->BSRR |= (INL4|INL1)|((INL3|INL2|INR3)<<16);
+            GPIOB->BSRR |= (INR1|INR4);
+            GPIOA->BSRR |= INR2<<16;
+        }
+        if(pwm > 8000){
+            pwm = TIM1->ARR;
+        }
+        TIM1->CCR3 = pwm+1000;
+        TIM1->CCR2 = pwm+1000;
+        TIM1->CCR1 = pwm+1000;
+        TIM1->CCR4 = pwm+1000;
+        if((measure_h < 48 && measure_h > -48) && measure8 ==0){
+            zero_CCR();
+            turn_off_motors();
+            return 1;
+        }
+        motor_timeout_counter++;
+        block();
+    }
     while(1);
 }
 
