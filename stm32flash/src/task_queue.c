@@ -38,8 +38,8 @@ void* priority_queue_array[TASK_QUEUE_SIZE];
 const func_t fn_table[] = {
     sm_main,
     // Sensor_Read_Wrapper,
-    motor_handler,
-    transport_handler
+    // motor_handler,
+    // transport_handler
     // // lcd_print,
     // usart_begin,
 
@@ -47,25 +47,25 @@ const func_t fn_table[] = {
 };
 
 const motor_t motor_table[] = {
-    step3,
-    rotate3,
-    step3,
-    rotate3,
-    step3,
-    rotate3,
-    step3,
-    rotate3,
+    // step3,
+    // rotate3,
+    // step3,
+    // rotate3,
+    // step3,
+    // rotate3,
+    // step3,
+    // rotate3,
 };
 
 const motor_payload motor_payload_table[] = {
-    {.args = 60,  .speed = 2},
-    {.args = 1440,  .speed = 1},
-    {.args = 60,  .speed = 2},
-    {.args = 2880,  .speed = 1},
-    {.args = 60,  .speed = 2},
-    {.args = 4320,  .speed = 1},
-    {.args = 60,  .speed = 2},
-    {.args = 0,  .speed = 1},
+    // {.args = 60,  .speed = 2},
+    // {.args = 1440,  .speed = 1},
+    // {.args = 60,  .speed = 2},
+    // {.args = 2880,  .speed = 1},
+    // {.args = 60,  .speed = 2},
+    // {.args = 4320,  .speed = 1},
+    // {.args = 60,  .speed = 2},
+    // {.args = 0,  .speed = 1},
 
 };
 
