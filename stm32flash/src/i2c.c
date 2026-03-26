@@ -78,8 +78,8 @@ void I2C_Init(I2C_TypeDef* I2Cx, uint8_t mode){
 
     }
 
-    // Sensor_Init();
-    // bno055_init();
+    Sensor_Init();
+    bno055_init();
     // mag_init();
 }
 
@@ -144,7 +144,7 @@ void mag_read(){
 }
 
 void bno055_init(void){
-    while(*tim20_ovf_p < 20);
+    while(*tim20_ovf_p < 23);
     Sensor_Write(I2C1, BNO055_ADDR, bno_init, sizeof(bno_init));
     while(*tim20_ovf_p < 21);
 }
@@ -219,8 +219,8 @@ void get_ToF_Distance(void* args){
 void Sensor_Read_Wrapper(void* args){
     (void) args;
     while(1){
-        // get_ToF_Distance((void*) args);
-        // bno_read_heading();
+        get_ToF_Distance((void*) args);
+        bno_read_heading();
         yield();
 
     }

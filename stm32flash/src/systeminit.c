@@ -25,4 +25,5 @@ void systeminit(void){
     output_timer_init();
 
     SetPinOutput(GPIOA,PA5);
+    I2C_Init(I2C1, STANDARD_MODE);
 }
