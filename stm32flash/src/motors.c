@@ -269,9 +269,9 @@ int step2(int16_t args,uint8_t speed){
     int16_t  tof_live;
 
     int16_t tof_p2 = (int16_t) *tof_p;
-    // while(*tof_p == 0){
-    //     block();
-    // }
+    while(*tof_p == 0){
+        block();
+    }
 
     uint32_t tof_target = (*tof_p*480) - target2; 
 
@@ -279,11 +279,11 @@ int step2(int16_t args,uint8_t speed){
 
     while(1){
         tof_p2 = (int16_t) *tof_p;
-        // if(*tof_p/10 < 30){
-        //     // turn_off_motors();
-        //     lock_motors();
-        //     return 0 ;
-        // }
+        if(*tof_p/10 < 30){
+            // turn_off_motors();
+            lock_motors();
+            return 0 ;
+        }
         if(motor_timeout_counter > MAXTIMEOUT){
             // zero_CCR();
             turn_off_motors();
