@@ -519,8 +519,13 @@ int rotate(void* args){
 
 void relative_pos2(void* args){
     int16_t x = ((cart_coords*)args)->x;
-    uint16_t y = ((cart_coords*)args)->x;
-
+    int16_t y = ((cart_coords*)args)->y;
+    target_h = 1440*(x>0) + 4320*(x <0);
+    rotate2(target_h);
+    step2(abs(x), 1);
+    target_h = 0*(y>0) + 2880*(y <0);
+    rotate2(target_h);
+    step2(abs(y), 1);
 }
 
 int relative_pos(int16_t x1, int16_t y1){
