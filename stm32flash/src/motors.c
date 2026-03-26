@@ -245,7 +245,7 @@ void lock_motors(void){
     TIM1->CCR4 = 7999;
 }
 
-void step2(int16_t args,uint8_t speed){
+int step2(int16_t args,uint8_t speed){
     motor_tcb = current_tcb;
     
     int16_t error = 0;
@@ -282,12 +282,12 @@ void step2(int16_t args,uint8_t speed){
         if(*tof_p/10 < 30){
             // turn_off_motors();
             lock_motors();
-            return ;
+            return 0 ;
         }
         if(motor_timeout_counter > MAXTIMEOUT){
             // zero_CCR();
             turn_off_motors();
-            return ;
+            return 0 ;
         }
         curr2 = TIM2->CNT + 180;
         curr3 = TIM3->CNT - 83;
@@ -342,7 +342,7 @@ void step2(int16_t args,uint8_t speed){
         if((total_error < 70 && total_error > -70) && derr ==0){
             zero_CCR();
             turn_off_motors();
-            return;
+            return 1;
         }
         motor_timeout_counter++;
         block();

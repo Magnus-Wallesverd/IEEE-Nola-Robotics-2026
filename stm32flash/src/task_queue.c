@@ -34,7 +34,6 @@ const func_t fn_table[] = {
     Sensor_Read_Wrapper,
     // // lcd_print,
     usart_begin,
-    robot_state_update,
     sm_main
     // relative_pos
 };

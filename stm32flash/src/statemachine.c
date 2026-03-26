@@ -193,13 +193,13 @@ int nav_wall_ahead(void) {
 int nav_drive_to_wall(void) {
     if (g_robot.tof_mm <= TOF_WALL_STOP) return 1;
     int8_t cm = 10;
-    step(&cm);
+    step2(cm, 2);
     return 0;
 }
 
 // drive exactly this many cm
 int nav_step_cm(int8_t dist_cm) {
-    return step(&dist_cm);
+    return step2(dist_cm, 2);
 }
 
 // rotate to a target heading
@@ -216,7 +216,7 @@ int nav_rotate_to(int16_t target_hdg) {
 int nav_drive_past_x(int16_t x_thresh) {
     if (g_robot.x < x_thresh) return 1;
     int8_t cm = 10;
-    step(&cm);
+    step2(cm, 2);
     return 0;
 }
 
@@ -291,7 +291,7 @@ Mission handle_grab_neb(SM *s) {
         {
             int8_t cm = -5;
             if (nav_wall_ahead()) s->sub_step = 3;
-            else step(&cm);
+            else step2(cm, 2);
         }
         return MISSION_GRAB_NEB;
     case 3:  // drive to rendezvous pad with container
@@ -321,7 +321,7 @@ Mission handle_grab_geo(SM *s) {
         {
             int8_t cm = -5;
             if (nav_wall_ahead()) s->sub_step = 3;
-            else step(&cm);
+            else step2(cm, 2);
         }
         return MISSION_GRAB_GEO;
     case 3:  // drive to rendezvous pad

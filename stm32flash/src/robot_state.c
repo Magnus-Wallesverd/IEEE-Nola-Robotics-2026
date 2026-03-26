@@ -19,6 +19,7 @@ RobotState g_robot;
 // sin/cos lookup for the 4 cardinal directions: 0=N 1=E 2=S 3=W
 const int8_t cx[4] = {0, 1, 0, -1};
 const int8_t cy[4] = {1, 0, -1, 0};
+uint16_t calculated =0;
 
 // Read one byte back from the camera rx buffer
 uint16_t cam_read(void) {
@@ -49,8 +50,8 @@ void robot_state_init(void) {
 
 void robot_state_update(void) {
     g_robot.heading  = bno_heading / 16; // divide by 16 for degrees
-    g_robot.tof_mm   = ToF_Distance;
-    if (g_robot.prev_tof == 9999) g_robot.prev_tof = ToF_Distance;
+    g_robot.tof_mm   = *ToF_Distance_p;
+    if (g_robot.prev_tof == 9999) g_robot.prev_tof = *ToF_Distance_p;
 
     // match time
     g_robot.elapsed_ms = get_global_tick() - g_robot.start_tick;
