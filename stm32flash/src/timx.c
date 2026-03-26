@@ -81,7 +81,7 @@ void output_timer_init(void){
     TIM16->CCMR1 |= 0x68;
     TIM16->PSC   |= 4;
     TIM16->ARR    = 63999;
-    TIM16->CCR1  |= 6399;
+    TIM16->CCR1  |= 0;
     TIM16->CCER  |= 1;
     TIM16->BDTR  |= 1<<15;       // Main Output enable
     TIM16->CR1   |= 0b10000001;

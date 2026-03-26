@@ -67,6 +67,9 @@ void transport_handler(void* args){
     transport_tcb = current_tcb;
     transport_item_t* transport_item;
     while(1){
+        if(transport_queue_ptr->count != 0){
+            transport_tcb->flags = 0;
+        }
         // take item off queue
         if(lock(&transport_flag) == 1){
             transport_item = (transport_item_t*)dequeue(transport_queue_ptr);
@@ -79,6 +82,9 @@ void transport_handler(void* args){
             transport_item->fn(transport_item->args);
             block();
         }
+        if(transport_queue_ptr->count == 0){
+            transport_tcb->flags = 1;
+        }
         transport_handler_counter++;
     }
 
@@ -86,10 +92,12 @@ void transport_handler(void* args){
 
 void motor_handler(void* args){
     (void) args;
-
+    motor_tcb = current_tcb;
     motor_item_t* motor_item;
     while(1){
-        
+        if(motor_queue_ptr->count != 0){
+            motor_tcb->flags = 0;
+        }
         // take item off queue
         if(lock(&motor_flag) == 1){
             motor_item = (motor_item_t*)dequeue(motor_queue_ptr);
@@ -102,6 +110,9 @@ void motor_handler(void* args){
             motor_item->fn(motor_item->args);
         }
         motor_handler_counter++;
+        if(motor_queue_ptr->count == 0){
+            motor_tcb->flags = 1;
+        }
     }
 }
 

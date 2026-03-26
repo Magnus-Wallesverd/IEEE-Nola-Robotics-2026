@@ -39,6 +39,11 @@ typedef struct {
     void* args;
 }motor_item_t;
 
+typedef struct{
+    int16_t args;
+    uint8_t speed;
+}motor_payload;
+
 extern queue_t* task_queue_ptr;
 extern queue_t* ready_queue_ptr;
 extern queue_t* transport_queue_ptr;
@@ -53,5 +58,6 @@ void transport_queue_init(void);
 void motor_queue_init(void);
 void ready_queue_init(void);
 void priority_queue_init(void);
+void mass_enqueue(motor_t motor_table[], motor_payload motor_payload_table[], int size);
 
 #endif // !QUEUE_H

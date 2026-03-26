@@ -160,7 +160,6 @@ void lock_motors(void){
 }
 
 int step3(void* args){
-    motor_tcb = current_tcb;
 
     int16_t dist = ((motor_payload*)args)->args;
     uint8_t speed = ((motor_payload*)args)->speed;
@@ -186,17 +185,15 @@ int step3(void* args){
     uint16_t* tof_p = ToF_Distance_p;
     int16_t  tof_live;
 
-    int16_t tof_p2 = (int16_t) *tof_p;
-    while(*tof_p == 0){
-        block();
-    }
+    // while(*tof_p == 0){
+    //     block();
+    // }
 
     uint32_t tof_target = (*tof_p*480) - target2; 
 
     jump_start(speed);
 
     while(1){
-        tof_p2 = (int16_t) *tof_p;
         if(*tof_p/10 < 30){
             // turn_off_motors();
             lock_motors();
@@ -518,6 +515,9 @@ int rotate(void* args){
 }
 
 void relative_pos2(void* args){
+
+
+
     int16_t x = ((cart_coords*)args)->x;
     int16_t y = ((cart_coords*)args)->y;
     target_h = 1440*(x>0) + 4320*(x <0);

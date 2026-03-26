@@ -22,10 +22,6 @@
 
 extern int16_t delta_tof;
 
-typedef struct{
-    int16_t args;
-    uint8_t speed;
-}motor_payload;
 
 typedef struct{
     uint32_t timx;
