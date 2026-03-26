@@ -191,10 +191,10 @@ int nav_wall_ahead(void) {
 
 // drive foward until ToF is close enough
 int nav_drive_to_wall(void) {
-    if (g_robot.tof_mm <= TOF_WALL_STOP) return 1;
-    int8_t cm = 10;
-    step2(cm, 2);
-    return 0;
+    // if (g_robot.tof_mm <= TOF_WALL_STOP) return 1;
+    // int8_t cm = 10;
+    // step2(cm, 2);
+    return step2(30, 2);
 }
 
 // drive exactly this many cm
@@ -204,12 +204,13 @@ int nav_step_cm(int8_t dist_cm) {
 
 // rotate to a target heading
 int nav_rotate_to(int16_t target_hdg) {
-    int16_t ang = target_hdg - g_robot.heading;
-    while (ang >  180) ang -= 360;
-    while (ang < -180) ang += 360;
-    if (ang > -HDG_THRESH && ang < HDG_THRESH) return 1;
-    int8_t a = (int8_t)((ang > 127) ? 127 : (ang < -128) ? -128 : ang);
-    return rotate(&a);
+    // int16_t ang = target_hdg - g_robot.heading;
+    // while (ang >  180) ang -= 360;
+    // while (ang < -180) ang += 360;
+    // if (ang > -HDG_THRESH && ang < HDG_THRESH) return 1;
+    // int8_t a = (int8_t)((ang > 127) ? 127 : (ang < -128) ? -128 : ang);
+    target_hdg = target_hdg*16;
+    return rotate2(target_hdg);
 }
 
 // drive west until passed x threshold
@@ -227,18 +228,21 @@ int nav_drive_to_xy(int16_t tx, int16_t ty) {
     int16_t dy = ty - g_robot.y;
     if (dx < 0) dx = -dx;
     if (dy < 0) dy = -dy;
-    if (dx < DIST_THRESH && dy < DIST_THRESH) return 1;
+    // if (dx < DIST_THRESH && dy < DIST_THRESH) return 1;
 
     // drive x first, then y
-    if (dx >= DIST_THRESH) {
-        nav_rotate_to(tx > g_robot.x ? 90 : 270);
-        int8_t cm = (int8_t)((dx/48 > 120) ? 120 : dx/48);
-        nav_step_cm(cm);
-    } else {
-        nav_rotate_to(ty > g_robot.y ? 0 : 180);
-        int8_t cm = (int8_t)((dy/48 > 120) ? 120 : dy/48);
-        nav_step_cm(cm);
+    if (relative_pos(dx, dy)){
+        return 1;
     }
+    // if (dx >= DIST_THRESH) {
+    //     nav_rotate_to(tx > g_robot.x ? 90 : 270);
+    //     int8_t cm = (int8_t)((dx/48 > 120) ? 120 : dx/48);
+    //     nav_step_cm(cm);
+    // } else {
+    //     nav_rotate_to(ty > g_robot.y ? 0 : 180);
+    //     int8_t cm = (int8_t)((dy/48 > 120) ? 120 : dy/48);
+    //     nav_step_cm(cm);
+    // }
 
     return 0;
 }
@@ -600,8 +604,8 @@ MissionHandler handlers[MISSION_COUNT] = {
 /* ---------- INIT & TICK ---------- */
 
 void sm_init(SM *s) {
-    s->mission            = MISSION_WAIT_START;
-    s->prev_mission       = MISSION_WAIT_START;
+    s->mission            = MISSION_SWEEP_WEST;
+    s->prev_mission       = MISSION_SWEEP_WEST;
     s->sub_step           = 0;
     s->wp_target_idx      = -1;
     s->wp_nav_step        = 0;

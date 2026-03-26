@@ -42,7 +42,7 @@ int step(void* args);
 int step2(int16_t args, uint8_t speed);
 
 int rotate(void* args);
-void rotate2(int16_t args);
-void relative_pos(void* args);
+int rotate2(int16_t args);
+int relative_pos(int16_t x1 , int16_t y1);
 void turn_off_motors(void);
 #endif // !MOTORS_H

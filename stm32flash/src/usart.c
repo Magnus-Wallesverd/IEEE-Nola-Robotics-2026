@@ -108,7 +108,7 @@ void usart_init(USART_Typedef* USARTx, GPIO_TypeDef* port, uint32_t pins, uint32
 
     usart.USARTx = USARTx;
     usart.tx_buffer_p = package;
-    usart.rx_buffer_p = &usart_rx_buffer[0];
+    usart.rx_buffer_p = usart_rx_buffer;
     
     usart.sem = &usart_sem;
 
@@ -140,7 +140,7 @@ void usart_begin(void* args){
 }
 
 uint8_t* get_usart_rx(void){
-    return usart_rx_buffer;
+    return usart.rx_buffer_p;
 }
 
 usart_t* get_usart_t(void){

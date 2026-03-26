@@ -269,9 +269,9 @@ int step2(int16_t args,uint8_t speed){
     int16_t  tof_live;
 
     int16_t tof_p2 = (int16_t) *tof_p;
-    while(*tof_p == 0){
-        block();
-    }
+    // while(*tof_p == 0){
+    //     block();
+    // }
 
     uint32_t tof_target = (*tof_p*480) - target2; 
 
@@ -279,11 +279,11 @@ int step2(int16_t args,uint8_t speed){
 
     while(1){
         tof_p2 = (int16_t) *tof_p;
-        if(*tof_p/10 < 30){
-            // turn_off_motors();
-            lock_motors();
-            return 0 ;
-        }
+        // if(*tof_p/10 < 30){
+        //     // turn_off_motors();
+        //     lock_motors();
+        //     return 0 ;
+        // }
         if(motor_timeout_counter > MAXTIMEOUT){
             // zero_CCR();
             turn_off_motors();
@@ -348,7 +348,7 @@ int step2(int16_t args,uint8_t speed){
         block();
     }
 }
-void rotate2(int16_t args){
+int rotate2(int16_t args){
     motor_tcb = current_tcb;
     motor_timeout_counter = 0;
     zero_CNT();
@@ -358,7 +358,7 @@ void rotate2(int16_t args){
         if(motor_timeout_counter > MAXTIMEOUT){
             zero_CCR();
             turn_off_motors();
-            return ;
+            return 0;
         }
         measure_h = args - *curr_h;
         if(measure_h <= HEADING_MAX_VALUE/2) measure_h+=HEADING_MAX_VALUE;
@@ -388,7 +388,7 @@ void rotate2(int16_t args){
         if((measure_h < 48 && measure_h > -48) && measure8 ==0){
             zero_CCR();
             turn_off_motors();
-            return;
+            return 1;
         }
         motor_timeout_counter++;
         block();
@@ -553,7 +553,7 @@ int lateral_right(void* args){
 
 }
 
-void relative_pos(void* args){
+int relative_pos(int16_t x1, int16_t y1){
     // one endyne is 1/48 cm
     // magneometer (0 to 5760) -> (0,2pi)
     // 1440   ->  90 degree +x direction
@@ -561,34 +561,14 @@ void relative_pos(void* args){
     //  0  ->   0 degree -> +y direction
     //  2880 -.  180 degree   -y direction
     //
-    int16_t x1 = 1440;
-    int16_t y1 = 30;
-    uint32_t deg = 90;
-    void* deg_p = &deg;
-    // target_h = 0*(y1>0) + 2880*(y1 <0);
-    // target_h = 1440*(x1>0) + 4320*(x1 <0);
-    
-    while(1){
-        rotate2(0);
-        step2(180,MEDIUM);
-        rotate2(1440);
-        step2(180,MEDIUM);
-        rotate2(2880);
-        step2(180,MEDIUM);
-        rotate2(4320);
-        step2(180,MEDIUM);
-    }
-    // targe0t_h = 1440*(dispx > 0) + 4320*(dispx < 0 );
-    // rotate2(0);
-    // for(int i = 0; i < x1/11 + 1 ; i++ ){
-    //     rotate2(target_h + (devi)/(40*10));
-    //     step2(30);
-    // }
-    // // rotate2(1440);
-    // for(int i = 0; i < y1/11 + 1 ; i++ ){
-    //     rotate2(1440 + (devi)/(40*10));
-    //     step2(11);
-    // }
+    target_h = 1440*(x1>0) + 4320*(x1 <0);
+    rotate2(target_h);
+    step2(abs(x1), 2);
+    target_h = 0*(y1>0) + 2880*(y1 <0);
+    rotate2(target_h);
+    step2(abs(y1), 2);
+
+    return 1;
 
 }
 

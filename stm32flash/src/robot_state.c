@@ -19,10 +19,10 @@ RobotState g_robot;
 // sin/cos lookup for the 4 cardinal directions: 0=N 1=E 2=S 3=W
 const int8_t cx[4] = {0, 1, 0, -1};
 const int8_t cy[4] = {1, 0, -1, 0};
-uint16_t calculated =0;
 
 // Read one byte back from the camera rx buffer
 uint16_t cam_read(void) {
+    uint16_t calculated =0;
     uint8_t *rx = get_usart_rx();
     if (rx[0] == 0xAA && rx[3] == 0){
         calculated = (rx[2] << 8) | rx[1];
