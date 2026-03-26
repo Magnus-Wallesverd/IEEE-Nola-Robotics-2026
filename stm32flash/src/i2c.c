@@ -165,7 +165,7 @@ void Sensor_Init(void){
 
 void bno_read_heading(void){
     
-    I2C_Wait(I2C1);
+    I2C_Yield(I2C1);
     bno_tx_buffer[0] = HEADING_REG;
     Sensor_Read(I2C1, BNO055_ADDR, bno_tx_buffer, BNO055_TX_BUFFER_SIZE, bno_rx_buffer, 2);
     bno_heading = bno_rx_buffer[HEADING_MSB] <<8 | bno_rx_buffer[HEADING_LSB];
@@ -203,6 +203,7 @@ void Sensor_Write(I2C_TypeDef* I2Cx, uint16_t dev, uint8_t* tx_buf, uint16_t tx_
 void get_ToF_Distance(void* args){
     (void) args;
 
+    I2C_Wait(I2C1);
     static uint8_t range_active = 0;
     uint8_t data_ready;
 
