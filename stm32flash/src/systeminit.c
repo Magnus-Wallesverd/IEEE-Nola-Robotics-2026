@@ -3,11 +3,12 @@
 
 void systeminit(void){
 
-    set_clock_64Mhz();
+    set_clock_32Mhz();
 
     // systic interrupt init
     STK->CTRL |= 0x6;
-    STK->LOAD |= 0xF9FF;
+    STK->LOAD |= 0x7CFF;
+    // STK->LOAD |= 0x9C3FF;
     
     // priority set
     SCB->SHPR3 |= 0xE0F00000;
