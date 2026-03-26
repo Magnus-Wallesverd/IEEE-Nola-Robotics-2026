@@ -15,6 +15,9 @@ queue_t* task_queue_ptr = &task_queue;
 queue_t transport_queue;
 queue_t* transport_queue_ptr = &transport_queue;
 
+queue_t motor_queue;
+queue_t* motor_queue_ptr = &motor_queue;
+
 queue_t ready_queue;
 queue_t* ready_queue_ptr = &ready_queue;
 
@@ -24,18 +27,32 @@ queue_t* priority_queue_ptr = &priority_queue;
 work_item_t task_pool[TASK_QUEUE_SIZE];
 transport_item_t transport_pool[TRANSPORT_QUEUE_SIZE];
 
+motor_item_t motor_pool[MOTOR_QUEUE_SIZE];
+
 void* task_queue_array[TASK_QUEUE_SIZE];
 void* transport_queue_array[TRANSPORT_QUEUE_SIZE];
+void* motor_queue_array[MOTOR_QUEUE_SIZE];
 void* ready_queue_array[TASK_QUEUE_SIZE];
 void* priority_queue_array[TASK_QUEUE_SIZE];
 
 // should start thinking of easier ways to get functions in here
 const func_t fn_table[] = {
-    Sensor_Read_Wrapper,
+    // Sensor_Read_Wrapper,
     // // lcd_print,
-    usart_begin,
-    // sm_main
+    // usart_begin,
+    // sm_main,
+    motor_handler
+
     // relative_pos
+};
+
+const motor_t motor_table[] = {
+    step3
+};
+
+const motor_payload motor_payload_table[] = {
+    {.args = 60,  .speed = 2},
+
 };
 
 void task_queue_init(void){
@@ -65,6 +82,27 @@ void transport_queue_init(void){
     transport_queue_ptr->size  = TRANSPORT_QUEUE_SIZE;
     transport_queue_ptr->front = transport_queue_ptr->array;
     transport_queue_ptr->end   = transport_queue_ptr->array;
+    
+}
+
+void motor_queue_init(void){
+
+    motor_queue_ptr->array = motor_queue_array;
+    motor_queue_ptr->count = 0;
+    motor_queue_ptr->size  = TRANSPORT_QUEUE_SIZE;
+    motor_queue_ptr->front = motor_queue_ptr->array;
+    motor_queue_ptr->end   = motor_queue_ptr->array;
+
+    // load a function pointers into a work item array
+    for(unsigned int i = 0; i < sizeof(motor_table)/4; i++){
+        motor_pool[i].fn = motor_table[i];
+        motor_pool[i].args = (void*)(&motor_payload_table[i]);
+    }
+
+    // need to enqueue the address of the task
+    for(unsigned int i = 0; i < sizeof(fn_table)/4; i++){
+        enqueue(motor_queue_ptr, &motor_pool[i]);
+    }
     
 }
 

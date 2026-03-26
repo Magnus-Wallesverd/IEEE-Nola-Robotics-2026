@@ -42,14 +42,15 @@ void USART1_IRQHandler(void){
         }
         switch(u_state_machine){
             case USART_INACTIVE:
-                return;
+                break;
             case USART_ACTIVE:
-                parser_buffer[usart_rx_i++] = data;
+                usart_rx_buffer[usart_rx_i++] = data;
                 if(usart_rx_i == USART_FRAME_SIZE){
                     usart_rx_i = 0;
                     u_state_machine = USART_INACTIVE;
+                    signal(&usart_sem);
                 }
-                return;
+                break;
         }
     }
 
@@ -119,7 +120,7 @@ void usart_init(USART_Typedef* USARTx, GPIO_TypeDef* port, uint32_t pins, uint32
     ((work_item_t*)usart.sem->item)->fn = parser_dispatcher;
 
     USARTx->CR1 |= CR1_SETUP;
-    USARTx->BRR = CLK_64Mhz/baud;
+    USARTx->BRR = CLK_32Mhz/baud;
 
     USARTx->CR3 |= (1<<12);
 }

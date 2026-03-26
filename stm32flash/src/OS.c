@@ -7,12 +7,15 @@
 #include <stdint.h>
 
 work_item_t producer_item;
+motor_item_t motor_item;
 
 uint32_t kernel_unblock_counter = 0;
 uint32_t global_tick = 0;
 uint32_t task_flag = 0;
 uint32_t transport_flag = 0;
+uint32_t motor_flag = 0;
 uint32_t transport_handler_counter = 0;
+uint32_t motor_handler_counter = 0;
 
 TCB _stcb[TCB_ARRAY_SIZE];
 TCB *current_tcb;
@@ -34,9 +37,10 @@ void tcbinit(void){
     }
 }
 
-void producer_function(sem_t* s){
-    enqueue(task_queue_ptr,s->item);
-}
+// void producer_function(sem_t* s){
+//     enqueue(task_queue_ptr,s->item);
+// }
+
 
 void transport_producer_function(sem_t* s){
     enqueue(transport_queue_ptr,s->item);
@@ -83,6 +87,38 @@ void transport_handler(void* args){
             // usart_load_tx(0);
         }
         transport_handler_counter++;
+    }
+}
+
+//need
+//motor queue
+//motor item_t
+//motor flag
+//motor handler counter
+
+void motor_handler(void* args){
+    (void) args;
+
+        while(1){
+            motor_item_t* motor_item;
+            
+            // take item off queue
+            if(lock(&motor_flag) == 1){
+                motor_item = (motor_item_t*)dequeue(motor_queue_ptr);
+                unlock(&motor_flag);
+            } else { yield(); }
+            
+            if(motor_item == (void*)0){
+                return;
+            } else {
+            if(motor_item->fn(motor_item->args)){
+                // usart_load_tx(1);
+            } else {
+                // usart_load_tx(0);
+            }
+            motor_handler_counter++;
+        }
+
     }
 }
 

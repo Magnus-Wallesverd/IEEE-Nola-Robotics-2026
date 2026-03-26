@@ -25,6 +25,7 @@ typedef struct {
 
 extern RobotState g_robot;
 
+
 void robot_state_init(void);
 void robot_state_update(void);
 int nav_time_exceeded(uint32_t ms);
@@ -46,5 +47,7 @@ int nav_drive_past_x(int16_t x_thresh);
 // drive toward a specific x,y target
 // returns 1 when close enough
 int nav_drive_to_xy(int16_t tx, int16_t ty);
+
+uint16_t cam_read(void);
 
 #endif

@@ -6,11 +6,13 @@
 #include "lcd.h"
 
 #define TASK_QUEUE_SIZE 5 
+#define MOTOR_QUEUE_SIZE 16 
 #define TRANSPORT_QUEUE_SIZE 1 
 #define FUNC_POOL_SIZE 4
 
 typedef void (*func_t)(void*);
 typedef int  (*transport_t)(void*);
+typedef int  (*motor_t)(void*);
 
 typedef struct{
     uint32_t size;
@@ -31,9 +33,16 @@ typedef struct {
     transport_t fn;
 }transport_item_t;
 
+
+typedef struct {
+    motor_t fn;
+    void* args;
+}motor_item_t;
+
 extern queue_t* task_queue_ptr;
 extern queue_t* ready_queue_ptr;
 extern queue_t* transport_queue_ptr;
+extern queue_t* motor_queue_ptr;
 extern work_item_t producer_item;
 
 void enqueue(queue_t* q, void* args);
@@ -41,6 +50,7 @@ void* dequeue(queue_t* q);
 
 void task_queue_init(void);
 void transport_queue_init(void);
+void motor_queue_init(void);
 void ready_queue_init(void);
 void priority_queue_init(void);
 

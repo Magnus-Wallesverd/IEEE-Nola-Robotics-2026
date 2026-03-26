@@ -3,22 +3,6 @@
 
 #include <stdint.h>
 
-
-/*
- *
- * flag
- * item pointer base 0x0
- *      fn 
- *      args
- * fn 
- * item pointer base 0x8
- *      fn 
- *      args 
- *
- *
- * */
-
-
 typedef struct {
     uint32_t flag;
     void* item;

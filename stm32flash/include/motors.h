@@ -22,6 +22,11 @@
 
 extern int16_t delta_tof;
 
+typedef struct{
+    int16_t args;
+    uint8_t speed;
+}motor_payload;
+
 void input_timer_init(void);
 
 void output_timer_init(void);
@@ -40,9 +45,15 @@ void servo(void* args);
 
 int step(void* args);
 int step2(int16_t args, uint8_t speed);
+int step3(void* args);
 
 int rotate(void* args);
 int rotate2(int16_t args);
+
 int relative_pos(int16_t x1 , int16_t y1);
+
 void turn_off_motors(void);
+
+void motor_handler(void* args);
+
 #endif // !MOTORS_H

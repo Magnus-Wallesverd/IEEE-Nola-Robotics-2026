@@ -624,8 +624,25 @@ void sm_tick(SM *s) {
     }
 }
 
+
+void  circle_path(void){
+
+    static motor_payload payload1 = {
+        80,
+        1
+    };
+
+
+    for(int i = 0; i < 4; i++){
+        // motor_item_t* task
+        // enqueue(motor_queue_ptr, (void*)&payload1);
+    }
+}
+
 void sm_main(void *args) {
     (void)args;
+
+
     robot_state_init();
     SM s;
     sm_init(&s);
@@ -636,3 +653,6 @@ void sm_main(void *args) {
     turn_off_motors();
     while (1) { block(); }
 }
+
+
+

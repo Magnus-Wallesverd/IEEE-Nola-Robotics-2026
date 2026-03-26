@@ -16,6 +16,7 @@ void systeminit(void){
     RCC->AHBENR |= 0xE0000;                   // enable GPIO ABC  clock 
                                               
     ready_queue_init();
+    motor_queue_init();
     // priority_queue_init();
     // transport_queue_init();
     // dispatcher_init();

@@ -245,6 +245,13 @@ void lock_motors(void){
     TIM1->CCR4 = 7999;
 }
 
+int step3(void* args){
+    motor_payload pay;
+    // int16_t dist = ((motor_payload)args.args);
+    // uint8_t speed = *((motor_payload)args.speed);
+    while(1);
+}
+
 int step2(int16_t args,uint8_t speed){
     motor_tcb = current_tcb;
     

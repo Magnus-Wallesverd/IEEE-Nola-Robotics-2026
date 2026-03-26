@@ -80,6 +80,7 @@ typedef struct{
 
 extern uint8_t package[USART_TX_BUF_SIZE];
 extern int tx_counter;
+extern sem_t usart_sem;
 
 void usart_init(USART_Typedef* USARTx, GPIO_TypeDef* port, uint32_t pins, uint32_t baud);
 // void usart_load_tx(int status);
