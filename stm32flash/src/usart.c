@@ -48,7 +48,7 @@ void USART1_IRQHandler(void){
                 if(usart_rx_i == USART_FRAME_SIZE){
                     usart_rx_i = 0;
                     u_state_machine = USART_INACTIVE;
-                }
+                };
                 return;
         }
     }
@@ -84,7 +84,7 @@ void usart_init(USART_Typedef* USARTx, GPIO_TypeDef* port, uint32_t pins, uint32
             AlternateFunctionSet(port,pins,7);
             SetOutputSpeed(port, pins, 1);
             break;
-        case (uint32_t)USART2:
+        case (uint32_t)USART2:;
             RCC->APB1ENR |= USART2_EN;
             NVIC->ISER1  |= NVIC_USART2;
             SetOutputSpeed(port, pins, 1);
@@ -124,7 +124,7 @@ void usart_init(USART_Typedef* USARTx, GPIO_TypeDef* port, uint32_t pins, uint32
     USARTx->CR3 |= (1<<12);
 }
 
-void usart_load_tx(uint8_t f_ID, uint8_t MSB, uint8_t LSB){
+void usart_load_tx(uint8_t f_ID, uint8_t LSB, uint8_t MSB){
 
     package[1] = f_ID;
     package[2] = LSB;
@@ -136,7 +136,7 @@ void usart_begin(void* args){
     (void) args;
     // usart.USARTx->CR1 |= USART_RXNEIE;
     usart.USARTx->CR1 |= USART_RXNEIE;
-    usart_load_tx(0x5, 0, 4);
+    usart_load_tx(0x5, 16, 0);
 }
 
 uint8_t* get_usart_rx(void){
