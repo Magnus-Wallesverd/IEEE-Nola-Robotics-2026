@@ -138,12 +138,12 @@ void output_timer_init(void){
 
     TIM1->CCMR1 |= 0x6868;      // pwm 1 CH 1,2
     TIM1->CCMR2 |= 0x6868;      // pwm 1 CH 3,4
-    TIM1->PSC   |= 31;           //
-    TIM1->ARR   = 7999;        // top
-    TIM1->CCR1  = 0;        // compare ch1         TIM3
-    TIM1->CCR2  = 0;        // compare ch1         TIM8
-    TIM1->CCR3  = 0;        // compare ch1         TIM4
-    TIM1->CCR4  = 0;        // compare ch1         TIM2
+    TIM1->PSC   |= 0;           //
+    TIM1->ARR   = 63999;        // top
+    TIM1->CCR1  = 32000;        // compare ch1         TIM3
+    TIM1->CCR2  = 32000;        // compare ch1         TIM8
+    TIM1->CCR3  = 32000;        // compare ch1         TIM4
+    TIM1->CCR4  = 32000;        // compare ch1         TIM2
     TIM1->CCER  |= 0x1111;      // enable CC 1-4
     TIM1->BDTR  |= 1<<15;       // Main Output enable
     TIM1->CR1 |= 0b10000001;    // Enable TIM1 counter

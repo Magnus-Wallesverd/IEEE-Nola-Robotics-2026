@@ -203,7 +203,7 @@ void Sensor_Write(I2C_TypeDef* I2Cx, uint16_t dev, uint8_t* tx_buf, uint16_t tx_
 void get_ToF_Distance(void* args){
     (void) args;
 
-    I2C_Wait(I2C1);
+    I2C_Yield(I2C1);
     static uint8_t range_active = 0;
     uint8_t data_ready;
 
@@ -229,4 +229,5 @@ void Sensor_Read_Wrapper(void* args){
 
 void Sensor_Write_Wrapper(void* args){
     (void) args;
+    while(1);
 }
