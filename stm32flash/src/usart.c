@@ -39,6 +39,7 @@ int overun_flag;
 int frame_error_flag;
 int rx_flag = 0;
 int tx_counter = 0;
+int rx_counter = 0;
 
 enum usart_state u_state_machine = USART_INACTIVE;
 
@@ -83,6 +84,7 @@ void USART1_IRQHandler(void){
                 }
                 break;
         }
+        rx_counter++;
     }
 
     if(USART1->ISR & USART_ORE){
@@ -195,6 +197,7 @@ void usart_state_update(void* args){
                 cam_frame.args = (void*)&led_start;
                 enqueue(transport_queue_ptr, (void*)&cam_frame);
                 usart_state = RX_LED;
+                block();
                 break;
             case RX_LED: 
                 if(rx_flag){
@@ -208,6 +211,7 @@ void usart_state_update(void* args){
                 cam_frame.args = (void*)&find_tag;
                 enqueue(transport_queue_ptr,(void*)&cam_frame);
                 usart_state = RX_FIND;
+                block();
                 break;
             case RX_FIND:
                 if(rx_flag){
@@ -255,7 +259,5 @@ void usart_state_update(void* args){
                 }
                 break;
             }
-
-        block();
     }
 }
