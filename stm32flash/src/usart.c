@@ -26,28 +26,11 @@ typedef enum {
 
 transport_item_t cam_frame;
 
-usart_payload usart_stuff[] = {
-    {.f_ID = FN_START, .LSB = 0, .MSB =0x0 },
-    {.f_ID = FN_SEE_TAG, .LSB = 0, .MSB =0x0 },
-    {.f_ID = FN_ID, .LSB = 1, .MSB =0x0 },
-    {.f_ID = FN_ID, .LSB = 2, .MSB =0x0 },
-};
+usart_payload led_start = { .f_ID = FN_START, .LSB = 0, .MSB =0x0 };
+usart_payload find_tag = { .f_ID = FN_SEE_TAG, .LSB = 0, .MSB =0x0 };
+usart_payload tag_id_f = { .f_ID = FN_ID, .LSB = 1, .MSB =0x0 };
+usart_payload tag_id_b = { .f_ID = FN_ID, .LSB = 2, .MSB =0x0 };
 
-usart_payload led_start = {
-    .f_ID = FN_START, .LSB = 0, .MSB =0x0  
-};
-
-usart_payload find_tag = {
-    .f_ID = FN_SEE_TAG, .LSB = 0, .MSB =0x0  
-};
-
-usart_payload tag_id_f = {
-    .f_ID = FN_ID, .LSB = 1, .MSB =0x0  
-};
-
-usart_payload tag_id_b = {
-    .f_ID = FN_ID, .LSB = 2, .MSB =0x0  
-};
 usart_t usart;
 
 work_item_t usart_item;
@@ -187,24 +170,26 @@ usart_t* get_usart_t(void){
     return &usart;
 }
 
-transport_item_t usart_frame2;
-usart_payload usart_data2 = {
-    .f_ID = 1, .LSB = 0xB, .MSB =0xC  
-};
-void usart_test2(int x){
-    for(int i = 0; i < x; i++){
-        usart_frame2.fn = usart_load_tx; 
-        usart_frame2.args = (void*)&usart_data2;
-        enqueue(transport_queue_ptr, (void*)&usart_frame2);
-    }
-}
+//transport_item_t usart_frame2;
+//usart_payload usart_data2 = {
+//    .f_ID = 1, .LSB = 0xB, .MSB =0xC  
+//};
+//void usart_test2(int x){
+//    for(int i = 0; i < x; i++){
+//        usart_frame2.fn = usart_load_tx; 
+//        usart_frame2.args = (void*)&usart_data2;
+//        enqueue(transport_queue_ptr, (void*)&usart_frame2);
+//    }
+//}
+
 void usart_state_update(void* args){
     (void*) args;
+
     usart_state_tcb = current_tcb;
     cam_frame.fn = usart_load_tx; 
     static uint8_t usart_state = TX_LED;
+
     while(1){
-        
         switch(usart_state){
             case TX_LED:
                 cam_frame.args = (void*)&led_start;
@@ -213,14 +198,12 @@ void usart_state_update(void* args){
                 break;
             case RX_LED: 
                 if(rx_flag){
-                    if(usart_rx_buffer[1]){
-                        usart_state = FIND_TAG;
-                    }
+                    if(usart_rx_buffer[1]) usart_state = FIND_TAG;
                 }  else {
                     usart_state = TX_LED;
                 }
-
                 break;
+
             case FIND_TAG:
                 cam_frame.args = (void*)&find_tag;
                 enqueue(transport_queue_ptr,(void*)&cam_frame);
@@ -271,8 +254,8 @@ void usart_state_update(void* args){
                     usart_state = FIND_TAG;
                 }
                 break;
-
             }
+
         block();
     }
 }
