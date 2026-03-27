@@ -36,38 +36,39 @@ void* priority_queue_array[TASK_QUEUE_SIZE];
 
 // should start thinking of easier ways to get functions in here
 const func_t fn_table[] = {
-    Sensor_Read_Wrapper,
+    // Sensor_Read_Wrapper,
     // sm_main,
-    motor_handler,
-    // transport_handler
+    // motor_handler,
+    usart_state_update,
+    transport_handler,
     // // lcd_print,
     // usart_begin,
 
     // relative_pos
 };
 
-const motor_t motor_table[] = {
-    step3,
-    rotate3,
-    step3,
-    rotate3,
-    step3,
-    rotate3,
-    step3,
-    rotate3,
-};
-
-const motor_payload motor_payload_table[] = {
-    {.args = 60,  .speed = 2},
-    {.args = 1440,  .speed = 1},
-    {.args = 60,  .speed = 2},
-    {.args = 2880,  .speed = 1},
-    {.args = 60,  .speed = 2},
-    {.args = 4320,  .speed = 1},
-    {.args = 60,  .speed = 2},
-    {.args = 0,  .speed = 1},
-
-};
+// const motor_t motor_table[] = {
+//     step3,
+//     rotate3,
+//     step3,
+//     rotate3,
+//     step3,
+//     rotate3,
+//     step3,
+//     rotate3,
+// };
+//
+// const motor_payload motor_payload_table[] = {
+//     {.args = 60,  .speed = 2},
+//     {.args = 1440,  .speed = 1},
+//     {.args = 60,  .speed = 2},
+//     {.args = 2880,  .speed = 1},
+//     {.args = 60,  .speed = 2},
+//     {.args = 0xffc44320,  .speed = 1},
+//     {.args = 60,  .speed = 2},
+//     {.args = 0,  .speed = 1},
+//
+// };
 
 void task_queue_init(void){
     task_queue_ptr->array = task_queue_array;
@@ -108,15 +109,15 @@ void motor_queue_init(void){
     motor_queue_ptr->end   = motor_queue_ptr->array;
 
     // load a function pointers into a work item array
-    for(unsigned int i = 0; i < sizeof(motor_table)/4; i++){
-        motor_pool[i].fn = motor_table[i];
-        motor_pool[i].args = (void*)(&motor_payload_table[i]);
-    }
-
-    // need to enqueue the address of the task
-    for(unsigned int i = 0; i < sizeof(motor_table)/4; i++){
-        enqueue(motor_queue_ptr, &motor_pool[i]);
-    }
+    // for(unsigned int i = 0; i < sizeof(motor_table)/4; i++){
+    //     motor_pool[i].fn = motor_table[i];
+    //     motor_pool[i].args = (void*)(&motor_payload_table[i]);
+    // }
+    //
+    // // need to enqueue the address of the task
+    // for(unsigned int i = 0; i < sizeof(motor_table)/4; i++){
+    //     enqueue(motor_queue_ptr, &motor_pool[i]);
+    // }
     
 }
 void mass_enqueue(motor_t motor_table[], motor_payload motor_payload_table[], int size){

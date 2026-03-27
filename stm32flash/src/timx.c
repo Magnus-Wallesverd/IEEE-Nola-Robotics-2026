@@ -94,7 +94,7 @@ void output_timer_init(void){
 
     TIM20->DIER  |= 1;
     TIM20->CCMR1 |= 0x68;
-    TIM20->PSC   |= 24*8;
+    TIM20->PSC   |= 99;
     TIM20->ARR    = 7999;
     TIM20->CCR1  |= 4000;
     TIM20->CCER  |= 1;

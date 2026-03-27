@@ -23,6 +23,7 @@ TCB _stcb[TCB_ARRAY_SIZE];
 TCB *current_tcb;
 TCB *next_tcb;
 TCB* transport_tcb;
+TCB* usart_state_tcb;
 
 uint32_t get_global_tick(void){
     return global_tick;
@@ -82,8 +83,9 @@ void transport_handler(void* args){
             transport_item->fn(transport_item->args);
             block();
         }
-        if(transport_queue_ptr->count == 0){
+        while(transport_queue_ptr->count == 0){
             transport_tcb->flags = 1;
+            yield();
         }
         transport_handler_counter++;
     }

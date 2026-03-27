@@ -36,7 +36,7 @@
 #define RATE 115200
 #define USART_BRR FCLK/RATE
 #define USART_TX_BUF_SIZE 4
-#define USART_RX_BUF_SIZE 64
+#define USART_RX_BUF_SIZE 4
 
 #define USART_HEADER 0xAA
 #define USART_FOOTER 0x55
@@ -85,6 +85,7 @@ typedef struct{
 
 extern uint8_t package[USART_TX_BUF_SIZE];
 extern int tx_counter;
+extern int rx_flag;
 extern sem_t usart_sema;
 
 void usart_init(USART_Typedef* USARTx, GPIO_TypeDef* port, uint32_t pins, uint32_t baud);
@@ -92,6 +93,8 @@ void usart_load_tx(void* args);
 // void usart_load_tx(uint8_t f_ID, uint8_t MSB, uint8_t LSB);
 void usart_begin(void* args);
 void transport_handler(void* args);
+extern uint8_t usart_rx_buffer[USART_RX_BUF_SIZE];
+void usart_state_update(void* args);
 
 usart_t* get_usart_t(void);
 uint8_t* get_usart_rx(void);

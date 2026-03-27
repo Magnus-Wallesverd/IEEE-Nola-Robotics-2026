@@ -20,6 +20,7 @@ void systeminit(void){
 
     ready_queue_init();
     motor_queue_init();
+    motor_init();
     // priority_queue_init();
     transport_queue_init();
     // dispatcher_init();

@@ -9,14 +9,14 @@
 
 // delta_tof (encoder position delta)
 
-// Camera function IDs
-#define FN_SEE_TAG  0x00
-#define FN_ID       0x01
-#define FN_START    0x09
 
-#define MAG_THRESHOLD_SQ  10000
+
+// usart_payload ??? = {
+//     .f_ID = FN_ID, .LSB = 1, .MSB =0x0  
+// };
 
 RobotState g_robot;
+
 
 int complete_flag = 0;
 
@@ -35,31 +35,29 @@ uint16_t cam_read(void) {
     return 0xFFFF;
 }
 
-void robot_state_init(void) {
-    g_robot.x = 3810;   // starting x
-    g_robot.y = 731;    // starting y
-    g_robot.heading = 0;  // facing north
-    g_robot.tof_mm = 9999;
-    g_robot.prev_tof = 9999;
-    g_robot.cam_sees = 0;
-    g_robot.cam_id[0] = 0xFF;
-    g_robot.cam_id[1] = 0xFF;
-    g_robot.telemetry_pad = 2;  // default to pad 2
-    g_robot.start_detected = 0;
-    g_robot.count_geo = 0;
-    g_robot.count_neb = 0;
-    g_robot.start_tick = get_global_tick();
-    g_robot.elapsed_ms = 0;
-}
+// void robot_state_init(void) {
+//     g_robot.x = 3810;   // starting x
+//     g_robot.y = 731;    // starting y
+//     g_robot.heading = 0;  // facing north
+//     g_robot.tof_mm = 9999;
+//     g_robot.prev_tof = 9999;
+//     g_robot.cam_sees = 0;
+//     g_robot.cam_id[0] = 0xFF;
+//     g_robot.cam_id[1] = 0xFF;
+//     g_robot.telemetry_pad = 2;  // default to pad 2
+//     g_robot.start_detected = 0;
+//     g_robot.count_geo = 0;
+//     g_robot.count_neb = 0;
+//     g_robot.start_tick = get_global_tick();
+//     g_robot.elapsed_ms = 0;
+// }
+/*
+ * 0 = waiting on start LED
+ * 1 = Reading start led response
+ * 2 - n-1 = stuff after
+ */
 
 void robot_state_update(void){
-
-    // validates mission elements / status.
-
-
-
-
-
 
 }
 
@@ -127,17 +125,17 @@ void robot_state_update(void){
 //
 //         }
 //     }
-//
-// //    {   // this is for sorting
-// //        int32_t mag_sq = (int32_t)mag_data[0] * mag_data[0]
-// //                       + (int32_t)mag_data[1] * mag_data[1]
-// //                       + (int32_t)mag_data[2] * mag_data[2];
-// //        (void)mag_sq;
-// //    }
-// }
 
+//    {   // this is for sorting
+//        int32_t mag_sq = (int32_t)mag_data[0] * mag_data[0]
+//                       + (int32_t)mag_data[1] * mag_data[1]
+//                       + (int32_t)mag_data[2] * mag_data[2];
+//        (void)mag_sq;
+//    }
+// }
+//
 // sorting 
-//void ball_detected(void) {
+// void ball_detected(void) {
 //    mag_read();  // refresh mag_data from the sensor right now
 //
 //    int32_t mag_sq = (int32_t)mag_data[0] * mag_data[0]
@@ -148,4 +146,4 @@ void robot_state_update(void){
 //        g_robot.count_geo++;
 //    else
 //        g_robot.count_neb++;
-//}
+// }

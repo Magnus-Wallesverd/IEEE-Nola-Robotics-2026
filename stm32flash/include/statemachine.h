@@ -56,6 +56,6 @@ int      wp_nearest(SM *s, WpType type);
 int      wp_all_done(WpType type);
 int      wp_nav_to(SM *s);
  
-void ball_detected(void);   // IR break-beam?
+void ball_detected(void);   // ??
 
 #endif

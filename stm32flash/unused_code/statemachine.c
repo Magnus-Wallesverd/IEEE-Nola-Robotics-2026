@@ -253,6 +253,7 @@ Mission handle_wait_start(SM *s) {
     return MISSION_WAIT_START;
 }
 
+// might hardcode this later bc mass enqueue
 // read rendezvous tag ID, then sweep the dropoff area
 Mission handle_sweep_west(SM *s) {
     switch (s->sub_step) {

@@ -105,15 +105,24 @@ void turn_on_motors(void){
     GPIOA->BSRR |= INR2;
 }
 
+void turn_on_motors_b(void){
+    GPIOC->BSRR |= ((INL4|INL1|INR3)<<16)|((INL3|INL2)) ;
+    GPIOB->BSRR |= INR4|(INR1);
+    GPIOA->BSRR |= INR2<<16;
+}
 void turn_off_motors(void){
     GPIOC->BSRR |= (INL1|INL2|INL3|INL4|INR3)<<16;
     GPIOB->BSRR |= (INR1|INR4) << 16;
     GPIOA->BSRR |= INR2 << 16;
 }
 
-void jump_start(uint8_t speed){
+void jump_start(uint8_t speed, int16_t dist){
     uint32_t tick = *tim20_ovf_p;
-    turn_on_motors();      
+    if(dist < 0){
+        turn_on_motors_b();
+    }else{
+        turn_on_motors();      
+    }
     TIM1->CCR1 = 7999;
     TIM1->CCR2 = 7999;
     TIM1->CCR3 = 7999;
@@ -124,7 +133,7 @@ void jump_start(uint8_t speed){
 
 int32_t clamp_max_pwm(int32_t pwm, uint8_t speed){
     if(pwm < 0){
-        pwm = 0;
+        pwm *= -1;
     }
     if(abs_32(pwm) > speed_arr[speed-1]){
         pwm = speed_arr[speed-1];
@@ -191,7 +200,7 @@ int step3(void* args){
 
     uint32_t tof_target = (*tof_p*480) - target2; 
 
-    jump_start(speed);
+    jump_start(speed, dist);
 
     while(1){
         if(*tof_p/10 < 30){
@@ -345,8 +354,6 @@ int step2(int16_t args,uint8_t speed){
     }
 
     uint32_t tof_target = (*tof_p*480) - target2; 
-
-    jump_start(speed);
 
     while(1){
         tof_p2 = (int16_t) *tof_p;

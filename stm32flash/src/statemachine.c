@@ -6,6 +6,16 @@
 #include "tcb.h"
 #include <stdint.h>
 
+/*
+ * FN_SEE_TAG: 0x00
+ * FN_ID: 0x01
+ * FN_DDIST: 0x02
+ * FN_ANG = 0x03
+ * FN_YAW = 0x04
+ * FN_START = 0x09
+ */
+
+
 motor_t motor_sweep_table[] = {
     step3,
     rotate3,
@@ -18,13 +28,13 @@ motor_t motor_sweep_table[] = {
 };
 
 motor_payload motor_sweep_payload_table[] = {
-    {.args = 60,  .speed = 2},
+    {.args = -60,  .speed = 2},
     {.args = 1440,  .speed = 1},
-    {.args = 60,  .speed = 2},
+    {.args = -60,  .speed = 2},
     {.args = 2880,  .speed = 1},
-    {.args = 60,  .speed = 2},
+    {.args = -60,  .speed = 2},
     {.args = 4320,  .speed = 1},
-    {.args = 60,  .speed = 2},
+    {.args =-60,  .speed = 2},
     {.args = 0,  .speed = 1},
 
 };
@@ -64,9 +74,9 @@ int check_handler(queue_t* q){
 
 void sm_main(void *args) {
     (void)args;
-    while(!*ToF_Distance_p);
-    // usart_test(4);
-    mass_enqueue(motor_sweep_table, motor_sweep_payload_table, 8);
+
+    // mass_enqueue(motor_sweep_table, motor_sweep_payload_table, 8);
+    // usart_test(1);
     while(1);
     if(check_handler(motor_queue_ptr)&check_handler(transport_queue_ptr)){
         
