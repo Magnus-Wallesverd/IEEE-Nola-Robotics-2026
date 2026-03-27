@@ -87,6 +87,7 @@ extern uint8_t package[USART_TX_BUF_SIZE];
 extern int tx_counter;
 extern int rx_flag;
 extern sem_t usart_sema;
+extern uint8_t start_detected;
 
 void usart_init(USART_Typedef* USARTx, GPIO_TypeDef* port, uint32_t pins, uint32_t baud);
 void usart_load_tx(void* args);

@@ -31,14 +31,10 @@ typedef struct {
 } Waypoint;
 
 typedef enum {
-    MISSION_WAIT_START,   // wait for start LED
-    MISSION_SWEEP_WEST,   // read rendezvous and clear dropoff area
-    MISSION_GRAB_NEB,     // pick up nebulite container
-    MISSION_GRAB_GEO,     // pick up geodinium container
-    MISSION_LAWN_OPEN,    // lawnmower sweep open arena
-    MISSION_CAVE_ENTER,   // align and enter cave
-    MISSION_LAWN_CAVE,    // lawnmower sweep inside cave
-    MISSION_DROPOFF,      // go to rendezvous pad and release hopper
+    WAIT_START,   // wait for start LED
+    LAWN_OPEN,    // lawnmower sweep open arena
+    ALIGN_CAVE,   // align and enter cave
+    LAWN_CAVE,    // lawnmower sweep inside cave
     MISSION_DONE,
 } Mission;
 

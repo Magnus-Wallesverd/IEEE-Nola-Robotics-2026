@@ -12,6 +12,7 @@
 #define MAG_THRESHOLD_SQ  10000
 
 uint8_t telemetry_pad;
+uint8_t start_detected = 0;
 
 typedef enum {
     TX_LED = 0,
@@ -202,6 +203,7 @@ void usart_state_update(void* args){
             case RX_LED: 
                 if(rx_flag){
                     if(usart_rx_buffer[1]) usart_state = FIND_TAG;
+                    start_detected = 1;
                 }  else {
                     usart_state = TX_LED;
                 }
