@@ -78,7 +78,7 @@ motor_t cave_enter[] = {
 motor_payload cave_enter_args[] = {
     {.args = 44,  .speed = 2},
     {.args = 1440,  .speed = 1},
-    {.args = 70,  .speed = 1},
+    {.args = 100,  .speed = 1},
 };
 
 motor_t motor_sweep_table[] = {
@@ -218,7 +218,6 @@ void sm_main(void *args) {
     int steps =0;
 
     Mission mission = WAIT_START;
-    while(1);
     
     //while(mission != MISSION_DONE) {
     //     switch(mission) {
@@ -245,7 +244,7 @@ void sm_main(void *args) {
     mass_enqueue(cave_enter, cave_enter_args, 3);
 
     while (1) { 
-        if(check_handler(motor_queue_ptr)&check_handler(transport_queue_ptr)){
+        if(motor_tcb->flags ==1){
             steps++;
             if(steps ==1){
                 mass_enqueue(motor_sweep_table, motor_sweep_payload_table,8);
