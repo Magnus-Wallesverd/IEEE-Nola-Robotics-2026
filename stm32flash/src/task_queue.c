@@ -6,7 +6,6 @@
 #include "i2c.h"
 #include "motors.h"
 #include "parser.h"
-#include "robot_state.h"
 #include "statemachine.h"
 
 queue_t task_queue;

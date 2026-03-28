@@ -72,18 +72,18 @@ int wait_start(){
 } 
 
 int lawn_open(){
-    motor_task->fn = rotate3;
-    motor_task->args = &rotate_left;
-    enqueue(motor_queue_ptr, (void*)motor_task);
-
-    motor_task->fn = step60;
-    motor_task->args = &step60;
-    enqueue(motor_queue_ptr, (void*)motor_task);
-
-    mass_enqueue(motor_sweep_table, motor_sweep_payload_table, 6);
-    mass_enqueue(motor_sweep_table, motor_sweep_payload_table, 6);
-    mass_enqueue(motor_sweep_table, motor_sweep_payload_table, 6);
-
+//    motor_task->fn = rotate3;
+//    motor_task->args = &rotate_left;
+//    enqueue(motor_queue_ptr, (void*)motor_task);
+//
+//    motor_task->fn = step60;
+//    motor_task->args = &step60;
+//    enqueue(motor_queue_ptr, (void*)motor_task);
+//
+//    mass_enqueue(motor_sweep_table, motor_sweep_payload_table, 6);
+//    mass_enqueue(motor_sweep_table, motor_sweep_payload_table, 6);
+//    mass_enqueue(motor_sweep_table, motor_sweep_payload_table, 6);
+//
     return ALIGN_CAVE;
 }
 
@@ -98,7 +98,7 @@ int lawn_cave(){
 
     mass_enqueue(motor_sweep_table, motor_sweep_payload_table, 6);
 
-    return MISSION_GRAB_NEB;
+    return MISSION_DONE;
 }
 
 // const motor_item_t sweep[] = {
@@ -135,10 +135,12 @@ int check_handler(queue_t* q){
 
 void sm_main(void *args) {
     (void)args;
-    robot_state_init();
+    // robot_state_init();
+    
 
     Mission mission = WAIT_START;
 
+    while(1);
     while(mission != MISSION_DONE) {
         switch(mission) {
             case WAIT_START:
