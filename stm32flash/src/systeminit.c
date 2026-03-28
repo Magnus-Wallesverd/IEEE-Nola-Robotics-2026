@@ -29,7 +29,7 @@ void systeminit(void){
     usart_init(USART1, GPIOC,PC4|PC5,115200);
 
 
-    // I2C_Init(I2C1, 0);
+    I2C_Init(I2C1, 0);
     SetPinOutput(GPIOA,PA5);
     
     // SetPinOutput(GPIOB,PB15);

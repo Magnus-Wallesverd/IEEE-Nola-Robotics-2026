@@ -103,6 +103,12 @@ motor_payload motor_sweep_payload_table[] = {
     {.args = 0,  .speed = 1},
 };
 
+
+motor_payload align_payload[] = {
+    {.args = 0,  .speed = 1},
+    {.args = 0,  .speed = 1}
+};
+
 motor_t get_global_pos[] = {
     rotate3,
     robot_pos_update,
@@ -126,6 +132,20 @@ motor_payload global_pos_args[] = {
     {.args = 3,  .speed = 1}, // 
     {.args = 4,  .speed = 1}, // 
 };
+
+motor_t align[] = {
+    rotate3,
+    step3,
+};
+
+int alignY(void* args){
+    mass_enqueue(get_global_pos, global_pos_args, 9);
+    align_payload[1].args = 67 - gy;
+    mass_enqueue(align, align_payload, 2);
+    return 1;
+
+}
+
 
 motor_payload rotate_left = { .args = 270, .speed = 1};
 motor_payload step60 = { .args = -60, .speed = 2};
@@ -151,11 +171,6 @@ int wait_start(){
 //     return ALIGN_CAVE;
 // }
 
-int align_to_cave(){
-
-
-    return LAWN_CAVE;
-}
 
 // int lawn_cave(){
 //
@@ -200,6 +215,7 @@ int check_handler(queue_t* q){
 void sm_main(void *args) {
     (void)args;
     // robot_state_init();
+    int steps =0;
 
     Mission mission = WAIT_START;
 
@@ -223,14 +239,31 @@ void sm_main(void *args) {
     //     }
     // }
     
-    if(check_handler(motor_queue_ptr)&check_handler(transport_queue_ptr)){
-        
-    } else {
-        yield();
-    }
 
     turn_off_motors();
-    while (1) { block(); }
+    mass_enqueue(cave_enter, cave_enter_args, 3);
+
+    while (1) { 
+        if(check_handler(motor_queue_ptr)&check_handler(transport_queue_ptr)){
+            steps++;
+            if(steps ==1){
+                mass_enqueue(motor_sweep_table, motor_sweep_payload_table,8);
+            }
+            if(steps ==2){
+                alignY(0);
+            }
+            if(steps ==3){
+                cave_enter_args[0].args = 0;
+                cave_enter_args[1].args = 4320;
+                mass_enqueue(cave_enter, cave_enter_args, 3);
+
+            }
+            
+        } else {
+            yield();
+        }
+
+    }
 }
 
 
