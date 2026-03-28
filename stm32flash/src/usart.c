@@ -5,7 +5,7 @@
 // use for the active usart peripheral 
 // holds the pointer to peripheral and buffers
 // Camera function IDs
-#define FN_SEE_TAG  0x10
+#define FN_SEE_TAG  0x00
 #define FN_ID       0x01
 #define FN_START    0x09
 
@@ -21,14 +21,12 @@ typedef enum {
     RX_FIND,
     GET_ID_F,
     RX_ID_F,
-    GET_ID_B,
-    RX_ID_B
 }usart_state_code;
 
 transport_item_t cam_frame;
 
 usart_payload led_start = { .f_ID = FN_START, .LSB = 0, .MSB =0x0 };
-usart_payload find_tag = { .f_ID = FN_SEE_TAG, .LSB = 0, .MSB =0x0 };
+usart_payload find_tag = { .f_ID = FN_SEE_TAG, .LSB = 3, .MSB =0x3 };
 usart_payload tag_id_f = { .f_ID = FN_ID, .LSB = 1, .MSB =0x0 };
 usart_payload tag_id_b = { .f_ID = FN_ID, .LSB = 2, .MSB =0x0 };
 
@@ -202,13 +200,14 @@ void usart_state_update(void* args){
                 break;
             case RX_LED: 
                 if(rx_flag){
-                    if(usart_rx_buffer[1]) usart_state = FIND_TAG;
-                    start_detected = 1;
+                    if(usart_rx_buffer[1]){
+                        usart_state = FIND_TAG;
+                        start_detected = 1;
+                    }
                 }  else {
                     usart_state = TX_LED;
                 }
                 break;
-
             case FIND_TAG:
                 cam_frame.args = (void*)&find_tag;
                 enqueue(transport_queue_ptr,(void*)&cam_frame);
@@ -221,11 +220,7 @@ void usart_state_update(void* args){
                         cam_frame.args = (void*)&tag_id_f;
                         enqueue(transport_queue_ptr,(void*)&cam_frame);
                         usart_state = GET_ID_F;
-                    } else if (usart_rx_buffer[1]&2){
-                        cam_frame.args = (void*)&tag_id_b;
-                        enqueue(transport_queue_ptr,(void*)&cam_frame);
-                        usart_state = GET_ID_B;
-                    }
+                    } 
                 } else {
                     usart_state = FIND_TAG;
                 }
@@ -237,21 +232,6 @@ void usart_state_update(void* args){
                 usart_state = RX_ID_F;
                 break;
             case RX_ID_F:
-                if(rx_flag){
-                    if (usart_rx_buffer[1] <= 4){
-                        telemetry_pad = usart_rx_buffer[1];
-                    }
-                } else {
-                    usart_state = FIND_TAG;
-                }
-                break;
-
-            case GET_ID_B:
-                cam_frame.args = (void*)&tag_id_b;
-                enqueue(transport_queue_ptr,(void*)&cam_frame);
-                usart_state = RX_ID_B;
-                break;
-            case RX_ID_B:
                 if(rx_flag){
                     if (usart_rx_buffer[1] <= 4){
                         telemetry_pad = usart_rx_buffer[1];

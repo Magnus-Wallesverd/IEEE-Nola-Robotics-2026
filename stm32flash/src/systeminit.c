@@ -32,5 +32,4 @@ void systeminit(void){
     I2C_Init(I2C1, 0);
     SetPinOutput(GPIOA,PA5);
     
-    // SetPinOutput(GPIOB,PB15);
 }

@@ -49,7 +49,7 @@ void sm_init(SM *s);
 void sm_tick(SM *s);
 void sm_main(void *args);
 
-void robot_state_update(void *args);
+// void robot_state_update(void *args);
 
 uint16_t wp_dist(Waypoint *w);
 void     wp_check_visit(SM *s);

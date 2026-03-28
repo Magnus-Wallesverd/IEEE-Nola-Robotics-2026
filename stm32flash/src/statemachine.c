@@ -11,7 +11,7 @@ uint16_t W_tof =0;
 uint16_t gx =0;
 uint16_t gy = 0;
 
-
+ 
 // yall im sorry abt this file  
 
 // Endyne Units: raw / 48 = cm
@@ -218,8 +218,9 @@ void sm_main(void *args) {
     int steps =0;
 
     Mission mission = WAIT_START;
-
-    // while(mission != MISSION_DONE) {
+    while(1);
+    
+    //while(mission != MISSION_DONE) {
     //     switch(mission) {
     //         case WAIT_START:
     //             mission = wait_start();
@@ -265,6 +266,3 @@ void sm_main(void *args) {
 
     }
 }
-
-
-

@@ -12,6 +12,10 @@
 //works for now because motor task never quits
 //still works because only 1 motor task gets called
 TCB* motor_tcb;
+TCB* servo_tcb;
+
+uint8_t geo_counter = 0;
+uint8_t turn_counter = 0;
 
 uint32_t motor_timeout_counter = 0;
 uint32_t MAXTIMEOUT = 120;
@@ -96,6 +100,44 @@ void servo(void* args){
         angle = 180;
     }
     TIM16->CCR1 =  min + ((max - min) * angle) / 180;
+}
+
+servo_payload default_pos = {.timx = (uint32_t)TIM16, .angle = 90};
+servo_payload mag_pos = {.timx = (uint32_t)TIM16, .angle = 0};
+servo_payload nonmag_pos = {.timx = (uint32_t)TIM16, .angle = 180};
+
+servo_payload right_gate = {.timx = (uint32_t)TIM15, .angle = 0};
+servo_payload left_gate = {.timx = (uint32_t)TIM15, .angle = 0};
+
+void sorting_sm(){
+   servo_tcb = current_tcb;
+   while(1){
+       servo((void*)&default_pos);
+       for(int i = 0; i < 40; i++){ block(); }
+
+       if(mag_data[0] > 200 || mag_data[0] < 200 
+               || mag_data[1] > 200 || mag_data[1] < 200
+               || mag_data[2] > 200 || mag_data[2] < 200) {
+           servo((void*)&mag_pos);
+           geo_counter++;
+           turn_counter++;
+       } else {
+           servo((void*)&nonmag_pos);
+           turn_counter++;
+       }
+
+       if(geo_counter > 5){ // open geo gate, need to reset
+           servo((void*)&left_gate);
+           geo_counter = 0;
+       }
+
+       if(turn_counter > 15){ // open neb gate, need to reset
+           servo((void*)&right_gate);
+           turn_counter = 0;
+       }
+
+       for(int i = 0; i < 40; i++){ block(); }
+   }
 }
 
 void turn_on_motors(void){
