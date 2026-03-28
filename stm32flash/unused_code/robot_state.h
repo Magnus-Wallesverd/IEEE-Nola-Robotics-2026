@@ -27,7 +27,7 @@ extern RobotState g_robot;
 
 
 void robot_state_init(void);
-void robot_state_update(void);
+void robot_state_update(void *args);
 int nav_time_exceeded(uint32_t ms);
 
 int nav_wall_ahead(void);
