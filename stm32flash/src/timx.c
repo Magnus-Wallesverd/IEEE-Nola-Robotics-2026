@@ -57,7 +57,7 @@ void output_timer_init(void){
     
     // init_servo_TIM();
 
-    RCC->APB2ENR |= (1 << 11)|(1 << 17)|(1 << 20);    // Enable TIM 1, 16, 20
+    RCC->APB2ENR |= (1 << 11)|(1 << 16)|(1 << 17)|(1 << 20);    // Enable TIM 1, 16, 20
 
     //TIM1 PWM
     SetPinAlternate(GPIOC, 0xF);            
@@ -65,6 +65,9 @@ void output_timer_init(void){
     
     SetPinAlternate(GPIOB, PB8);            
     AlternateFunctionSet(GPIOB, PB8, 1);    // PB8 -> AF1   
+                                            //
+    SetPinAlternate(GPIOB, PB14|PB15);            
+    AlternateFunctionSet(GPIOB, PB14|PB15, 1);   
 
     TIM1->CCMR1 |= 0x6868;      // pwm 1 CH 1,2
     TIM1->CCMR2 |= 0x6868;      // pwm 1 CH 3,4
@@ -79,12 +82,21 @@ void output_timer_init(void){
     TIM1->CR1 |= 0b10000001;    // Enable TIM1 counter
     
     TIM16->CCMR1 |= 0x68;
-    TIM16->PSC   |= 4;
+    TIM16->PSC   |= 19;
     TIM16->ARR    = 63999;
-    TIM16->CCR1  |= 0;
+    TIM16->CCR1  |= 32000;
     TIM16->CCER  |= 1;
     TIM16->BDTR  |= 1<<15;       // Main Output enable
     TIM16->CR1   |= 0b10000001;
+
+    TIM15->CCMR1 |= 0x6868;
+    TIM15->PSC   |= 19;
+    TIM15->ARR    = 63999;
+    TIM15->CCR1   = 32000;
+    TIM15->CCR2   = 32000;
+    TIM15->CCER  |= 0x11;
+    TIM15->BDTR  |= 1<<15;       // Main Output enable
+    TIM15->CR1   |= 0b10000001;
 
     // timer prio
     NVIC_IPR->IPR19 |= NVIC_IRQ_PRIORITY1 << 16;
