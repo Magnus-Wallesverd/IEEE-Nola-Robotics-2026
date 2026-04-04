@@ -32,7 +32,7 @@ void sem_init(sem_t* s, void* item, int init_flag);
 
 void signal(sem_t* s);
 
-uint32_t wait(sem_t* s);
+uint32_t waits(sem_t* s);
 
 extern sem_t parser_sem;
 extern sem_t* parser_sem_p;

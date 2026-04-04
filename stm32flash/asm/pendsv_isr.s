@@ -6,27 +6,23 @@
 
 PendSV_Handler:
     
-    ldr r1, =current_tcb
-    ldr r0, [r1] /*R0 is tcb address*/
     mrs r2, psp 
-    stmdb r2, {r4-r11}
-    str r2, [r0]
+    stmdb r2!, {r4-r11}
+    LDR r1, =current_t
+    LDR r1, [r1]
+    STR r2, [r1]
+
 
     /* returns next_tcb into r0*/
-    bl threadscheduler 
-    
-    /* update to next */
-    ldr r1, =current_tcb
-    str r0, [r1]
-    ldr r0, [r0]
-    msr psp, r0
-    
+    bl select_task 
+    LDR r1, =current_t
+    LDR r1, [r1]
+    LDR r0, [r1]
     /* Pop to Stack */
-    sub r0, r0, #0x20
     ldmia r0!, {r4-r11}
-    add r0, r0, #0x20
-    ldr r2, [r1]
-    str r0, [r2]
+    //ldr r2, [r1]
+    //str r0, [r2]
+    msr psp, r0
     
 
     /* Exception return */

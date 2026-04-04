@@ -13,7 +13,7 @@ void signal(sem_t* s){
     s->flag++;
 }
 
-uint32_t wait(sem_t* s){
+uint32_t waits(sem_t* s){
     if(s->flag > 0){
         s->flag--;
         return 1;

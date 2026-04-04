@@ -48,7 +48,7 @@ void USART1_IRQHandler(void){
                 if(usart_rx_i == USART_FRAME_SIZE){
                     usart_rx_i = 0;
                     u_state_machine = USART_INACTIVE;
-                    if(wait(usart.sem)){
+                    if(waits(usart.sem)){
                         producer_function(usart.sem);
                         signal(usart.sem);
                     }

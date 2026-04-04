@@ -16,7 +16,7 @@ void unblock(TCB* tcb){
 }
 
 void kernel_unblock(sem_t* s){
-    if(wait(s) == 1){
+    if(waits(s) == 1){
         enqueue(ready_queue_ptr, s->item);
     }
 }

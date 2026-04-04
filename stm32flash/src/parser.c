@@ -42,11 +42,11 @@ void parser_dispatcher(void* args){
     ((transport_item_t*)transport_sem.item)->args = &parser_buffer[2];
 
     
-    if(wait(global_dispatch.sem)){
+    if(waits(global_dispatch.sem)){
         producer_function(global_dispatch.sem);
     }
     
-    if(wait(&transport_sem)){
+    if(waits(&transport_sem)){
         transport_producer_function(&transport_sem);
     }
     

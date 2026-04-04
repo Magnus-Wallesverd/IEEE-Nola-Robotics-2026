@@ -68,6 +68,28 @@ SECTIONS
     . = ALIGN(8);
   
   } > RAM 
+
+  .process_block :
+  {
+    . = ALIGN(4);
+    _process1 = .;
+    . += 256;
+    _process2 = .;
+    . += 256;
+    _process3 = .;
+    . += 256;
+    _process4 = .;
+    . += 256;
+    _process5 = .;
+    . += 256;
+    _endblock = .;
+    _shareblock = .;
+    . += 256;
+
+    _endshare = .;
+
+
+  } > RAM
  
   /* .node_heap (NOLOAD) : */
   /* { */

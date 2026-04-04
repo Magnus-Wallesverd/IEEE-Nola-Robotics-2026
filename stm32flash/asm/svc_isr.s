@@ -5,8 +5,7 @@
 SVC_Handler:
 
 psp_move:
-    ldr r0, = _stcb
-    ldr r1, [r0]
+    ldr r1, = _process5
     msr psp, r1
 
  
@@ -18,4 +17,4 @@ SysTick_start:
    
     /* Exception return */
     ldr r0, =0xFFFFFFFD
-    bx r0
+    bx lr

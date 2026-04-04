@@ -8,6 +8,7 @@
 #include "i2c.h"
 #include "backend.h"
 #include <stdint.h>
+#include "task.h"
 
 //works for now because motor task never quits
 //still works because only 1 motor task gets called
@@ -510,15 +511,17 @@ void global_pos(void* args){
     // 4320    -> -90 degree -> -x direction
     //  0  ->   0 degree -> +y direction
     //  5760 -.  180 degree   -y direction
-    int16_t x1 = 9999;
-    int16_t arg =0;
-    int16_t dispx = x1 -x;
+    // int16_t x1 = 9999;
+    // int16_t arg =0;
+    // int16_t dispx = x1 -x;
     devi = 0;
+    cpu_time(10);
+    while(1);
     // target_h = 1440*(dispx > 0) + 4320*(dispx < 0 );
     target_h =0;
-    for(int i = 0; i < x1/11 + 1 ; i++){
-        rotate2(target_h + (devi)/(40*9));
-        step2(11);
-    }
+    // for(int i = 0; i < x1/11 + 1 ; i++){
+    //     rotate2(target_h + (devi)/(40*9));
+    //     step2(11);
+    // }
 
 }
