@@ -18,7 +18,6 @@ typedef struct {
     uint32_t priorBit;
     uint32_t reserve1;
     uint8_t readylist[32];
-    uint8_t  task_num;
     uint8_t  r0;  //reserve r0 - r2 for select task
     uint8_t  r1;
     uint8_t  r2;

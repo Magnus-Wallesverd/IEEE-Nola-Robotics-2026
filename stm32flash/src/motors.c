@@ -515,7 +515,7 @@ void global_pos(void* args){
     // int16_t arg =0;
     // int16_t dispx = x1 -x;
     devi = 0;
-    cpu_time(10);
+    cpu_time(3);
     while(1);
     // target_h = 1440*(dispx > 0) + 4320*(dispx < 0 );
     target_h =0;

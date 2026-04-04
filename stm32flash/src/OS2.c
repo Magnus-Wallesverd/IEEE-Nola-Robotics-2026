@@ -11,6 +11,8 @@
 static int i =0;
 int32_t dummy =0;
 int32_t dummy2 =0;
+int32_t dummy3 =0;
+Manager* deb  =((Manager*)(&_process1 + 32));
 threads* tasklist[5] = {
     task1,
     task2,
@@ -22,7 +24,6 @@ threads* current_t = task5;
 
 void exit_return(){
     current_t->fn &= 0;
-    mem->task_num -=1;
     current_t->status = 0;
     unready();
     yield();
@@ -53,7 +54,6 @@ void q_up(void (*task_func)(void*) ){
             tasklist[i]->context[12] = (uint32_t)(&tasklist[i]->data[0]); //address to process in r0
             tasklist[i]->fn = (uint32_t)task_func;  // function address
             tasklist[i]->alloc = 2 | (2<<8);
-            mem->task_num += 1;
             tasklist[i]->status = 1; // Change task status to 1
 
             mem->priorBit |= 1;
@@ -73,13 +73,13 @@ void select_task() {  //contact switching function
     }
 
     mem->r0 = 31 -( __builtin_clz(mem->readylist[mem->r2])) ;  //grab the task number
-    dummy2 = mem->r2;
-    if(current_t == tasklist[mem->r0]){ //  round robin same priority tasks
-        mem->r2 = mem->readylist[mem->r0] & ~(1 << mem->r0);
-        mem->r1 = 31 -( __builtin_clz(mem->r2));
+    if(current_t == tasklist[i]){ //  round robin same priority tasks
+        mem->r1 = mem->readylist[mem->r2] & ~(1 << i);
+        mem->r1 = 31 - ( __builtin_clz(mem->r1));
         if(mem->r1 != 255){
             i = mem->r1;
             current_t = tasklist[mem->r1];
+            return;
         }
 
     }
