@@ -23,6 +23,8 @@ PendSV_Handler:
     //ldr r2, [r1]
     //str r0, [r2]
     msr psp, r0
+    add r0, r0, #32
+    STR r0, [r1]
     
 
     /* Exception return */

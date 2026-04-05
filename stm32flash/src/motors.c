@@ -514,11 +514,14 @@ void global_pos(void* args){
     // int16_t x1 = 9999;
     // int16_t arg =0;
     // int16_t dispx = x1 -x;
-    devi = 0;
     cpu_time(3);
-    while(1);
+    set_priority(10);
+
+    while(1){
+        wait(2);
+
+    };
     // target_h = 1440*(dispx > 0) + 4320*(dispx < 0 );
-    target_h =0;
     // for(int i = 0; i < x1/11 + 1 ; i++){
     //     rotate2(target_h + (devi)/(40*9));
     //     step2(11);

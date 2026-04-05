@@ -10,4 +10,5 @@ typedef struct {
 #define public ((task_array*)(&_shareblock))
 void wait(uint32_t ticks);
 void cpu_time(uint8_t time_ms);
+void set_priority(uint8_t num);
 #endif

@@ -21,16 +21,19 @@ threads* tasklist[5] = {
     task5,
 };
 threads* current_t = task5;
+uint32_t wakeup = 0xFFFFFFFF;
 
 void exit_return(){
     current_t->fn &= 0;
     current_t->status = 0;
-    unready();
+    unready(i);
     yield();
 }
 void set_priority(uint8_t num){
-    current_t->status &= ~(0b1111 << 8); //clear priority
-    current_t->status |= ( num << 8); //set priority
+    mem->r5 = num;
+    mem->set_prior |= 1 <<i;
+    mem->priorBit |= 1 <<31;
+    yield();
 }
 
 
@@ -47,11 +50,11 @@ void q_up(void (*task_func)(void*) ){
     for(int i =0;i <=4 ;i++){
         uint32_t status = tasklist[i]->status;
         if(status == 0){
-            tasklist[i]->sp = (uint32_t)&tasklist[i]->context[4]; //set stackpointer
-            tasklist[i]->context[19] = 0x01000000; //xPSC
-            tasklist[i]->context[18] = (uint32_t)task_func;  //PC
-            tasklist[i]->context[17] = (uint32_t)(&exit_return);   //LR
-            tasklist[i]->context[12] = (uint32_t)(&tasklist[i]->data[0]); //address to process in r0
+            tasklist[i]->sp = (uint32_t)&tasklist[i]->context[8]; //set stackpointer
+            tasklist[i]->context[23] = 0x01000000; //xPSC
+            tasklist[i]->context[22] = (uint32_t)task_func;  //PC
+            tasklist[i]->context[21] = (uint32_t)(&exit_return);   //LR
+            tasklist[i]->context[16] = (uint32_t)(&tasklist[i]->data[0]); //address to process in r0
             tasklist[i]->fn = (uint32_t)task_func;  // function address
             tasklist[i]->alloc = 2 | (2<<8);
             tasklist[i]->status = 1; // Change task status to 1
@@ -83,21 +86,28 @@ void select_task() {  //contact switching function
         }
 
     }
-    dummy = mem->r0;
     current_t = tasklist[mem->r0];
     i = mem->r0;
 }
 
 void wait(uint32_t ticks){
+
     mem->block[i] = get_global_tick() + ticks*2;
-    tasklist[i]->status = 2; //change status to block
-    unready();
+    mem->priorBit |= 1 <<31;
+
     yield();
 }
 
-void unready(void){
-    mem->r3 = tasklist[i]->status >>8; //r3 hold priority number
-    mem->readylist[mem->r3] &= (1 << i);
+void unready(int k){
+    mem->r3 = tasklist[k]->status >>8; //r3 hold priority number
+    mem->readylist[mem->r3] &= ~(1 << k);
+    
+}
+
+void ready(int k){
+    mem->r3 = tasklist[k]->status >>8; //r3 hold priority number
+    mem->readylist[mem->r3] |= (1 << k);
+    mem->priorBit |= 1 << mem->r3;
     
 }
 
@@ -114,17 +124,46 @@ __attribute__((naked)) void task_manager(void* args){
     /*NVIC->ISER6 |= 0xFFFFFFFF;*/
     /*NVIC->ISER7 |= 0xFFFF;*/
 
-    mem->priorBit &= ~(1 << 31);
     while(1){
+        while(( __builtin_clz(mem->priorBit))){  yield();}
         mem->Ticks = get_global_tick();
+        wakeup = 0xFFFFFFFF;
         for(int j =0; j <=4; j++){
-            if(mem->block[j]<= mem->Ticks && (tasklist[j]->status == 2)){ //unblock logic
-                tasklist[j]->status = 1;
+            if((tasklist[j]->status& 0b1111) == 2){ //unblock logic
+                if(mem->Ticks >= mem->block[j]){
+                    tasklist[j]->status -= 1;
+                    ready(j);
+
+                }
+                else if(mem->block[j] < wakeup){
+                    wakeup = mem->block[j];
+                }
             }
+        }
+        mem->r4 = 31- __builtin_clz(mem->set_prior);
+        if(mem->r4 != 255){   //set priority 
+            unready(mem->r4);
+            tasklist[mem->r4]->status &= ~(0b1111 << 8); //clear priority
+            tasklist[mem->r4]->status |= ( mem->r5 << 8); //set priority
+            ready(mem->r4);
+
+        }
+        mem->r4 = 31- __builtin_clz(mem->wait_q);
+        if(mem->r4 != 255){ // block task
+            if(mem->block[mem->r4]<wakeup){
+                wakeup = mem->block[mem->r4];
+            }
+            tasklist[i]->status += 1; //change status to block
+            unready(mem->r4);
 
         }
 
-        yield();
 
+
+
+
+
+        mem->priorBit &= ~(1<<31);
+        yield();
     }
 }

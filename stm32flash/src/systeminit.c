@@ -29,7 +29,7 @@ void systeminit(void){
     input_timer_init();
     output_timer_init();
     q_up(&task_manager);
-    mem->reserve |= 0xDeadbeef;
+    mem->reserve |= 0xFEEDBEEF;
     mem->reserve1 |= 0xDeadbeef;
     mem->priorBit |= 0x80000000;
     mem->readylist[31] |= 1;

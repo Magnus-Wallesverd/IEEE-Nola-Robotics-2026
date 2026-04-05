@@ -25,6 +25,8 @@ typedef struct {
     uint8_t  r4;
     uint8_t  r5;
     uint8_t  r6;
+    uint8_t  set_prior;
+    uint8_t  wait_q;
 
 } Manager;
 typedef struct { //should be 64 reg or 256 bytes for each task
@@ -49,5 +51,7 @@ void q_up(void (*task_func)(void*));
 void task_manager(void* args);
 void toggle_led(void* args);
 void wait(uint32_t ticks);
-void unready(void);
+void unready(int k);
+void ready(int k);
+void set_priority(uint8_t num);
 #endif
