@@ -93,6 +93,7 @@ void select_task() {  //contact switching function
 void wait(uint32_t ticks){
 
     mem->block[i] = get_global_tick() + ticks*2;
+    mem->wait_q |= 1 << i;
     mem->priorBit |= 1 <<31;
 
     yield();
@@ -127,11 +128,11 @@ __attribute__((naked)) void task_manager(void* args){
     while(1){
         while(( __builtin_clz(mem->priorBit))){  yield();}
         mem->Ticks = get_global_tick();
-        wakeup = 0xFFFFFFFF;
         for(int j =0; j <=4; j++){
             if((tasklist[j]->status& 0b1111) == 2){ //unblock logic
                 if(mem->Ticks >= mem->block[j]){
                     tasklist[j]->status -= 1;
+                    wakeup = 0xFFFFFFFF;
                     ready(j);
 
                 }
@@ -146,6 +147,7 @@ __attribute__((naked)) void task_manager(void* args){
             tasklist[mem->r4]->status &= ~(0b1111 << 8); //clear priority
             tasklist[mem->r4]->status |= ( mem->r5 << 8); //set priority
             ready(mem->r4);
+            mem->set_prior &=~(1 << mem->r4);
 
         }
         mem->r4 = 31- __builtin_clz(mem->wait_q);
@@ -153,8 +155,9 @@ __attribute__((naked)) void task_manager(void* args){
             if(mem->block[mem->r4]<wakeup){
                 wakeup = mem->block[mem->r4];
             }
-            tasklist[i]->status += 1; //change status to block
+            tasklist[mem->r4]->status += 1; //change status to block
             unready(mem->r4);
+            mem->wait_q &= ~(1 << mem->r4);
 
         }
 

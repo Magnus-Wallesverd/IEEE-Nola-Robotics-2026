@@ -23,6 +23,7 @@ SysTick_Handler:
     ldr r2, [r4, #160]   // grabs the priority register
     orr r2, r2, #(1<<31)  // activate timer task
     str r2, [r4, #160]
+    b switch
 
 buhn:
     ldr r5, =current_t
