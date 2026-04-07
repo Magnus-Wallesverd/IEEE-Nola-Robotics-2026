@@ -48,7 +48,7 @@ void ST7796S_init(void* args){
 
     lcd_start();
     lcd_write_cmd(MADCTL);
-    lcd_write_data_byte(MV);
+    lcd_write_data_byte(MV|RGB);
     lcd_end();
 
     enqueue(task_queue_ptr, &fill_screen);
@@ -128,8 +128,8 @@ void lcd_draw_rect(uint16_t Xs, uint16_t Xe, uint16_t Ys, uint16_t Ye, uint16_t 
     
     lcd_write_cmd(RAMWR);
     for(uint32_t i = 0; i < (uint32_t)((Xe-Xs+1)*(Ye-Ys+1)); i++){
-        lcd_write_data_byte(color & 0xFF);        
         lcd_write_data_byte(color >> 8);      
+        lcd_write_data_byte(color & 0xFF);        
     }
 
     lcd_end();
@@ -137,10 +137,23 @@ void lcd_draw_rect(uint16_t Xs, uint16_t Xe, uint16_t Ys, uint16_t Ye, uint16_t 
 
 void lcd_demo(void* args){
     (void) args;
-    /*lcd_draw_rect(0,479,0, 319);*/
-    lcd_draw_rect(0, (WIDTH) - 1, 0, (HEIGHT)-1, OFF_WHITE);
-    lcd_draw_rect(9, (WIDTH/2)- 1 - 9, 9, (HEIGHT/2)-1-9, AMBER);
-    lcd_draw_rect(9, (WIDTH/2)- 1 - 9, (HEIGHT/2)-1+9, HEIGHT-1-9, SAGE);
-    lcd_draw_rect((WIDTH/2) - 1 + 9, (WIDTH)- 1-9, 9, (HEIGHT/2)-1-9, MINT);
-    lcd_draw_rect((WIDTH/2) - 1 + 9, (WIDTH)- 1-9, (HEIGHT/2)-1+9, HEIGHT-1-9, CORAL);
+    
+    // background
+    lcd_draw_rect(0, (WIDTH) - 1, 0, (HEIGHT)-1, D_GREEN);
+
+    // top left 
+    lcd_draw_rect(BORDER, (WIDTH/2)- 1 - BORDER/2, BORDER, (UI_ROW_H1)-1-BORDER/2, OFF_WHITE);
+
+    //top right
+    lcd_draw_rect((WIDTH/2)-1+BORDER/2, (WIDTH) - 1-BORDER, BORDER, (UI_ROW_H1)-1-BORDER/2, OFF_WHITE);
+
+    // middle left
+    lcd_draw_rect(BORDER, (WIDTH/2)-1-BORDER/2, UI_ROW_H1-1+BORDER/2, UI_ROW_H2-1-BORDER/2, OFF_WHITE);
+
+    // middle right
+    lcd_draw_rect((WIDTH/2)-1+BORDER/2, (WIDTH)-1-BORDER, UI_ROW_H1-1+BORDER/2, UI_ROW_H2-1-BORDER/2, OFF_WHITE);
+
+    //bottom center
+    lcd_draw_rect(BORDER+PAD, (WIDTH)-1-BORDER-PAD, UI_ROW_H2-1+BORDER/2, HEIGHT - BORDER+1, OFF_WHITE);
+
 }

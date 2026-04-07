@@ -13,8 +13,12 @@
 
 #define DATA_BUFFER_SIZE 16
 
-#define HEIGHT  320 
-#define WIDTH   480
+#define HEIGHT      320 
+#define WIDTH       480
+#define BORDER      9
+#define UI_ROW_H1   160
+#define UI_ROW_H2   267
+#define PAD         120
 
 #define SWRESET 0x01
 #define SLPIN   0x10
@@ -24,20 +28,26 @@
 #define RASET   0x2B
 #define RAMWR   0x2C
 #define MADCTL  0x36
-#define MV      0x20
+#define MV      (1<<5)
+#define RGB     (1<<3)
 #define COLMOD  0x3A
 #define RGB565  0x55
 
 #define E_BLUE      0xE318
 #define CORAL       0xF3A9
 #define MINT        0x67EC
-#define SAGE        0x8410
+#define SAGE        0x8DD0
 #define SLATE       0x24FF
 #define RED         0xF800
-#define AMBER       0x40DC
+#define YELLOW      0xFFE0
+#define ORANGE      0xFBE0
+#define GREEN       0xE007
+#define AMBER       0xDC40
 #define BLACK       0x0000
-#define OFF_WHITE   0x7DEF
+#define OFF_WHITE   0xFFDD
 #define WHITE       0xFFFF
+#define D_GREEN     0x0902
+#define NAVY        0x0844
 
 void ST7796S_setup(SPI_TypeDef* SPIx);
 void ST7796S_init(void* args);
@@ -47,4 +57,5 @@ void lcd_write_data_byte(uint8_t data);
 void lcd_start(void);
 void lcd_end(void);
 void lcd_demo(void* args);
+
 #endif

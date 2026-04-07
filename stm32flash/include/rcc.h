@@ -42,6 +42,8 @@
 #define DMA1_EN     (1<<0)
 #define DMA2_EN     (1<<1)
 
+#define DMA1_EN  (1<<0)
+#define DMA2_EN  (1<<1)
 #define GPIOA_EN (1<<17)
 #define GPIOB_EN (1<<18)
 #define GPIOC_EN (1<<19)
