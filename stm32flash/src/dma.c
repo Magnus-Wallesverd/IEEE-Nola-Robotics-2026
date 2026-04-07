@@ -1,19 +1,17 @@
 #include <stdint.h>
 #include "dma.h"
-#include "spi.h"
-#include "rcc.h"
+#include "lock.h"
+#include "tcb.h"
 
 uint32_t dma_error_cnt = 0;
-
-uint16_t tx_buffer[TX_BUFFER_SIZE];
-uint16_t rx_buffer[RX_BUFFER_SIZE];
+TCB* DMA_SPI_TX_tcb;
 
 void DMA1_CH2_IRQHandler(void){
 
 }
 
 void DMA1_CH3_IRQHandler(void){
-    if(DMA1_Status_Reg & TCIF3){
+    if(DMA1_Status_Reg->ISR & TCIF3){
         unblock(DMA_SPI_TX_tcb);
     }else{
         dma_error_cnt++;       
@@ -34,9 +32,10 @@ void configure_dma_spi(SPI_TypeDef* SPIx){
 
     switch((uint32_t)SPIx){
         case (uint32_t)SPI1:
+
             DMA1_Init();
-            NVIC_ISER0 |= 1<<12;
-            NVIC_ISER0 |= 1<<13;
+            NVIC->ISER0 |= 1<<12;
+            NVIC->ISER0 |= 1<<13;
             
             DMA1_CH2->CPAR |= (uint32_t)&SPI1->DR;
             DMA1_CH3->CPAR |= (uint32_t)&SPI1->DR;
@@ -44,8 +43,8 @@ void configure_dma_spi(SPI_TypeDef* SPIx){
             DMA1_CH2->CCR  |= DIR_Per2Mem;
             DMA1_CH3->CCR  |= DIR_Mem2Per;
 
-            DMA1_CH2->CCR  |= TEIE|TCIE;       // Rx
-            DMA1_CH3->CCR  |= TEIE|TCIE;       // Tx
+            DMA1_CH2->CCR  |= DMA_TEIE|DMA_TCIE;       // Rx
+            DMA1_CH3->CCR  |= DMA_TEIE|DMA_TCIE;       // Tx
 
             break;
         case (uint32_t)SPI2:
@@ -57,14 +56,14 @@ void configure_dma_spi(SPI_TypeDef* SPIx){
     }
 }
 
-DMA_Transfer(DMA_TypeDef* CH, uint16_t msize, uint16_t psize, uint8_t minc, uint16_t len, uint32_t* maddr){
+void DMA_Transfer(DMA_TypeDef* CH, uint16_t msize, uint16_t psize, uint8_t minc, uint16_t len, uint32_t* maddr){
 
     CH->CCR  &= TRANSFER_MASK; 
     CH->CCR  |= msize|psize|minc;
 
     CH->CNDTR = len;
     
-    CH->CMAR  = maddr;
+    CH->CMAR  = (uint32_t)maddr;
 
     CH->CCR |= CCR_EN;
 }

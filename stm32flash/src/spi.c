@@ -38,9 +38,8 @@ void SPI1_IRQHandler(void){
 }
 
 void spi_dma_init(SPI_TypeDef* SPIx){
-    SPIx->CR2 |= 1;
-    /*SPIx->CR2 |= 2;*/
-    configure_spi(SPIx);
+    /*SPIx->CR2 |= 1;*/
+    SPIx->CR2 |= SPI_TXDMAEN;
 }
 
 void spi_enable(SPI_TypeDef* SPIx){

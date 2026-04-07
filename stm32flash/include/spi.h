@@ -8,13 +8,16 @@
 #define SPI_RX_BUF_SIZE 8
 #define SPI_TX_BUF_SIZE 8
 
-#define SPI_SSI  (1<<8)
+#define SPI_SSI    (1<<8)
 #define SPI_TXEIE  (1<<7)
 #define SPI_RXNEIE (1<<6)
 
+#define SPI_TXDMAEN 1<<1
+#define SPI_RXDMAEN 1<<0
+
 #define SPI_RXNE (1<<0)
 #define SPI_TXE  (1<<1)
-#define SPI_BSY (1<<7)
+#define SPI_BSY  (1<<7)
 
 #define DIV2 2
 #define DIV4 4

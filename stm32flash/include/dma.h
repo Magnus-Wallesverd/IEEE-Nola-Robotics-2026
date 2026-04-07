@@ -51,9 +51,9 @@
 #define DIR_Per2Mem   0
 #define DIR_Mem2Per   1<<4
 
-#define TEIE 1<<3
-#define HTIE 1<<2
-#define TCIE 1<<1
+#define DMA_TEIE 1<<3
+#define DMA_HTIE 1<<2
+#define DMA_TCIE 1<<1
 
 #define CCR_EN     1<<0
 #define CCR_OFF  ~(1<<0)
@@ -84,13 +84,13 @@ typedef struct {
 #define DMA1_CH7        ((DMA_TypeDef *)   0x40020080)
 
 #define DMA2_Status_Reg ((DMA2_Status_t *) 0x40020400)
-#define DMA1_CH1        ((DMA_TypeDef *)   0x40020408)
-#define DMA1_CH2        ((DMA_TypeDef *)   0x4002041C)
-#define DMA1_CH3        ((DMA_TypeDef *)   0x40020430)
-#define DMA1_CH4        ((DMA_TypeDef *)   0x40020444)
-#define DMA1_CH5        ((DMA_TypeDef *)   0x40020458)
+#define DMA2_CH1        ((DMA_TypeDef *)   0x40020408)
+#define DMA2_CH2        ((DMA_TypeDef *)   0x4002041C)
+#define DMA2_CH3        ((DMA_TypeDef *)   0x40020430)
+#define DMA2_CH4        ((DMA_TypeDef *)   0x40020444)
+#define DMA2_CH5        ((DMA_TypeDef *)   0x40020458)
  
 void DMA1_Init(void);
-void configure_dma_spi(SPI_TypeDef* SPIx, uint8_t dir, );
+void configure_dma_spi(SPI_TypeDef* SPIx);
 
 #endif
