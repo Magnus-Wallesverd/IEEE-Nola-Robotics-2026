@@ -36,8 +36,8 @@ yield:
     str r0, [r1]
     ISB
     DSB
-    wfi
     bx lr
+    wfi
 
 .global yield_isr
 .type yield_isr, %function

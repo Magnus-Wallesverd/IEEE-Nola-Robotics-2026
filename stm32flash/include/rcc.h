@@ -60,6 +60,12 @@
 #define UART4_EN  (1<<19)
 #define UART5_EN  (1<<20)
 
+#define SPI1_EN 1<<12 
+#define SPI2_EN 1<<14 
+#define SPI3_EN 1<<15 
+#define SPI4_EN 1<<15 
+
+
 typedef struct{
     volatile uint32_t CR;       //0x00
     volatile uint32_t CFGR;     //0x04

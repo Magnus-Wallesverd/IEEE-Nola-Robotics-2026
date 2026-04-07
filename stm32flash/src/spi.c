@@ -9,13 +9,33 @@
  * mem2per dir = 1 MAR,MSIZE,MINC
  * per2mem dir = 0 PAR,PSIZE,PINC
  * */
-// sylvia was here lol
 #include "spi.h"
+#include "ST7796S.h"
 #include "rcc.h"
 #include "gpio.h"
 #include "dma.h"
+#include "backend.h"
 
+SPI_Dev_t* SPI_Dev_p;
 
+uint8_t spi_rx_buf[SPI_RX_BUF_SIZE];
+uint8_t spi_tx_buf[SPI_TX_BUF_SIZE];
+uint32_t spi_tx_i = 0;
+uint32_t spi_counter = 0;
+
+void SPI1_IRQHandler(void){
+    
+    if(spi_tx_i < SPI_Dev_p->tx_len){
+        *((volatile uint8_t*)&SPI1->DR) = SPI_Dev_p->tx_buf[spi_tx_i++];
+        spi_counter++;
+    } else {
+        spi_tx_i = 0;
+        SPI1->CR2 &= ~SPI_TXEIE;
+    }
+
+    volatile uint8_t spi_rx = *((volatile uint8_t*)&SPI1->DR);
+    (void)spi_rx;
+}
 
 void spi_dma_init(SPI_TypeDef* SPIx){
     SPIx->CR2 |= 1;
@@ -115,45 +135,54 @@ void set_datasize(SPI_TypeDef* SPIx, uint8_t size){
 
 // init the spi
 void spi_init(SPI_TypeDef* SPIx, uint8_t ssm, uint16_t baud, uint8_t master, uint8_t cpol, uint8_t cpha){
+
     switch((uint32_t)SPIx){
+
         case (uint32_t)SPI1:
-            RCC->APB2ENR |= (1 << 12);
+            RCC->APB2ENR |= SPI1_EN;
+            NVIC->ISER1 |= 1<<3;
+            SetPinAlternate(GPIOA, PA5|PA7);
+            AlternateFunctionSet(GPIOA, PA5|PA7, 5);
             break;
+
         case (uint32_t)SPI2:
             RCC->APB1ENR |= (1 << 14);
             break;
+
         case (uint32_t)SPI3:
             RCC->APB1ENR |= (1 << 15);
             break;
+
         case (uint32_t)SPI4:
             RCC->APB2ENR |= (1 << 15);
             break;
     }
+        
         enable_ssm(SPIx, ssm);
-        fifo_threshold(SPIx);
-        set_datasize(SPIx, 16);
+        // fifo_threshold(SPIx);
+        set_datasize(SPIx, 8);
         set_baud(SPIx, baud);
         master_select(SPIx, master);
         cpol_select(SPIx, cpol);
         cpha_select(SPIx, cpha);
-        spi_dma_init(SPIx);
+        // spi_dma_init(SPIx);
         spi_enable(SPIx);
 }
 
 void send_receive_byte(SPI_TypeDef* SPIx, uint16_t twobyte){
-    GPIOA->ODR &= ~(1 << 4);
-    while(!(SPIx->SR & SPI_TXE));
-    while(!(SPIx->SR & SPI_TXE));
-    GPIOA->ODR |= (1 << 4);
+    
 }
 
 void send_receive_wrapper(void* args){
     (void)args;
 }
 
+void SPI_tx(void* args){
+    (void)args;
+}
+
 void send_receive_dma_wrapper(void* args){
     (void)args;
-    send_receive_byte(SPI1, 0xAAAA);
 }
 
 void dma_send_receive(void){

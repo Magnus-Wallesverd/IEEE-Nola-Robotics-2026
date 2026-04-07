@@ -22,6 +22,10 @@ void flag_wait(TCB* tcb);
 
 void flag_post(TCB* tcb);
 
+void idle_task(void* args);
+
+void task_wait(uint32_t ticks);
+
 extern uint32_t kernel_unblock_counter;
 
 #endif // !LOCK_H

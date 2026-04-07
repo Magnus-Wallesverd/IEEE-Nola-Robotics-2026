@@ -4,9 +4,12 @@
 #include "usart.h"
 #include "lcd.h"
 #include "i2c.h"
+#include "spi.h"
+#include "lock.h"
 #include "motors.h"
 #include "parser.h"
 #include "statemachine.h"
+#include "ST7796S.h"
 
 queue_t task_queue;
 queue_t* task_queue_ptr = &task_queue;
@@ -35,9 +38,11 @@ void* priority_queue_array[TASK_QUEUE_SIZE];
 
 // should start thinking of easier ways to get functions in here
 const func_t fn_table[] = {
-    Sensor_Read_Wrapper,
-    sm_main,
-    motor_handler,
+    ST7796S_init,
+    idle_task
+    // Sensor_Read_Wrapper,
+    // sm_main,
+    // motor_handler,
     // usart_state_update,
     // transport_handler,
     // // lcd_print,

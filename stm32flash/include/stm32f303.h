@@ -25,5 +25,7 @@
 #include "usart.h"
 #include "semaphore.h"
 #include "parser.h"
+#include "spi.h"
+#include "ST7796S.h"
 
 #endif

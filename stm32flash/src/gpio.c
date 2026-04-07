@@ -8,6 +8,7 @@
  */
 
 #include "gpio.h"
+#include "lock.h"
 
 // mask to clear upper 16 bits since there are max 16 pins
 const uint16_t masklow = 0xFFFF;
@@ -161,10 +162,13 @@ void AlternateFunctionSet(GPIO_TypeDef *port, uint32_t pins, uint32_t function){
 // flicker led
 void blink_led(void* args){
     (void)args;
-    PinWrite(GPIOA, 0x20);
-    for(volatile int i = 0; i < 5000; i++);
-    ResetPins(GPIOA, 0x20);
-    for(volatile int i = 0; i < 5000; i++);
+    while(1){
+        PinWrite(GPIOA, 0x20);
+        for(volatile int i = 0; i < 5000; i++);
+        ResetPins(GPIOA, 0x20);
+        for(volatile int i = 0; i < 5000; i++);
+        yield();
+    }
 }
 
 // flicker led

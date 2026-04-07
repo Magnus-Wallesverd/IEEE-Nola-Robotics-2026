@@ -23,6 +23,13 @@ void flag_post(TCB* tcb){
     tcb->flags++;
 }
 
+void task_wait(uint32_t ticks){
+    uint32_t t0 = get_global_tick();
+    while(get_global_tick() < ticks + t0){
+        yield();
+    }
+}
+
 void idle_task(void* args){
     (void) args;
     while(1);
