@@ -5,19 +5,23 @@
 
 #include <stdint.h>
 
-#define SPI_RX_BUF_SIZE 8
-#define SPI_TX_BUF_SIZE 8
+#define SPI_EN 1<<6 
+#define SPI_OFF ~(1<<6)
 
 #define SPI_SSI    (1<<8)
 #define SPI_TXEIE  (1<<7)
 #define SPI_RXNEIE (1<<6)
 
+#define SPI_FRXTH_B   1<<12
+#define SPI_FRXTH_HW  ~(1<<12)
 #define SPI_TXDMAEN 1<<1
 #define SPI_RXDMAEN 1<<0
 
-#define SPI_RXNE (1<<0)
-#define SPI_TXE  (1<<1)
-#define SPI_BSY  (1<<7)
+#define SPI_RXNE  (1<<0)
+#define SPI_TXE   (1<<1)
+#define SPI_BSY   (1<<7)
+#define SPI_FRLVL (3<<9)
+#define SPI_FTLVL (3<<11)
 
 #define DIV2 2
 #define DIV4 4
@@ -63,6 +67,13 @@ void spi_reset(SPI_TypeDef* SPIx);
 
 void send_receive_wrapper(void* args);
 
-void SPI_tx(void* args);
+void spi_enable(SPI_TypeDef* SPIx);
+
+void disable_spi(SPI_TypeDef* SPIx);
+
+static void set_datasize(SPI_TypeDef* SPIx, uint8_t size);
+
+// to be used to change the datasize for pixel data
+void change_datasize(SPI_TypeDef* SPIx, uint8_t size);
 
 #endif // !SPI_H

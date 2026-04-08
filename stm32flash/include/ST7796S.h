@@ -33,21 +33,21 @@
 #define COLMOD  0x3A
 #define RGB565  0x55
 
+#define RED         0xF800
+#define ORANGE      0xFBE0
+#define AMBER       0xDC40
+#define YELLOW      0xFFE0
+#define SAGE        0x8DD0
+#define GREEN       0xE007
+#define D_GREEN     0x0902
+#define MINT        0x67EC
 #define E_BLUE      0xE318
 #define CORAL       0xF3A9
-#define MINT        0x67EC
-#define SAGE        0x8DD0
-#define SLATE       0x24FF
-#define RED         0xF800
-#define YELLOW      0xFFE0
-#define ORANGE      0xFBE0
-#define GREEN       0xE007
-#define AMBER       0xDC40
-#define BLACK       0x0000
+#define NAVY        0x0844
 #define OFF_WHITE   0xFFDD
 #define WHITE       0xFFFF
-#define D_GREEN     0x0902
-#define NAVY        0x0844
+#define SLATE       0x24FF
+#define BLACK       0x0000
 
 void ST7796S_setup(SPI_TypeDef* SPIx);
 void ST7796S_init(void* args);

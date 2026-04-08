@@ -7,7 +7,7 @@
 #include "spi.h"
 #include "lock.h"
 #include "motors.h"
-#include "parser.h"
+#include "dma.h"
 #include "statemachine.h"
 #include "ST7796S.h"
 
@@ -36,43 +36,11 @@ void* motor_queue_array[MOTOR_QUEUE_SIZE];
 void* ready_queue_array[TASK_QUEUE_SIZE];
 void* priority_queue_array[TASK_QUEUE_SIZE];
 
-// should start thinking of easier ways to get functions in here
 const func_t fn_table[] = {
-    ST7796S_init,
+    /*ST7796S_init,*/
+    DMA_Wrapper,
     idle_task
-    // Sensor_Read_Wrapper,
-    // sm_main,
-    // motor_handler,
-    // usart_state_update,
-    // transport_handler,
-    // // lcd_print,
-    // usart_begin,
-
-    // relative_pos
 };
-
-// const motor_t motor_table[] = {
-//     step3,
-//     rotate3,
-//     step3,
-//     rotate3,
-//     step3,
-//     rotate3,
-//     step3,
-//     rotate3,
-// };
-//
-// const motor_payload motor_payload_table[] = {
-//     {.args = 60,  .speed = 2},
-//     {.args = 1440,  .speed = 1},
-//     {.args = 60,  .speed = 2},
-//     {.args = 2880,  .speed = 1},
-//     {.args = 60,  .speed = 2},
-//     {.args = 0xffc44320,  .speed = 1},
-//     {.args = 60,  .speed = 2},
-//     {.args = 0,  .speed = 1},
-//
-// };
 
 void task_queue_init(void){
     task_queue_ptr->array = task_queue_array;

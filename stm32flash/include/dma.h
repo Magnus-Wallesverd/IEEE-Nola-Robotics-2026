@@ -92,5 +92,8 @@ typedef struct {
  
 void DMA1_Init(void);
 void configure_dma_spi(SPI_TypeDef* SPIx);
+void DMA_Transfer(DMA_TypeDef* CH, uint16_t msize, uint16_t psize, uint8_t minc, uint16_t len, uint32_t* maddr);
+void DMA_TXRX_Transfer(DMA_TypeDef* CH_RX, DMA_TypeDef* CH_TX, uint16_t msize, uint16_t psize, uint8_t minc_rx, uint8_t minc_tx, uint16_t len, uint32_t* maddr_rx, uint32_t* maddr_tx);
+void DMA_Wrapper(void* args);
 
 #endif

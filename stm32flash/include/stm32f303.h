@@ -17,6 +17,7 @@
 #include "gpio.h"
 #include "timx.h"
 #include "rcc.h"
+#include "dma.h"
 #include "exti.h"
 #include "syscfg.h"
 #include "lcd.h"

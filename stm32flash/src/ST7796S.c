@@ -2,6 +2,24 @@
 #include "lock.h"
 #include "queue.h"
 
+uint16_t colors[] = { 
+
+    RED,
+    ORANGE,   
+    AMBER,    
+    YELLOW,   
+    SAGE,     
+    GREEN,    
+    D_GREEN,  
+    MINT,     
+    E_BLUE,   
+    CORAL,    
+    NAVY,     
+    OFF_WHITE,
+    WHITE,    
+    SLATE,    
+    BLACK,    
+};
 
 work_item_t fill_screen = {
     .fn = lcd_demo
@@ -51,59 +69,53 @@ void ST7796S_init(void* args){
     lcd_write_data_byte(MV|RGB);
     lcd_end();
 
-    enqueue(task_queue_ptr, &fill_screen);
+    /*enqueue(task_queue_ptr, &fill_screen);*/
 }
 
 void lcd_start(void){
     CS_LOW();
 }
 
-void lcd_write_cmd(uint8_t cmd){
+void lcd_wait(void){
     while(ST7796S.SPIx->CR2 & SPI_TXEIE);
+    while(ST7796S.SPIx->SR & SPI_BSY);
+}
+
+void lcd_write_cmd(uint8_t cmd){
+
+    lcd_wait();
+     
     lcd_cmd = cmd;
     SPI_Dev_p->tx_buf = &lcd_cmd;
     SPI_Dev_p->tx_len = 1;
 
     DC_CMD();
     ST7796S.SPIx->CR2 |= SPI_TXEIE;
-
-    /*while(!(ST7796S.SPIx->SR & SPI_TXE));*/
-    /*SPI_Dev_p->SPIx->DR = cmd;*/
-    /*volatile uint8_t spi_rx = *((volatile uint8_t*)&SPI1->DR);*/
-    /*(void)spi_rx;*/
-    while(ST7796S.SPIx->CR2 & SPI_TXEIE);
-    while(ST7796S.SPIx->SR & SPI_BSY);
 }
 
-void lcd_write_data(uint8_t* pdata, uint16_t tx_len){
-    while(ST7796S.SPIx->CR2 & SPI_TXEIE);
-    ST7796S.tx_buf = pdata;
-    ST7796S.tx_len = tx_len;
+void lcd_dma_stream(uint16_t* pdata, uint16_t tx_len){
+    
+    lcd_wait();
+
 
     DC_DATA();
 
-    ST7796S.SPIx->CR2 |= SPI_TXEIE;
-
-    while(ST7796S.SPIx->CR2 & SPI_TXEIE);
-    while(ST7796S.SPIx->SR & SPI_BSY);
 }
 
 void lcd_write_data_byte(uint8_t data){
-    while(ST7796S.SPIx->CR2 & SPI_TXEIE);
+    lcd_wait();
+
     lcd_data = data;
     SPI_Dev_p->tx_buf = &lcd_data;
     SPI_Dev_p->tx_len = 1;
 
     DC_DATA();
-    ST7796S.SPIx->CR2 |= SPI_TXEIE;
-    while(ST7796S.SPIx->CR2 & SPI_TXEIE);
-    while(ST7796S.SPIx->SR & SPI_BSY);
 
+    ST7796S.SPIx->CR2 |= SPI_TXEIE;
 }
 
 void lcd_end(void){
-    while(ST7796S.SPIx->CR2 & SPI_TXEIE);
-    while(ST7796S.SPIx->SR & SPI_BSY);
+    lcd_wait();
     CS_HIGH();
 }
 
@@ -127,10 +139,11 @@ void lcd_draw_rect(uint16_t Xs, uint16_t Xe, uint16_t Ys, uint16_t Ye, uint16_t 
     lcd_write_data(data_buf, 4);
     
     lcd_write_cmd(RAMWR);
-    for(uint32_t i = 0; i < (uint32_t)((Xe-Xs+1)*(Ye-Ys+1)); i++){
-        lcd_write_data_byte(color >> 8);      
-        lcd_write_data_byte(color & 0xFF);        
-    }
+    lcd_dma_stream(&colors[RED],1);
+    /*for(uint32_t i = 0; i < (uint32_t)((Xe-Xs+1)*(Ye-Ys+1)); i++){*/
+    /*    lcd_write_data_byte(color >> 8);      */
+    /*    lcd_write_data_byte(color & 0xFF);        */
+    /*}*/
 
     lcd_end();
 }
