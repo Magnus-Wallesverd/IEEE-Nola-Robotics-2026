@@ -19,13 +19,11 @@
 SPI_Dev_t* SPI_Dev_p;
 
 uint32_t spi_tx_i = 0;
-uint32_t spi_counter = 0;
 
 void SPI1_IRQHandler(void){
     
     if(spi_tx_i < SPI_Dev_p->tx_len){
         *((volatile uint8_t*)&SPI1->DR) = SPI_Dev_p->tx_buf[spi_tx_i++];
-        spi_counter++;
     } else {
         spi_tx_i = 0;
         SPI1->CR2 &= ~SPI_TXEIE;
@@ -145,6 +143,7 @@ void set_datasize(SPI_TypeDef* SPIx, uint8_t size){
         SPIx->CR2 &= SPI_FRXTH_HW;
     }
 
+    SPIx->CR2 &= 0xF0FF;  //mask data size
     SPIx->CR2 |= ((size-1)<<8);  // datasize bits
     
 

@@ -28,7 +28,7 @@ void systeminit(void){
 
     // usart_init(USART1, GPIOC,PC4|PC5,115200);
     // I2C_Init(I2C1, 0);
-    spi_init(SPI1, 1, DIV8, 1, 0, 0);
+    spi_init(SPI1, 1, DIV4, 1, 0, 0);
     configure_dma_spi((uint32_t)SPI1);
 
     ST7796S_setup(SPI1);

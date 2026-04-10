@@ -3,7 +3,6 @@
 #include "queue.h"
 
 uint16_t colors[] = { 
-
     RED,
     ORANGE,   
     AMBER,    
@@ -17,7 +16,6 @@ uint16_t colors[] = {
     NAVY,     
     OFF_WHITE,
     WHITE,    
-    SLATE,    
     BLACK,    
 };
 
@@ -77,13 +75,14 @@ void ST7796S_init(void* args){
     enqueue(task_queue_ptr, &fill_screen);
 }
 
-void lcd_start(void){
-    CS_LOW();
-}
-
 void lcd_wait(void){
     while(ST7796S.SPIx->CR2 & SPI_TXEIE);
     while(ST7796S.SPIx->SR & SPI_BSY);
+}
+
+void lcd_start(void){
+    lcd_wait();
+    CS_LOW();
 }
 
 void lcd_write_cmd(uint8_t cmd){
@@ -108,6 +107,7 @@ void lcd_dma_stream(uint16_t* pdata, uint32_t tx_len, uint8_t minc_tx){
     DC_DATA();
 
     while(tx_len){
+        lcd_wait();
         if(tx_len > MAX_TRANSFER){
             DMA_TXRX_Transfer(ST7796S.CH_RX, ST7796S.CH_TX, MSIZE_HW, PSIZE_HW, MINC_OFF, minc_tx, MAX_TRANSFER, &dummy, pdata);
             tx_len -= MAX_TRANSFER;
@@ -116,6 +116,8 @@ void lcd_dma_stream(uint16_t* pdata, uint32_t tx_len, uint8_t minc_tx){
             tx_len -= tx_len;
         }
     }
+    change_datasize(ST7796S.SPIx, CMD_WIDTH);
+
 }
 
 void lcd_write_data(uint8_t* pdata, uint16_t tx_len){
@@ -127,6 +129,7 @@ void lcd_write_data(uint8_t* pdata, uint16_t tx_len){
 
     DC_DATA();
 
+    ST7796S.SPIx->CR2 |= SPI_TXEIE;
 }
 
 void lcd_write_data_byte(uint8_t data){
@@ -181,24 +184,15 @@ void lcd_draw_rect(uint16_t Xs, uint16_t Xe, uint16_t Ys, uint16_t Ye, uint16_t*
 void lcd_demo(void* args){
     (void) args;
 
-    /*lcd_draw_rect(0, (WIDTH) - 1, 0, (HEIGHT)-1, &red);*/
-    lcd_draw_rect(100,  110, 0, 400, &colors[2]);
-    // background
-/*    lcd_draw_rect(0, (WIDTH) - 1, 0, (HEIGHT)-1, D_GREEN);*/
-/**/
-/*    // top left */
-/*    lcd_draw_rect(BORDER, (WIDTH/2)- 1 - BORDER/2, BORDER, (UI_ROW_H1)-1-BORDER/2, OFF_WHITE);*/
-/**/
-/*    //top right*/
-/*    lcd_draw_rect((WIDTH/2)-1+BORDER/2, (WIDTH) - 1-BORDER, BORDER, (UI_ROW_H1)-1-BORDER/2, OFF_WHITE);*/
-/**/
-/*    // middle left*/
-/*    lcd_draw_rect(BORDER, (WIDTH/2)-1-BORDER/2, UI_ROW_H1-1+BORDER/2, UI_ROW_H2-1-BORDER/2, OFF_WHITE);*/
-/**/
-/*    // middle right*/
-/*    lcd_draw_rect((WIDTH/2)-1+BORDER/2, (WIDTH)-1-BORDER, UI_ROW_H1-1+BORDER/2, UI_ROW_H2-1-BORDER/2, OFF_WHITE);*/
-/**/
-/*    //bottom center*/
-/*    lcd_draw_rect(BORDER+PAD, (WIDTH)-1-BORDER-PAD, UI_ROW_H2-1+BORDER/2, HEIGHT - BORDER+1, OFF_WHITE);*/
-/**/
+    lcd_draw_rect(0, (WIDTH) - 1, 0, (HEIGHT)-1, &colors[12]);
+
+    lcd_draw_rect(UI_COL_W1-1, UI_COL_W1-1 + BORDER/2, 0, (HEIGHT)-1, &colors[13]);
+
+    lcd_draw_rect(UI_COL_W2-1, UI_COL_W2-1 + BORDER/2, 0, (HEIGHT)-1, &colors[13]);
+
+    lcd_draw_rect(0, UI_COL_W1-1, UI_ROW_H1-1, UI_ROW_H1-1+BORDER/2, &colors[13]);
+
+    lcd_draw_rect(0, UI_COL_W1-1, UI_ROW_H2-1, UI_ROW_H2-1+BORDER/2, &colors[13]);
+
+    lcd_draw_rect(UI_COL_W1-1+BORDER/2, WIDTH-1, HEIGHT/2-1, HEIGHT/2-1+BORDER/2, &colors[13]);
 }

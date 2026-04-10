@@ -12,14 +12,18 @@
 #define DC_CMD() GPIOA->BSRR |= 1<<(16+6)
 #define DC_DATA() GPIOA->BSRR |= 1<<6
 
+#define CMD_WIDTH 8
 #define PIXEL_WIDTH 16
 
 #define HEIGHT      320 
 #define WIDTH       480
-#define BORDER      9
-#define UI_ROW_H1   160
-#define UI_ROW_H2   267
+#define BORDER      7
+#define UI_ROW_H1   107
+#define UI_ROW_H2   214
 #define PAD         120
+
+#define UI_COL_W1   160
+#define UI_COL_W2   320
 
 #define SWRESET 0x01
 #define SLPIN   0x10
