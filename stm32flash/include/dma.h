@@ -1,7 +1,6 @@
 #ifndef DMA_H
 #define DMA_H
 
-#include "spi.h"
 #include "rcc.h"
 
 #include <stdint.h>
@@ -40,8 +39,8 @@
 #define MSIZE_W     2<<10
 
 #define PSIZE_B     0 
-#define PSIZE_HW    1<<10
-#define PSIZE_W     2<<10
+#define PSIZE_HW    1<<8
+#define PSIZE_W     2<<8
 
 #define MINC_EN    1<<7
 #define MINC_OFF   0
@@ -61,12 +60,18 @@
 #define TRANSFER_MASK 0xF01E
 #define MAX_TRANSFER  0xFFFF
 
+#define SPI1_ADDR 0x40013000
+#define SPI2_ADDR 0x40003800
+#define SPI3_ADDR 0x40003C00
+#define SPI4_ADDR 0x40013C00
+#define DATA_REG_OFFSET 0xC
+
 typedef struct{
     volatile uint32_t ISR;          //0x00
     volatile uint32_t IFCR;         //0x04
 } DMA_Status_t;
 
-typedef struct {
+typedef struct DMA_Channel{
     volatile uint32_t CCR;         //0x08
     volatile uint32_t CNDTR;       //0X0C
     volatile uint32_t CPAR;        //0x10
@@ -91,9 +96,9 @@ typedef struct {
 #define DMA2_CH5        ((DMA_TypeDef *)   0x40020458)
  
 void DMA1_Init(void);
-void configure_dma_spi(SPI_TypeDef* SPIx);
+void configure_dma_spi(uint32_t spi_addr);
 void DMA_Transfer(DMA_TypeDef* CH, uint16_t msize, uint16_t psize, uint8_t minc, uint16_t len, uint32_t* maddr);
-void DMA_TXRX_Transfer(DMA_TypeDef* CH_RX, DMA_TypeDef* CH_TX, uint16_t msize, uint16_t psize, uint8_t minc_rx, uint8_t minc_tx, uint16_t len, uint32_t* maddr_rx, uint32_t* maddr_tx);
+void DMA_TXRX_Transfer(DMA_TypeDef* CH_RX, DMA_TypeDef* CH_TX, uint16_t msize, uint16_t psize, uint8_t minc_rx, uint8_t minc_tx, uint16_t len, uint16_t* maddr_rx, uint16_t* maddr_tx);
 void DMA_Wrapper(void* args);
 
 #endif

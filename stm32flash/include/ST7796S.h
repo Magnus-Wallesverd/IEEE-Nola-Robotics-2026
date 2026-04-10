@@ -4,6 +4,7 @@
 #include <stdint.h>
 #include "gpio.h"
 #include "spi.h"
+#include "dma.h"
 
 #define RST_HIGH() GPIOA->BSRR |= 1<<1
 #define CS_LOW() GPIOA->BSRR |= 1<<(16+4)
@@ -11,7 +12,7 @@
 #define DC_CMD() GPIOA->BSRR |= 1<<(16+6)
 #define DC_DATA() GPIOA->BSRR |= 1<<6
 
-#define DATA_BUFFER_SIZE 16
+#define PIXEL_WIDTH 16
 
 #define HEIGHT      320 
 #define WIDTH       480
@@ -38,7 +39,7 @@
 #define AMBER       0xDC40
 #define YELLOW      0xFFE0
 #define SAGE        0x8DD0
-#define GREEN       0xE007
+#define GREEN       0x07E0
 #define D_GREEN     0x0902
 #define MINT        0x67EC
 #define E_BLUE      0xE318

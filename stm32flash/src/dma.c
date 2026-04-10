@@ -41,22 +41,20 @@ void DMA1_CH3_IRQHandler(void){
 
 void DMA1_Init(void){
     RCC->AHBENR |= DMA1_EN;
-    //NVIC_ISERn |= ;
-    //NVIC_IPRn |= ;
 }
 
-void configure_dma_spi(SPI_TypeDef* SPIx){
+void configure_dma_spi(uint32_t spi_addr){
 
 
-    switch((uint32_t)SPIx){
-        case (uint32_t)SPI1:
+    switch(spi_addr){
+        case SPI1_ADDR:
 
             DMA1_Init();
             NVIC->ISER0 |= 1<<12;
             NVIC->ISER0 |= 1<<13;
             
-            DMA1_CH2->CPAR |= (uint32_t)&SPIx->DR;
-            DMA1_CH3->CPAR |= (uint32_t)&SPIx->DR;
+            DMA1_CH2->CPAR |= spi_addr + DATA_REG_OFFSET;
+            DMA1_CH3->CPAR |= spi_addr + DATA_REG_OFFSET;
 
             DMA1_CH2->CCR  |= DIR_Per2Mem;
             DMA1_CH3->CCR  |= DIR_Mem2Per;
@@ -65,11 +63,11 @@ void configure_dma_spi(SPI_TypeDef* SPIx){
             DMA1_CH3->CCR  |= DMA_TEIE|DMA_TCIE;       // Tx
 
             break;
-        case (uint32_t)SPI2:
+        case SPI2_ADDR:
             break;
-        case (uint32_t)SPI3:
+        case SPI3_ADDR:
             break;
-        case (uint32_t)SPI4:
+        case SPI4_ADDR:
             break;
     }
 }
@@ -95,7 +93,7 @@ void DMA_Transfer(DMA_TypeDef* CH, uint16_t msize, uint16_t psize, uint8_t minc,
     CH->CCR |= CCR_EN;
 }
 
-void DMA_TXRX_Transfer(DMA_TypeDef* CH_RX, DMA_TypeDef* CH_TX, uint16_t msize, uint16_t psize, uint8_t minc_rx, uint8_t minc_tx, uint16_t len, uint32_t* maddr_rx, uint32_t* maddr_tx){
+void DMA_TXRX_Transfer(DMA_TypeDef* CH_RX, DMA_TypeDef* CH_TX, uint16_t msize, uint16_t psize, uint8_t minc_rx, uint8_t minc_tx, uint16_t len, uint16_t* maddr_rx, uint16_t* maddr_tx){
     
     CH_RX->CCR  &= TRANSFER_MASK; 
     CH_RX->CCR  |= msize|psize|minc_rx;
@@ -114,5 +112,5 @@ void DMA_TXRX_Transfer(DMA_TypeDef* CH_RX, DMA_TypeDef* CH_TX, uint16_t msize, u
 void DMA_Wrapper(void* args){
     (void)args;
 
-    DMA_TXRX_Transfer(DMA1_CH2, DMA1_CH3, MSIZE_B, PSIZE_B, MINC_OFF, MINC_OFF, 0xFFFF, &rx_byte, &tx_byte);
+    /*DMA_TXRX_Transfer(DMA1_CH2, DMA1_CH3, MSIZE_B, PSIZE_B, MINC_OFF, MINC_OFF, 0xFFFF, &rx_byte, &tx_byte);*/
 }

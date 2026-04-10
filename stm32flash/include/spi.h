@@ -5,6 +5,8 @@
 
 #include <stdint.h>
 
+#include "dma.h"
+
 #define SPI_EN 1<<6 
 #define SPI_OFF ~(1<<6)
 
@@ -32,7 +34,9 @@
 #define DIV128 128
 #define DIV256 256
 
-typedef struct{
+struct DMA_Channel;
+
+typedef struct SPIx{
     volatile uint32_t CR1;      // 0x00
     volatile uint32_t CR2;      // 0x04
     volatile uint32_t SR;       // 0x08
@@ -46,6 +50,8 @@ typedef struct{
 
 typedef struct {
     SPI_TypeDef* SPIx;
+    struct DMA_Channel* CH_RX;
+    struct DMA_Channel* CH_TX;
     uint8_t* rx_buf;
     uint16_t rx_len;
     uint8_t* tx_buf;

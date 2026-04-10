@@ -13,7 +13,6 @@
 #include "ST7796S.h"
 #include "rcc.h"
 #include "gpio.h"
-#include "dma.h"
 #include "backend.h"
 #include "lock.h"
 

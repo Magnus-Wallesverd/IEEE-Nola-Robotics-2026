@@ -37,8 +37,8 @@ void* ready_queue_array[TASK_QUEUE_SIZE];
 void* priority_queue_array[TASK_QUEUE_SIZE];
 
 const func_t fn_table[] = {
-    /*ST7796S_init,*/
-    DMA_Wrapper,
+    ST7796S_init,
+    /*DMA_Wrapper,*/
     idle_task
 };
 
