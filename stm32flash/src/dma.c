@@ -72,15 +72,6 @@ void configure_dma_spi(uint32_t spi_addr){
     }
 }
 
-/*1. Configure SPI (once)*/
-/*2. Configure DMA channel (once)*/
-/*3. For each transfer:*/
-/*    - set CMAR (buffer)*/
-/*    - set CNDTR (length)*/
-/*    - enable TXDMAEN*/
-/*    - enable DMA channel*/
-/*4. Transfer runs automatically*/
-
 void DMA_Transfer(DMA_TypeDef* CH, uint16_t msize, uint16_t psize, uint8_t minc, uint16_t len, uint32_t* maddr){
 
     CH->CCR  &= TRANSFER_MASK; 
@@ -111,6 +102,4 @@ void DMA_TXRX_Transfer(DMA_TypeDef* CH_RX, DMA_TypeDef* CH_TX, uint16_t msize, u
 
 void DMA_Wrapper(void* args){
     (void)args;
-
-    /*DMA_TXRX_Transfer(DMA1_CH2, DMA1_CH3, MSIZE_B, PSIZE_B, MINC_OFF, MINC_OFF, 0xFFFF, &rx_byte, &tx_byte);*/
 }

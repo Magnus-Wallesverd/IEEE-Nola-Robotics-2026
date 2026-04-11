@@ -1,6 +1,8 @@
 #include "ST7796S.h"
 #include "lock.h"
 #include "queue.h"
+#include "gfx.h"
+#include "testfont.h"
 
 uint16_t colors[] = { 
     RED,
@@ -13,13 +15,24 @@ uint16_t colors[] = {
     MINT,     
     E_BLUE,   
     CORAL,    
+    BLUE_GREY,
     NAVY,     
     OFF_WHITE,
     WHITE,    
-    BLACK,    
+    BLACK    
 };
 
-uint16_t red = 0xF800;
+bmp_t fill = {
+    &colors[0],
+    0,
+    MINC_OFF
+};
+
+bmp_t font = {
+    num_1,
+    FONT_AREA,
+    MINC_EN
+};
 
 work_item_t fill_screen = {
     .fn = lcd_demo
@@ -97,7 +110,8 @@ void lcd_write_cmd(uint8_t cmd){
     ST7796S.SPIx->CR2 |= SPI_TXEIE;
 }
 
-void lcd_dma_stream(uint16_t* pdata, uint32_t tx_len, uint8_t minc_tx){
+void lcd_dma_stream(bmp_t* bmp){
+
     lcd_wait();
 
     uint16_t dummy;
@@ -106,18 +120,17 @@ void lcd_dma_stream(uint16_t* pdata, uint32_t tx_len, uint8_t minc_tx){
 
     DC_DATA();
 
-    while(tx_len){
+    while(bmp->size){
         lcd_wait();
-        if(tx_len > MAX_TRANSFER){
-            DMA_TXRX_Transfer(ST7796S.CH_RX, ST7796S.CH_TX, MSIZE_HW, PSIZE_HW, MINC_OFF, minc_tx, MAX_TRANSFER, &dummy, pdata);
-            tx_len -= MAX_TRANSFER;
+        if(bmp->size > MAX_TRANSFER){
+            DMA_TXRX_Transfer(ST7796S.CH_RX, ST7796S.CH_TX, MSIZE_HW, PSIZE_HW, MINC_OFF, bmp->minc, MAX_TRANSFER, &dummy, bmp->addr);
+            bmp->size -= MAX_TRANSFER;
         } else {
-            DMA_TXRX_Transfer(ST7796S.CH_RX, ST7796S.CH_TX, MSIZE_HW, PSIZE_HW, MINC_OFF, minc_tx, tx_len, &dummy, pdata);
-            tx_len -= tx_len;
+            DMA_TXRX_Transfer(ST7796S.CH_RX, ST7796S.CH_TX, MSIZE_HW, PSIZE_HW, MINC_OFF, bmp->minc, bmp->size, &dummy, bmp->addr);
+            bmp->size -= bmp->size;
         }
     }
     change_datasize(ST7796S.SPIx, CMD_WIDTH);
-
 }
 
 void lcd_write_data(uint8_t* pdata, uint16_t tx_len){
@@ -149,9 +162,14 @@ void lcd_end(void){
     CS_HIGH();
 }
 
-void lcd_draw_rect(uint16_t Xs, uint16_t Xe, uint16_t Ys, uint16_t Ye, uint16_t* bmp){
+void set_rect_color(uint16_t color, bmp_t bmp){
+    
+}
+
+void lcd_draw_rect(uint16_t Xs, uint16_t Xe, uint16_t Ys, uint16_t Ye, bmp_t* bmp){
     
     uint32_t rect_area = (Xe-Xs+1)*(Ye-Ys+1);
+    bmp->size = rect_area;
 
     data_buf[0] = Xs >> 8;
     data_buf[1] = Xs & 0xFF;
@@ -171,28 +189,28 @@ void lcd_draw_rect(uint16_t Xs, uint16_t Xe, uint16_t Ys, uint16_t Ye, uint16_t*
     lcd_write_data(data_buf, 4);
     
     lcd_write_cmd(RAMWR);
-    lcd_dma_stream(bmp, rect_area, MINC_OFF);
-
-    /*for(uint32_t i = 0; i < (uint32_t)((Xe-Xs+1)*(Ye-Ys+1)); i++){*/
-    /*    lcd_write_data_byte(color >> 8);      */
-    /*    lcd_write_data_byte(color & 0xFF);        */
-    /*}*/
+    lcd_dma_stream(bmp);
 
     lcd_end();
 }
 
 void lcd_demo(void* args){
     (void) args;
+    /*fill.addr = &colors[2];*/
+    /*lcd_draw_rect(0, (WIDTH) - 1, 0, (HEIGHT)-1, &fill);*/
 
-    lcd_draw_rect(0, (WIDTH) - 1, 0, (HEIGHT)-1, &colors[12]);
+    fill.addr = &colors[5];
+    lcd_draw_rect(0, (WIDTH) - 1, 0, (HEIGHT)-1, &fill);
 
-    lcd_draw_rect(UI_COL_W1-1, UI_COL_W1-1 + BORDER/2, 0, (HEIGHT)-1, &colors[13]);
+    lcd_draw_rect(0, (8) - 1, 0, (12)-1, &font);
 
-    lcd_draw_rect(UI_COL_W2-1, UI_COL_W2-1 + BORDER/2, 0, (HEIGHT)-1, &colors[13]);
+    /*lcd_draw_rect(UI_COL_W1-1, UI_COL_W1-1 + BORDER/2, 0, (HEIGHT)-1, &colors[14]);*/
 
-    lcd_draw_rect(0, UI_COL_W1-1, UI_ROW_H1-1, UI_ROW_H1-1+BORDER/2, &colors[13]);
+    /*lcd_draw_rect(UI_COL_W2-1, UI_COL_W2-1 + BORDER/2, 0, (HEIGHT)-1, &colors[14]);*/
 
-    lcd_draw_rect(0, UI_COL_W1-1, UI_ROW_H2-1, UI_ROW_H2-1+BORDER/2, &colors[13]);
+    /*lcd_draw_rect(0, UI_COL_W1-1, UI_ROW_H1-1, UI_ROW_H1-1+BORDER/2, &colors[14]);*/
 
-    lcd_draw_rect(UI_COL_W1-1+BORDER/2, WIDTH-1, HEIGHT/2-1, HEIGHT/2-1+BORDER/2, &colors[13]);
+    /*lcd_draw_rect(0, UI_COL_W1-1, UI_ROW_H2-1, UI_ROW_H2-1+BORDER/2, &colors[14]);*/
+
+    /*lcd_draw_rect(UI_COL_W1-1+BORDER/2, WIDTH-1, HEIGHT/2-1, HEIGHT/2-1+BORDER/2, &colors[14]);*/
 }

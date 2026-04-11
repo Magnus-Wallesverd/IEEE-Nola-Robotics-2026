@@ -48,6 +48,7 @@
 #define MINT        0x67EC
 #define E_BLUE      0xE318
 #define CORAL       0xF3A9
+#define BLUE_GREY   0x6310
 #define NAVY        0x0844
 #define OFF_WHITE   0xFFDD
 #define WHITE       0xFFFF

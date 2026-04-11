@@ -22,7 +22,13 @@ int32_t abs_32(int32_t value){
     return value;
 }
 
-
+int32_t pow(uint32_t num, uint8_t times){
+    int32_t temp = num;
+    for(int i = 0; i < times; ++i){
+        temp *= num;
+    }
+    return temp;
+}
 
 
 
