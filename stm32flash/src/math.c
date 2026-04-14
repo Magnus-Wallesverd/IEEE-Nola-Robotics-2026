@@ -24,7 +24,7 @@ int32_t abs_32(int32_t value){
 
 int32_t pow(uint32_t num, uint8_t times){
     int32_t temp = num;
-    for(int i = 0; i < times; ++i){
+    for(int i = 0; i < times-1; ++i){
         temp *= num;
     }
     return temp;

@@ -29,7 +29,7 @@ bmp_t fill = {
 };
 
 bmp_t font = {
-    num_1,
+    0,
     FONT_AREA,
     MINC_EN
 };
@@ -194,23 +194,141 @@ void lcd_draw_rect(uint16_t Xs, uint16_t Xe, uint16_t Ys, uint16_t Ye, bmp_t* bm
     lcd_end();
 }
 
+void lcd_printf(bmp_t* b, char* string, uint8_t scale){
+    
+    for(int i = 0; string[i] != '\0';++i){
+
+        /*bmp_size_up(b->addr = alpha[i], scale);*/
+        
+    }
+
+
+}
+
 void lcd_demo(void* args){
     (void) args;
-    /*fill.addr = &colors[2];*/
-    /*lcd_draw_rect(0, (WIDTH) - 1, 0, (HEIGHT)-1, &fill);*/
+    uint8_t scale = 4;
 
-    fill.addr = &colors[5];
+    fill.addr = &colors[13];
     lcd_draw_rect(0, (WIDTH) - 1, 0, (HEIGHT)-1, &fill);
 
-    lcd_draw_rect(0, (8) - 1, 0, (12)-1, &font);
+    fill.addr = &colors[14];
+    lcd_draw_rect(UI_COL_W1-1, UI_COL_W1-1 + BORDER/2, 0, (HEIGHT)-1, &fill);
+    lcd_draw_rect(UI_COL_W2-1, UI_COL_W2-1 + BORDER/2, 0, (HEIGHT)-1, &fill);
+    lcd_draw_rect(0, UI_COL_W1-1, UI_ROW_H1-1, UI_ROW_H1-1+BORDER/2, &fill);
+    lcd_draw_rect(0, UI_COL_W1-1, UI_ROW_H2-1, UI_ROW_H2-1+BORDER/2, &fill);
+    lcd_draw_rect(UI_COL_W1-1+BORDER/2, WIDTH-1, HEIGHT/2-1, HEIGHT/2-1+BORDER/2, &fill);
+    
+    font.addr = alpha_E;
+    font.size = FONT_AREA;
+    bmp_size_up(&font, scale);
+    lcd_draw_rect(4*BORDER/2, 4*BORDER/2+(8*scale) - 1, 0, (12*scale)-1, &font);
 
-    /*lcd_draw_rect(UI_COL_W1-1, UI_COL_W1-1 + BORDER/2, 0, (HEIGHT)-1, &colors[14]);*/
+    font.addr = alpha_d;
+    font.size = FONT_AREA;
+    bmp_size_up(&font, scale);
+    lcd_draw_rect((8*scale)+ 4*BORDER/2, 4*BORDER/2+(2*8*scale) - 1, 0, (12*scale)-1, &font);
 
-    /*lcd_draw_rect(UI_COL_W2-1, UI_COL_W2-1 + BORDER/2, 0, (HEIGHT)-1, &colors[14]);*/
+    font.addr = alpha_i;
+    font.size = FONT_AREA;
+    bmp_size_up(&font, scale);
+    lcd_draw_rect((2*8*scale)+ 4*BORDER/2, (3*8*scale) + 4*BORDER/2 - 1, 0, (12*scale)-1, &font);
 
-    /*lcd_draw_rect(0, UI_COL_W1-1, UI_ROW_H1-1, UI_ROW_H1-1+BORDER/2, &colors[14]);*/
+    font.addr = alpha_t;
+    font.size = FONT_AREA;
+    bmp_size_up(&font, scale);
+    lcd_draw_rect((3*8*scale)+ BORDER/2, (4*8*scale) + BORDER/2 - 1, 0, (12*scale)-1, &font);
 
-    /*lcd_draw_rect(0, UI_COL_W1-1, UI_ROW_H2-1, UI_ROW_H2-1+BORDER/2, &colors[14]);*/
+    font.addr = alpha_T;
+    font.size = FONT_AREA;
+    bmp_size_up(&font, scale);
+    lcd_draw_rect(0+UI_COL_W1 + BORDER/2, UI_COL_W1+BORDER/2+(8*scale) - 1, 0, (12*scale)-1, &font);
 
-    /*lcd_draw_rect(UI_COL_W1-1+BORDER/2, WIDTH-1, HEIGHT/2-1, HEIGHT/2-1+BORDER/2, &colors[14]);*/
+    font.addr = alpha_e;
+    font.size = FONT_AREA;
+    bmp_size_up(&font, scale);
+    lcd_draw_rect((8*scale)+UI_COL_W1 + BORDER/2, UI_COL_W1 + BORDER/2+(2*8*scale) - 1, 0, (12*scale)-1, &font);
+
+    font.addr = alpha_m;
+    font.size = FONT_AREA;
+    bmp_size_up(&font, scale);
+    lcd_draw_rect((2*8*scale)+UI_COL_W1 + BORDER/2, (3*8*scale)+UI_COL_W1 + BORDER/2 - 1, 0, (12*scale)-1, &font);
+
+    font.addr = alpha_p;
+    font.size = FONT_AREA;
+    bmp_size_up(&font, scale);
+    lcd_draw_rect((3*8*scale)+UI_COL_W1 + BORDER/2, (4*8*scale)+UI_COL_W1 + BORDER/2 - 1, 18, (12*scale+18)-1, &font);
+
+    font.addr = alpha_H;
+    font.size = FONT_AREA;
+    bmp_size_up(&font, scale);
+    lcd_draw_rect((8*scale)+UI_COL_W2 + BORDER/2, UI_COL_W2 + BORDER/2+(2*8*scale) - 1, 0, (12*scale)-1, &font);
+
+    font.addr = alpha_u;
+    font.size = FONT_AREA;
+    bmp_size_up(&font, scale);
+    lcd_draw_rect((2*8*scale)+UI_COL_W2 + BORDER/2, (3*8*scale)+UI_COL_W2 + BORDER/2 - 1, 0, (12*scale)-1, &font);
+
+    font.addr = alpha_m;
+    font.size = FONT_AREA;
+    bmp_size_up(&font, scale);
+    lcd_draw_rect((3*8*scale)+UI_COL_W2 + BORDER/2, (4*8*scale)+UI_COL_W2 + BORDER/2 - 1, 0, (12*scale)-1, &font);
+
+    font.addr = alpha_L;
+    font.size = FONT_AREA;
+    bmp_size_up(&font, scale);
+    lcd_draw_rect((8*scale)+UI_COL_W1 + BORDER/2, UI_COL_W1+BORDER/2+(2*8*scale) - 1, 0+HEIGHT/2+BORDER/2, (12*scale)-1+HEIGHT/2+BORDER/2,  &font);
+
+    font.addr = alpha_e;
+    font.size = FONT_AREA;
+    bmp_size_up(&font, scale);
+    lcd_draw_rect((2*8*scale)+UI_COL_W1 + BORDER/2, UI_COL_W1 + BORDER/2+(3*8*scale) - 1, 0+HEIGHT/2+BORDER/2, (12*scale)-1+HEIGHT/2+BORDER/2, &font);
+
+    font.addr = alpha_d;
+    font.size = FONT_AREA;
+    bmp_size_up(&font, scale);
+    lcd_draw_rect((3*8*scale)+UI_COL_W1 + BORDER/2, (4*8*scale)+UI_COL_W1 + BORDER/2 - 1, 0+HEIGHT/2+BORDER/2, (12*scale)-1+HEIGHT/2+BORDER/2, &font);
+    
+    font.addr = alpha_F;
+    font.size = FONT_AREA;
+    bmp_size_up(&font, scale);
+    lcd_draw_rect((8*scale)+UI_COL_W2 + BORDER/2, UI_COL_W2 + BORDER/2+(2*8*scale) - 1, 0+HEIGHT/2+BORDER/2, (12*scale)-1+HEIGHT/2+BORDER/2, &font);
+
+    font.addr = alpha_a;
+    font.size = FONT_AREA;
+    bmp_size_up(&font, scale);
+    lcd_draw_rect((2*8*scale)+UI_COL_W2 + BORDER/2, (3*8*scale)+UI_COL_W2 + BORDER/2 - 1, 0+HEIGHT/2+BORDER/2, (12*scale)-1+HEIGHT/2+BORDER/2, &font);
+
+    font.addr = alpha_n;
+    font.size = FONT_AREA;
+    bmp_size_up(&font, scale);
+    lcd_draw_rect((3*8*scale)+UI_COL_W2 + BORDER/2, (4*8*scale)+UI_COL_W2 + BORDER/2 - 1, 0+HEIGHT/2+BORDER/2, (12*scale)-1+HEIGHT/2+BORDER/2, &font);
+
+    scale = 3;
+    font.addr = icon_gear1;
+    font.size = FONT_AREA;
+    bmp_size_up(&font, scale);
+    lcd_draw_rect(BORDER/2+UI_COL_W1/3, UI_COL_W1/3+BORDER/2+(8*scale)-1, UI_ROW_H1+UI_ROW_H1/4+BORDER/2-8, (12*scale)+UI_ROW_H1+BORDER/2+UI_ROW_H1/4-1-8, &font);
+
+    font.addr = icon_gear2;
+    font.size = FONT_AREA;
+    bmp_size_up(&font, scale);
+    lcd_draw_rect(BORDER/2+UI_COL_W1/3+(8*scale), UI_COL_W1/3+BORDER/2+(2*8*scale)-1, UI_ROW_H1+UI_ROW_H1/4+BORDER/2-8, (12*scale)+UI_ROW_H1+BORDER/2+UI_ROW_H1/4-1-8, &font);
+
+    font.addr = icon_gear3;
+    font.size = FONT_AREA;
+    bmp_size_up(&font, scale);
+    lcd_draw_rect(BORDER/2+UI_COL_W1/3, UI_COL_W1/3+BORDER/2+(8*scale)-1, UI_ROW_H1+UI_ROW_H1/4+BORDER/2+(12*scale)-8, (2*12*scale)+UI_ROW_H1+BORDER/2+UI_ROW_H1/4-1-8, &font);
+
+    font.addr = icon_gear4;
+    font.size = FONT_AREA;
+    bmp_size_up(&font, scale);
+    lcd_draw_rect(BORDER/2+UI_COL_W1/3+(8*scale), UI_COL_W1/3+BORDER/2+(2*8*scale)-1, UI_ROW_H1+UI_ROW_H1/4+BORDER/2+(12*scale)-8, (2*12*scale)+UI_ROW_H1+BORDER/2+UI_ROW_H1/4-1-8, &font);
+
+    scale = 4;
+    font.addr = icon_back;
+    font.size = FONT_AREA;
+    bmp_size_up(&font, scale);
+    lcd_draw_rect(BORDER/2+UI_COL_W1/3+8, UI_COL_W1/3+BORDER/2+(8*scale)-1+8, UI_ROW_H2+UI_ROW_H1/4+BORDER/2-8, (12*scale)+UI_ROW_H2+BORDER/2+UI_ROW_H1/4-1-8, &font);
+
 }
