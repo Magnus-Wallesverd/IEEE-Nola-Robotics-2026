@@ -6,6 +6,8 @@
 #include "spi.h"
 #include "dma.h"
 
+
+// reconfig for correct GPIO
 #define RST_HIGH() GPIOA->BSRR |= 1<<1
 #define CS_LOW() GPIOA->BSRR |= 1<<(16+4)
 #define CS_HIGH() GPIOA->BSRR |= 1<<4

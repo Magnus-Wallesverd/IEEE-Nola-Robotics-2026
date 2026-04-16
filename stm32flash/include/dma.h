@@ -5,6 +5,8 @@
 
 #include <stdint.h>
 
+// reconfig
+
 #define GIF1  1<<0 
 #define TCIF1 1<<1 
 #define HTIF1 1<<2 

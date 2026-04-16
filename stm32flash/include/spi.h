@@ -7,6 +7,8 @@
 
 #include "dma.h"
 
+// reconfig
+//
 #define SPI_EN 1<<6 
 #define SPI_OFF ~(1<<6)
 
