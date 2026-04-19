@@ -4,18 +4,15 @@
 #include <stdint.h>
 #include "i2c.h"
 #include "lcd.h"
-#include "motors.h"
 
-#define TASK_QUEUE_SIZE 5 
+#define TASK_QUEUE_SIZE 8 
+#define MOTOR_QUEUE_SIZE 16 
+#define TRANSPORT_QUEUE_SIZE 8 
 #define FUNC_POOL_SIZE 4
-#define MSG_POOL_SIZE 3
-#define MSG_QUEUE_SIZE 3 
-#define HIGH_QUEUE_MAX_TIME 10
-#define MID_QUEUE_MAX_TIME 20
-#define LOW_QUEUE_MAX_TIME 50
 
-
-typedef void (*func_t)(void* args);
+typedef void (*func_t)(void*);
+typedef int  (*transport_t)(void*);
+typedef int  (*motor_t)(void*);
 
 typedef struct{
     uint32_t size;
@@ -31,13 +28,36 @@ typedef struct {
     void* args;
 }work_item_t;
 
+typedef struct {
+    func_t fn;
+    void* args;
+}transport_item_t;
+
+
+typedef struct {
+    motor_t fn;
+    void* args;
+}motor_item_t;
+
+typedef struct{
+    int16_t args;
+    uint8_t speed;
+}motor_payload;
+
 extern queue_t* task_queue_ptr;
 extern queue_t* ready_queue_ptr;
+extern queue_t* transport_queue_ptr;
+extern queue_t* motor_queue_ptr;
+extern work_item_t producer_item;
 
 void enqueue(queue_t* q, void* args);
 void* dequeue(queue_t* q);
+
 void task_queue_init(void);
+void transport_queue_init(void);
+void motor_queue_init(void);
 void ready_queue_init(void);
 void priority_queue_init(void);
+void mass_enqueue(motor_t motor_table[], motor_payload motor_payload_table[], int size);
 
 #endif // !QUEUE_H

@@ -6,18 +6,24 @@
 #include "stm32f303.h"
 #include <stdint.h>
 
+work_item_t producer_item;
+motor_item_t motor_item;
+transport_item_t transport_item;
+
+
 uint32_t kernel_unblock_counter = 0;
 uint32_t global_tick = 0;
-uint32_t  task_flag = 0;
+uint32_t task_flag = 0;
+uint32_t transport_flag = 0;
+uint32_t motor_flag = 0;
+uint32_t transport_handler_counter = 0;
+uint32_t motor_handler_counter = 0;
 
 TCB _stcb[TCB_ARRAY_SIZE];
 TCB *current_tcb;
 TCB *next_tcb;
-
-static void* ready_array[TCB_ARRAY_SIZE];
-static queue_t ready_q;
-
-sem_t sem_blocked[TCB_ARRAY_SIZE];
+TCB* transport_tcb;
+TCB* usart_state_tcb;
 
 uint32_t get_global_tick(void){
     return global_tick;
@@ -38,21 +44,78 @@ void tcbinit(void){
 void worker_function(void){
     while(1){
 
-        work_item_t* item;
+        work_item_t* consumer_item;
         
         // take item off queue
         if(lock(&task_flag) == 1){
-            item = (work_item_t*)dequeue(task_queue_ptr);
+            consumer_item = (work_item_t*)dequeue(task_queue_ptr);
             unlock(&task_flag);
         } else { yield(); }
         
-        if(item == (void*)0){
+        if(consumer_item == (void*)0){
             yield();
         } else {
-            item->fn(item->args);
+            consumer_item->fn(consumer_item->args);
             yield();
         }
     }   
+}
+
+// add semaphore to gate scheduler overload
+
+void transport_handler(void* args){
+    (void) args;
+    transport_tcb = current_tcb;
+    transport_item_t* transport_item;
+    while(1){
+        if(transport_queue_ptr->count != 0){
+            transport_tcb->flags = 0;
+        }
+        // take item off queue
+        if(lock(&transport_flag) == 1){
+            transport_item = (transport_item_t*)dequeue(transport_queue_ptr);
+            unlock(&transport_flag);
+        } else { yield(); }
+        
+        if(transport_item == (void*)0){
+            yield();
+        } else {
+            transport_item->fn(transport_item->args);
+            block();
+        }
+        while(transport_queue_ptr->count == 0){
+            transport_tcb->flags = 1;
+            yield();
+        }
+        transport_handler_counter++;
+    }
+
+}
+
+void motor_handler(void* args){
+    (void) args;
+    motor_tcb = current_tcb;
+    motor_item_t* motor_item;
+    while(1){
+        if(motor_queue_ptr->count != 0){
+            motor_tcb->flags = 0;
+        }
+        // take item off queue
+        if(lock(&motor_flag) == 1){
+            motor_item = (motor_item_t*)dequeue(motor_queue_ptr);
+            unlock(&motor_flag);
+        } else { yield(); }
+        
+        if(motor_item == (void*)0){
+            yield();
+        } else {
+            motor_item->fn(motor_item->args);
+        }
+        motor_handler_counter++;
+        if(motor_queue_ptr->count == 0){
+            motor_tcb->flags = 1;
+        }
+    }
 }
 
 void kernel_tcb_unblock(TCB tcb[]){

@@ -15,18 +15,19 @@ void unblock(TCB* tcb){
     kernel_unblock_counter++;
 }
 
-void kernel_unblock(sem_t* s){
-    if(wait(s) == 1){
-        enqueue(ready_queue_ptr, s->item);
-    }
-}
-
 void flag_wait(TCB* tcb){
     tcb->flags--;
 }
 
 void flag_post(TCB* tcb){
     tcb->flags++;
+}
+
+void task_wait(uint32_t ticks){
+    uint32_t t0 = get_global_tick();
+    while(get_global_tick() < ticks + t0){
+        yield();
+    }
 }
 
 void idle_task(void* args){

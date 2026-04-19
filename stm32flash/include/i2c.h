@@ -1,7 +1,3 @@
-//this is the i2c.h header file 
-//
-
-
 #ifndef I2C_H
 #define I2C_H
 
@@ -13,14 +9,27 @@
 #define FAST_MODE 1
 #define FAST_MODE_PLUS 2
 
-#define BNO055 0x28
+#define BNO055_ADDR 0x28
+#define BNO055_RX_BUFFER_SIZE 64
+#define BNO055_TX_BUFFER_SIZE 1
 #define OPR_REG 0x3D
 #define NDOF_MODE 0xC
+#define SYS_CLK_STATUS 0x38
 #define HEADING_REG 0x1A
 #define HEADING_LSB 0
 #define HEADING_MSB 1
 #define HEADING_MAX_VALUE 5760
 
+
+#define VL53L1X_ADDR 0x29
+#define VL53L1X_ID   0x010F
+
+#define MAG_ADDR 0x0C
+#define MAG_START_MEASURE 0x3E
+#define MAG_READ_MEASURE 0x4E
+
+#define AUTOEND_OFF  ~(1<<25)
+#define AUTOEND_ON (1<<25)
 #define WRITE   ~(1<<10)
 #define READ    1<<10
 #define START   1<<13
@@ -58,26 +67,14 @@ typedef struct {
     volatile uint32_t TXDR;      // 0x28
 } I2C_TypeDef;
 
-typedef struct{
-    uint8_t nbytes;
-    uint8_t addr; 
-} i2c_transfer_data_t;
-
-typedef struct{
-    uint8_t msb_x;
-    uint8_t lsb_x;
-    uint8_t msb_y;
-    uint8_t lsb_y;
-    uint8_t msb_z;
-    uint8_t lsb_z;
-    i2c_transfer_data_t info;
-} X_Y_Z_Typedef;
-
-typedef struct{
-    uint8_t msb;
-    uint8_t lsb;
-    i2c_transfer_data_t info;
-} Heading_Typedef;
+typedef struct {
+    uint8_t  addr; 
+    uint16_t Op;
+    uint8_t* tx_buffer;
+    uint16_t tx_len;
+    uint8_t* rx_buffer;
+    uint16_t rx_len;
+} I2C_Dev;
 
 // Peripheral base addresses (APB1)
 #define I2C1 ((I2C_TypeDef *)0x40005400)
@@ -86,24 +83,38 @@ typedef struct{
 extern int bno_flag;
 extern int bno_ready;
 
+extern uint8_t i2c_rx_buffer[I2C_BUFFER_SIZE];
+extern uint8_t i2c_tx_buffer[I2C_BUFFER_SIZE];
+extern uint8_t bno_rx_buffer[BNO055_RX_BUFFER_SIZE];
+extern uint8_t bno_tx_buffer[BNO055_TX_BUFFER_SIZE];
+
+extern I2C_Dev*  BNO055;
+extern I2C_Dev*  VL53L1X;
+
+extern I2C_Dev* Current_Dev;
+
+extern uint16_t* ToF_Distance_p;
+extern int16_t bno_heading;
+extern int16_t mag_data[3];
+
 // I2C HAL function prototypes
 
 void I2C_Init(I2C_TypeDef* I2Cx, uint8_t mode);
 
-void I2C_Write(I2C_TypeDef* I2Cx, uint8_t nbytes);
+void Sensor_Write(I2C_TypeDef* I2Cx, uint16_t dev, uint8_t* tx_buf, uint16_t tx_len);
 
-void I2C_Read(I2C_TypeDef* I2Cx, uint8_t slave_addr, uint8_t nbytes);
-
-void I2C_Write_Read(I2C_TypeDef* I2Cx, uint8_t slave_addr, uint8_t nbytes, uint8_t reg);
-
-void Sensor_Read(I2C_TypeDef* I2Cx);
+void Sensor_Read(I2C_TypeDef* I2Cx, uint16_t dev, uint8_t* tx_buf, uint16_t tx_len, uint8_t* rx_buf, uint16_t rx_len);
 
 void Sensor_Read_Wrapper(void* args);
-
 void Sensor_Write_Wrapper(void* args);
+
+void get_ToF_Distance(void* args);
  
-void sensor_clock_init();
+void Sensor_Init(void);
+void bno055_init(void);
+void mag_init(void);
+
+void I2C_Wait(I2C_TypeDef* I2Cx);
 
 uint8_t* get_i2c_buffer();
 #endif // I2C_H
-

@@ -9,22 +9,53 @@
  * mem2per dir = 1 MAR,MSIZE,MINC
  * per2mem dir = 0 PAR,PSIZE,PINC
  * */
-// sylvia was here lol
 #include "spi.h"
+#include "ST7796S.h"
 #include "rcc.h"
 #include "gpio.h"
-#include "dma.h"
+#include "backend.h"
+#include "lock.h"
 
+SPI_Dev_t* SPI_Dev_p;
 
+uint32_t spi_tx_i = 0;
+
+void SPI1_IRQHandler(void){
+    
+    if(spi_tx_i < SPI_Dev_p->tx_len){
+        *((volatile uint8_t*)&SPI1->DR) = SPI_Dev_p->tx_buf[spi_tx_i++];
+    } else {
+        spi_tx_i = 0;
+        SPI1->CR2 &= ~SPI_TXEIE;
+    }
+
+    volatile uint8_t spi_rx = *((volatile uint8_t*)&SPI1->DR);
+    (void)spi_rx;
+}
 
 void spi_dma_init(SPI_TypeDef* SPIx){
-    SPIx->CR2 |= 1;
-    SPIx->CR2 |= 2;
-    configure_spi(SPIx);
+    SPIx->CR2 |= SPI_RXDMAEN;
+    SPIx->CR2 |= SPI_TXDMAEN;
 }
 
 void spi_enable(SPI_TypeDef* SPIx){
-    SPIx->CR1 |= (1<<6);
+    SPIx->CR1 |= SPI_EN;
+}
+
+void disable_spi(SPI_TypeDef* SPIx){
+    while((SPIx->SR & SPI_BSY) | (SPIx->SR & SPI_FTLVL)){
+        yield();
+    }
+    SPIx->CR1 &= SPI_OFF;
+    while(SPIx->SR & SPI_FRLVL){
+        uint8_t dummy = SPIx->DR;
+    }
+}
+
+void change_datasize(SPI_TypeDef* SPIx, uint8_t size){
+    disable_spi(SPIx);
+    set_datasize(SPIx,size);
+    spi_enable(SPIx);
 }
 
 void spi_reset(SPI_TypeDef* SPIx){
@@ -101,37 +132,51 @@ void cpha_select(SPI_TypeDef* SPIx, uint8_t mode){
     }
 }
 
-// sets buffer threshold to trigger RXNE event in status register
-void fifo_threshold(SPI_TypeDef* SPIx){
-    SPIx->CR2 |= (1<<12);
-}
-
 void set_datasize(SPI_TypeDef* SPIx, uint8_t size){
     if(size < 4 || size > 16){
         return;
     }
+    if(size == 8){
+        SPIx->CR2 |= SPI_FRXTH_B;
+    }
+    if(size == 16){
+        SPIx->CR2 &= SPI_FRXTH_HW;
+    }
+
+    SPIx->CR2 &= 0xF0FF;  //mask data size
     SPIx->CR2 |= ((size-1)<<8);  // datasize bits
+    
+
 }
 
 // init the spi
 void spi_init(SPI_TypeDef* SPIx, uint8_t ssm, uint16_t baud, uint8_t master, uint8_t cpol, uint8_t cpha){
+
     switch((uint32_t)SPIx){
+
         case (uint32_t)SPI1:
-            RCC->APB2ENR |= (1 << 12);
+            RCC->APB2ENR |= SPI1_EN;
+            NVIC->ISER1 |= 1<<3;
+            SetPinAlternate(GPIOA, PA5|PA7);
+            AlternateFunctionSet(GPIOA, PA5|PA7, 5);
             break;
+
         case (uint32_t)SPI2:
             RCC->APB1ENR |= (1 << 14);
             break;
+
         case (uint32_t)SPI3:
             RCC->APB1ENR |= (1 << 15);
             break;
+
         case (uint32_t)SPI4:
             RCC->APB2ENR |= (1 << 15);
             break;
     }
+        
         enable_ssm(SPIx, ssm);
-        fifo_threshold(SPIx);
-        set_datasize(SPIx, 16);
+        // fifo_threshold(SPIx);
+        set_datasize(SPIx, 8);
         set_baud(SPIx, baud);
         master_select(SPIx, master);
         cpol_select(SPIx, cpol);
@@ -140,27 +185,3 @@ void spi_init(SPI_TypeDef* SPIx, uint8_t ssm, uint16_t baud, uint8_t master, uin
         spi_enable(SPIx);
 }
 
-void send_receive_byte(SPI_TypeDef* SPIx, uint16_t twobyte){
-    GPIOA->ODR &= ~(1 << 4);
-    while(!(SPIx->SR & SPI_TXE));
-    while(!(SPIx->SR & SPI_TXE));
-    GPIOA->ODR |= (1 << 4);
-}
-
-void send_receive_wrapper(void* args){
-    (void)args;
-}
-
-void send_receive_dma_wrapper(void* args){
-    (void)args;
-    send_receive_byte(SPI1, 0xAAAA);
-}
-
-void dma_send_receive(void){
-    DMA->CCR2  |= 1;
-    DMA->CCR3  |= 1;
-    
-    DMA->CCR2  |= 0;
-    DMA->CCR3  |= 0;
-        
-}

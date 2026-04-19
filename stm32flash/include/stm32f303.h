@@ -17,11 +17,16 @@
 #include "gpio.h"
 #include "timx.h"
 #include "rcc.h"
+#include "dma.h"
 #include "exti.h"
 #include "syscfg.h"
 #include "lcd.h"
 #include "i2c.h"
 #include "motors.h"
 #include "usart.h"
+#include "semaphore.h"
+#include "parser.h"
+#include "spi.h"
+#include "ST7796S.h"
 
 #endif

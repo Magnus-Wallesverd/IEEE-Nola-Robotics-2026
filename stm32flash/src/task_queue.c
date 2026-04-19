@@ -1,31 +1,51 @@
 #include <stdint.h>
 #include "queue.h"
 #include "tcb.h"
+#include "usart.h"
+#include "lcd.h"
+#include "i2c.h"
+#include "spi.h"
+#include "lock.h"
+#include "motors.h"
+#include "dma.h"
+#include "statemachine.h"
+#include "ST7796S.h"
 
 queue_t task_queue;
 queue_t* task_queue_ptr = &task_queue;
+
+queue_t transport_queue;
+queue_t* transport_queue_ptr = &transport_queue;
+
+queue_t motor_queue;
+queue_t* motor_queue_ptr = &motor_queue;
+
 queue_t ready_queue;
 queue_t* ready_queue_ptr = &ready_queue;
+
 queue_t priority_queue;
 queue_t* priority_queue_ptr = &priority_queue;
 
 work_item_t task_pool[TASK_QUEUE_SIZE];
+transport_item_t transport_pool[TRANSPORT_QUEUE_SIZE];
+motor_item_t motor_pool[MOTOR_QUEUE_SIZE];
+
 void* task_queue_array[TASK_QUEUE_SIZE];
+void* transport_queue_array[TRANSPORT_QUEUE_SIZE];
+void* motor_queue_array[MOTOR_QUEUE_SIZE];
 void* ready_queue_array[TASK_QUEUE_SIZE];
 void* priority_queue_array[TASK_QUEUE_SIZE];
 
-// should start thinking of easier ways to get functions in here
 const func_t fn_table[] = {
-    lcd_print,
-    Sensor_Read_Wrapper,
-    // motor_wrapper
+    ST7796S_init,
+    /*DMA_Wrapper,*/
+    /*idle_task*/
 };
 
 void task_queue_init(void){
     task_queue_ptr->array = task_queue_array;
     task_queue_ptr->count = 0;
     task_queue_ptr->size  = TASK_QUEUE_SIZE;
-    /*task_queue_ptr->max_time = 0;*/
     task_queue_ptr->front = task_queue_ptr->array;
     task_queue_ptr->end   = task_queue_ptr->array;
     
@@ -39,6 +59,51 @@ void task_queue_init(void){
     for(unsigned int i = 0; i < sizeof(fn_table)/4; i++){
         enqueue(task_queue_ptr, &task_pool[i]);
     }
+
+}
+
+void transport_queue_init(void){
+
+    transport_queue_ptr->array = transport_queue_array;
+    transport_queue_ptr->count = 0;
+    transport_queue_ptr->size  = TRANSPORT_QUEUE_SIZE;
+    transport_queue_ptr->front = transport_queue_ptr->array;
+    transport_queue_ptr->end   = transport_queue_ptr->array;
+    
+}
+
+void motor_queue_init(void){
+
+    motor_queue_ptr->array = motor_queue_array;
+    motor_queue_ptr->count = 0;
+    motor_queue_ptr->size  = MOTOR_QUEUE_SIZE;
+    motor_queue_ptr->front = motor_queue_ptr->array;
+    motor_queue_ptr->end   = motor_queue_ptr->array;
+
+    // load a function pointers into a work item array
+    // for(unsigned int i = 0; i < sizeof(motor_table)/4; i++){
+    //     motor_pool[i].fn = motor_table[i];
+    //     motor_pool[i].args = (void*)(&motor_payload_table[i]);
+    // }
+    //
+    // // need to enqueue the address of the task
+    // for(unsigned int i = 0; i < sizeof(motor_table)/4; i++){
+    //     enqueue(motor_queue_ptr, &motor_pool[i]);
+    // }
+    
+}
+void mass_enqueue(motor_t motor_table[], motor_payload motor_payload_table[], int size){
+
+    for(int i = 0; i < size; i++){
+        motor_pool[i].fn = motor_table[i];
+        motor_pool[i].args = (void*)(&motor_payload_table[i]);
+    }
+
+    // need to enqueue the address of the task
+    for(int i = 0; i < size; i++){
+        enqueue(motor_queue_ptr, &motor_pool[i]);
+    }
+
 }
 
 void ready_queue_init(void){

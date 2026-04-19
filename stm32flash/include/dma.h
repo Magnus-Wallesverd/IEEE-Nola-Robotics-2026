@@ -1,72 +1,106 @@
 #ifndef DMA_H
 #define DMA_H
 
-#include "spi.h"
+#include "rcc.h"
 
 #include <stdint.h>
 
-#define DMA_I2C1_RX 6 
-#define DMA_I2C1_TX 7 
+// reconfig
+
+#define GIF1  1<<0 
+#define TCIF1 1<<1 
+#define HTIF1 1<<2 
+#define TEIF1 1<<3 
+#define GIF2  1<<4 
+#define TCIF2 1<<5 
+#define HTIF2 1<<6 
+#define TEIF2 1<<7 
+#define GIF3  1<<8 
+#define TCIF3 1<<9 
+#define HTIF3 1<<10 
+#define TEIF3 1<<11 
+#define GIF4  1<<12 
+#define TCIF4 1<<13 
+#define HTIF4 1<<14 
+#define TEIF4 1<<15 
+#define GIF5  1<<16 
+#define TCIF5 1<<17 
+#define HTIF5 1<<18 
+#define TEIF5 1<<19 
+#define GIF6  1<<20 
+#define TCIF6 1<<21 
+#define HTIF6 1<<22 
+#define TEIF6 1<<23 
+#define GIF7  1<<24 
+#define TCIF7 1<<25 
+#define HTIF7 1<<26 
+#define TEIF7 1<<27 
+
+#define MSIZE_B     0
+#define MSIZE_HW    1<<10
+#define MSIZE_W     2<<10
+
+#define PSIZE_B     0 
+#define PSIZE_HW    1<<8
+#define PSIZE_W     2<<8
+
+#define MINC_EN    1<<7
+#define MINC_OFF   0
+#define PINC_EN    1<<6
+#define PINC_OFF   0
+
+#define DIR_Per2Mem   0
+#define DIR_Mem2Per   1<<4
+
+#define DMA_TEIE 1<<3
+#define DMA_HTIE 1<<2
+#define DMA_TCIE 1<<1
+
+#define CCR_EN     1<<0
+#define CCR_OFF  ~(1<<0)
+
+#define TRANSFER_MASK 0xF01E
+#define MAX_TRANSFER  0xFFFF
+
+#define SPI1_ADDR 0x40013000
+#define SPI2_ADDR 0x40003800
+#define SPI3_ADDR 0x40003C00
+#define SPI4_ADDR 0x40013C00
+#define DATA_REG_OFFSET 0xC
 
 typedef struct{
     volatile uint32_t ISR;          //0x00
     volatile uint32_t IFCR;         //0x04
-                                
-    volatile uint32_t CCR1;         //0x08
-    volatile uint32_t CNDTR1;       //0X0C
-    volatile uint32_t CPAR1;        //0x10
-    volatile uint32_t CMAR1;        //0x14
-    volatile uint32_t Reserved1;    //0x18
-                               
-    volatile uint32_t CCR2;         //0x1C
-    volatile uint32_t CNDTR2;       //0x20
-    volatile uint32_t CPAR2;        //0x24
-    volatile uint32_t CMAR2;        //0x28
-    volatile uint32_t Reserved2;    //0x2C
-                                   
-    volatile uint32_t CCR3;         //0x30
-    volatile uint32_t CNDTR3;       //0x34
-    volatile uint32_t CPAR3;        //0x38
-    volatile uint32_t CMAR3;        //0x3C
-    volatile uint32_t Reserved3;    //0x40
+} DMA_Status_t;
 
-    volatile uint32_t CCR4;         //0x44
-    volatile uint32_t CNDTR4;       //0x48
-    volatile uint32_t CPAR4;        //0x4C
-    volatile uint32_t CMAR4;        //0x50
-    volatile uint32_t Reserved4;    //0x54
-	
-    volatile uint32_t CCR5;         //0x58
-    volatile uint32_t CNDTR5;       //0x5C
-    volatile uint32_t CPAR5;        //0x60
-    volatile uint32_t CMAR5;        //0x64
-    volatile uint32_t Reserved5;    //0x68
-	
-    volatile uint32_t CCR6;         //0x6C
-    volatile uint32_t CNDTR6;       //0x70
-    volatile uint32_t CPAR6;        //0x74
-    volatile uint32_t CMAR6;        //0x78
-    volatile uint32_t Reserved6;    //0x7C
-				 
-    volatile uint32_t CCR7;         //0x80
-    volatile uint32_t CNDTR7;       //0x84
-    volatile uint32_t CPAR7;        //0x88
-    volatile uint32_t CMAR7;        //0x8C
-
+typedef struct DMA_Channel{
+    volatile uint32_t CCR;         //0x08
+    volatile uint32_t CNDTR;       //0X0C
+    volatile uint32_t CPAR;        //0x10
+    volatile uint32_t CMAR;        //0x14
+    volatile uint32_t Reserved;    //0x18
 } DMA_TypeDef;
 
-//unused
-typedef enum {
-    SPI1_RX = 2,
-    SPI1_TX,
-    SPI2_RX,
-    SPI2_TX
-}DMA1_SPI;
+#define DMA1_Status_Reg ((DMA_Status_t *)  0x40020000)
+#define DMA1_CH1        ((DMA_TypeDef *)   0x40020008)
+#define DMA1_CH2        ((DMA_TypeDef *)   0x4002001C)
+#define DMA1_CH3        ((DMA_TypeDef *)   0x40020030)
+#define DMA1_CH4        ((DMA_TypeDef *)   0x40020044)
+#define DMA1_CH5        ((DMA_TypeDef *)   0x40020058)
+#define DMA1_CH6        ((DMA_TypeDef *)   0x4002006C)
+#define DMA1_CH7        ((DMA_TypeDef *)   0x40020080)
 
-#define DMA ((DMA_TypeDef *) 0x40020000)
-#define DMA2 ((DMA2_TypeDef *) 0x40020400)
+#define DMA2_Status_Reg ((DMA2_Status_t *) 0x40020400)
+#define DMA2_CH1        ((DMA_TypeDef *)   0x40020408)
+#define DMA2_CH2        ((DMA_TypeDef *)   0x4002041C)
+#define DMA2_CH3        ((DMA_TypeDef *)   0x40020430)
+#define DMA2_CH4        ((DMA_TypeDef *)   0x40020444)
+#define DMA2_CH5        ((DMA_TypeDef *)   0x40020458)
  
-void dma_channel_init();
-void configure_spi(SPI_TypeDef* SPIx);
+void DMA1_Init(void);
+void configure_dma_spi(uint32_t spi_addr);
+void DMA_Transfer(DMA_TypeDef* CH, uint16_t msize, uint16_t psize, uint8_t minc, uint16_t len, uint32_t* maddr);
+void DMA_TXRX_Transfer(DMA_TypeDef* CH_RX, DMA_TypeDef* CH_TX, uint16_t msize, uint16_t psize, uint8_t minc_rx, uint8_t minc_tx, uint16_t len, uint16_t* maddr_rx, uint16_t* maddr_tx);
+void DMA_Wrapper(void* args);
 
 #endif

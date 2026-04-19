@@ -5,6 +5,11 @@
 #include "gpio.h"
 #include "rcc.h"
 #include "backend.h"
+#include "parser.h"
+#include "semaphore.h"
+#include "queue.h"
+#include "tcb.h"
+#include "motors.h"
 
 #define UE      (1<<0)
 #define RE      (1<<2)
@@ -14,6 +19,10 @@
 #define USART_TCIE    (1<<6)
 #define USART_TXEIE   (1<<7)
 #define USART_RTOIE   (1<<26)
+#define USART_FE      (1<<1)
+#define USART_FECF     (1<<1)
+#define USART_ORE  (1<<3)
+#define USART_ORECF (1<<3)
 
 #define EIE     (1<<0)
 
@@ -26,9 +35,19 @@
 
 #define RATE 115200
 #define USART_BRR FCLK/RATE
-#define USART_BUF_SIZE 8
+#define USART_TX_BUF_SIZE 4
+#define USART_RX_BUF_SIZE 4
+
+#define USART_HEADER 0xAA
+#define USART_FOOTER 0x55
+#define USART_FRAME_SIZE 4
 
 #define CR1_SETUP UE|TE|RE
+
+enum usart_state{
+    USART_INACTIVE=0,
+    USART_ACTIVE
+};
 
 typedef struct{
     volatile uint32_t CR1;    //0x00
@@ -48,7 +67,15 @@ typedef struct{
     USART_Typedef* USARTx;
     uint8_t* tx_buffer_p;
     uint8_t* rx_buffer_p;
+    parser_t* parser;
+    dispatcher_t* dispatch;
 } usart_t;
+
+typedef struct{
+    uint8_t f_ID;
+    uint8_t LSB;
+    uint8_t MSB;
+}usart_payload;
 
 #define USART1 ((USART_Typedef *) 0x40013800)
 #define USART2 ((USART_Typedef *) 0x40004400)
@@ -56,9 +83,22 @@ typedef struct{
 #define UART4  ((USART_Typedef *) 0x40004C00)
 #define UART5  ((USART_Typedef *) 0x40005000)
 
+extern uint8_t package[USART_TX_BUF_SIZE];
+extern int tx_counter;
+extern int rx_flag;
+extern sem_t usart_sema;
+extern uint8_t start_detected;
+
 void usart_init(USART_Typedef* USARTx, GPIO_TypeDef* port, uint32_t pins, uint32_t baud);
-void load_tx(void);
+void usart_load_tx(void* args);
+// void usart_load_tx(uint8_t f_ID, uint8_t MSB, uint8_t LSB);
 void usart_begin(void* args);
+void transport_handler(void* args);
+extern uint8_t usart_rx_buffer[USART_RX_BUF_SIZE];
+void usart_state_update(void* args);
+
 usart_t* get_usart_t(void);
+uint8_t* get_usart_rx(void);
+
 
 #endif // !USART_H
