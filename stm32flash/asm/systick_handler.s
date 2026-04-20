@@ -20,9 +20,9 @@ SysTick_Handler:
     cmp r1, r3
     blo buhn 
 
-    ldr r2, [r4, #160]   // grabs the priority register
+    ldr r2, [r4, #304]   // grabs the priority register
     orr r2, r2, #(1<<31)  // activate timer task
-    str r2, [r4, #160]
+    str r2, [r4, #304]
     b switch
 
 buhn:
@@ -30,7 +30,7 @@ buhn:
     ldr r5, [r5]
     ldrb r2, [r5, #9] // grab current task priroirty store in r2
 
-    ldr r1, [r4, #160] //check priorityBit queue
+    ldr r1, [r4, #304] //check priorityBit queue
     clz  r3, r1
     rsb r3, r3, #31
 

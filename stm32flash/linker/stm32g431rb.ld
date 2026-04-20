@@ -36,55 +36,22 @@ SECTIONS
     _edata = .;
   } > RAM AT > FLASH
 
-  .task_stacks (NOLOAD) : 
-  { 
-   
-    . = ALIGN(8);
-
-    _thread_block_start = .;
-
-    _thread1_start = .;
-    . += 0x400;
-    _thread2_start = .;
-    . += 0x400;
-    _thread3_start = .;
-    . += 0x400;
-    _thread4_start = .;
-    . += 0x400;
-    _thread5_start = .;
-    . += 0x400;
-    _thread6_start = .;
-    . += 0x400;
-    _thread7_start = .;
-    . += 0x400;
-    _thread8_start = .;
-    . += 0x400;
-    _thread9_start = .;
-    . += 0x400;
-    _thread10_start = .;
-    . += 0x400;
-
-    _thread_block_end = .;
-    . = ALIGN(8);
-  
-  } > RAM 
-
   .process_block :
   {
     . = ALIGN(4);
     _process1 = .;
-    . += 256;
+    . += 512;
     _process2 = .;
-    . += 256;
+    . += 512;
     _process3 = .;
-    . += 256;
+    . += 512;
     _process4 = .;
-    . += 256;
+    . += 512;
     _process5 = .;
-    . += 256;
+    . += 512;
     _endblock = .;
     _shareblock = .;
-    . += 256;
+    . += 512;
 
     _endshare = .;
 

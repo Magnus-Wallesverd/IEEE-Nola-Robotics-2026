@@ -12,7 +12,7 @@ static int i =0;
 int32_t dummy =0;
 int32_t dummy2 =0;
 int32_t dummy3 =0;
-Manager* deb  =((Manager*)(&_process1 + 32));
+Manager* deb  =((Manager*)(&_process1 + 68));
 threads* tasklist[5] = {
     task1,
     task2,
@@ -115,7 +115,7 @@ void ready(int k){
 
 __attribute__((naked)) void task_manager(void* args){
     q_up(&global_pos);
-    /*q_up(&dht_rapper);*/
+    q_up(&bmp_size_up);
     NVIC->ISER0 |= 0xFFFFFFFF;
     /*NVIC->ISER1 |= 0xFFFFFFFF;*/
     /*NVIC->ISER2 |= 0xFFFFFFFF;*/
@@ -144,7 +144,7 @@ __attribute__((naked)) void task_manager(void* args){
         mem->r4 = 31- __builtin_clz(mem->set_prior);
         if(mem->r4 != 255){   //set priority 
             unready(mem->r4);
-            tasklist[mem->r4]->status &= ~(0b1111 << 8); //clear priority
+            tasklist[mem->r4]->status &= ~(0xFF << 8); //clear priority
             tasklist[mem->r4]->status |= ( mem->r5 << 8); //set priority
             ready(mem->r4);
             mem->set_prior &=~(1 << mem->r4);

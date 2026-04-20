@@ -514,12 +514,13 @@ void global_pos(void* args){
     // int16_t x1 = 9999;
     // int16_t arg =0;
     // int16_t dispx = x1 -x;
-    cpu_time(3);
+    int p =0;
     set_priority(10);
 
     while(1){
-        wait(2);
-
+        step2(1000);
+        p ++;
+        wait(100);
     };
     // target_h = 1440*(dispx > 0) + 4320*(dispx < 0 );
     // for(int i = 0; i < x1/11 + 1 ; i++){

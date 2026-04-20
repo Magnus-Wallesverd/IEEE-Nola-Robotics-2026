@@ -34,13 +34,13 @@ typedef struct { //should be 64 reg or 256 bytes for each task
      uint32_t status;
      uint32_t fn;
      uint32_t alloc;    //important reg
-     uint32_t context[28];
-     uint32_t data[32];
+     uint32_t context[64];
+     uint32_t data[60];
 
 } threads;
 extern threads* current_t;
 extern threads* tasklist[];
-#define mem ((Manager*)(&_process1 + 32))
+#define mem ((Manager*)(&_process1 + 68))
 #define task1 ((threads*)(&_process1))
 #define task2 ((threads*)(&_process2))
 #define task3 ((threads*)(&_process3))
@@ -54,4 +54,5 @@ void wait(uint32_t ticks);
 void unready(int k);
 void ready(int k);
 void set_priority(uint8_t num);
+void bmp_size_up(void* args);
 #endif
