@@ -68,6 +68,18 @@ SECTIONS
     . = ALIGN(8);
   
   } > RAM 
+
+  .heap (NOLOAD) :
+  {
+
+    . = ALIGN(8);
+    _heap_start = .
+    . += 0x400;
+    _heap_end = .
+
+    . = ALIGN(8);
+
+  } > RAM
  
   /* .node_heap (NOLOAD) : */
   /* { */
