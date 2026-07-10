@@ -33,22 +33,14 @@ void euler_rhythm(int* array, int total_beats, int hits){
 
 void print_rhythm(int* array, int size){
 
-    printf("[ ");
-
-    for(int i = 0; i < size; ++i){
-        printf("%d ", array[i]);
-    }
-
-    printf("]\n");
-
 }
 
 int euler_main()
 {
     int rhythm[32] = {0};
-    int total_beats = *argv[1]-0x30;
-    int hits = *argv[2]-0x30;
-    int shift = *argv[3] - 0x30;
+    int total_beats = 8;
+    int hits = 3;
+    int shift;
 
     euler_rhythm(rhythm, total_beats,  hits);
     
