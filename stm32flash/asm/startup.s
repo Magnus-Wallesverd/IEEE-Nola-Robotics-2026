@@ -146,7 +146,7 @@ zero_bss:
   bl tcbinit
   bl task_queue_init
   bl systeminit
-  bl lcd_init
+  /* bl lcd_init*/
 
 set_global:
   ldr r0, =_stcb

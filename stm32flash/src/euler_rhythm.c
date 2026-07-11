@@ -1,4 +1,5 @@
 #include <stdint.h>
+#include "euler_rhythm.h"
 
 
 void rotate(int* array, int size, int shift){
@@ -31,23 +32,15 @@ void euler_rhythm(int* array, int total_beats, int hits){
     rotate(array, total_beats, total_beats-1);
 }
 
-void print_rhythm(int* array, int size){
-
-}
-
-int euler_main()
-{
+void euler_rhythm_task(void* args){
+    (void)args;
     int rhythm[32] = {0};
     int total_beats = 8;
     int hits = 3;
     int shift;
 
     euler_rhythm(rhythm, total_beats,  hits);
-    
-    print_rhythm(rhythm, total_beats);
 
-    // rotate(rhythm, total_beats, shift);
+    while(1);
 
-
-    return 0;
 }

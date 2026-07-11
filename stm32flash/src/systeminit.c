@@ -6,7 +6,7 @@ void systeminit(void){
 
     // systic interrupt init
     STK->CTRL |= 0x6;
-    STK->LOAD |= 0x1F3F;
+    STK->LOAD |= 0x7CFF;
     
     // priority set
     SCB->SHPR3 |= 0xE0F00000;
@@ -17,18 +17,7 @@ void systeminit(void){
     
     RCC->AHBENR |= 0xE0000;                   // enable GPIO ABC  clock 
 
-
-    // enable timer 16 and 17 interrupt
-    NVIC->ISER0 |= (1 << 25) | 1 << 26;
- 
-    // enable i2c interrupt
-    NVIC->ISER0 |= 1<<31;
-    
     ready_queue_init();
     priority_queue_init();
     
-    // enable timer 16 interrupt
-    // NVIC->ISER0 |= (1 << 25);
- 
-    // usart_init(USART1, GPIOC,PC4|PC5,115200);
 }

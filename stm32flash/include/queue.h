@@ -5,6 +5,7 @@
 #include "i2c.h"
 #include "lcd.h"
 #include "motors.h"
+#include "euler_rhythm.h"
 
 #define TASK_QUEUE_SIZE 5 
 #define FUNC_POOL_SIZE 4
